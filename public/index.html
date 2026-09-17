@@ -251,7 +251,7 @@ let devices = JSON.parse(localStorage.getItem('lyx_devices') || '[]');
 let currentDeviceId = null;
 let blockedApps = JSON.parse(localStorage.getItem('lyx_blocked') || '{}');
 
-const API_BASE = "http://localhost:3000"; // Ganti dengan server backend Tuan
+const API_BASE = "https://lyx-server-production-bc16.up.railway.app"; // Ganti dengan server backend Tuan
 
 /* ==================== TOAST ==================== */
 function showToast(msg, isError=false){
