@@ -1,129 +1,63 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+const fs = require('fs');
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+
+/* Serve static dari BEBERAPA lokasi (antisipasi file di root atau di public) */
 app.use(express.static('public'));
+app.use(express.static(__dirname));
+app.use(express.static(path.join(__dirname, 'public')));
 
 let pairingCodes = {};
 let devices = [];
 
-/* ==================== PAIRING ==================== */
 app.post('/api/generate-pairing', (req, res) => {
-  try {
-    const code = req.body.code;
-    if (!code) return res.json({ success: false, message: 'Code required' });
-    pairingCodes[code] = { used: false, createdAt: Date.now() };
-    console.log('Pairing code:', code);
-    res.json({ success: true, code: code });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
+  const code = req.body.code;
+  if (!code) return res.json({ success: false });
+  pairingCodes[code] = { used: false };
+  res.json({ success: true, code: code });
 });
 
-/* ==================== REGISTER DEVICE ==================== */
 app.post('/api/register-device', (req, res) => {
-  try {
-    const code = req.body.code;
-    const name = req.body.name || 'Unknown';
-    const model = req.body.model || 'Unknown';
-    const os = req.body.os || 'Unknown';
-    const type = req.body.type || 'android';
+  const code = req.body.code;
+  if (!pairingCodes[code]) return res.json({ success: false, message: 'Code invalid' });
+  if (pairingCodes[code].used) return res.json({ success: false, message: 'Code used' });
 
-    if (!pairingCodes[code]) {
-      return res.json({ success: false, message: 'Code invalid' });
-    }
-    if (pairingCodes[code].used) {
-      return res.json({ success: false, message: 'Code used' });
-    }
-
-    const device = {
-      id: 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-      name: name,
-      model: model,
-      os: os,
-      type: type,
-      pairedAt: Date.now(),
-      commands: []
-    };
-
-    devices.push(device);
-    pairingCodes[code].used = true;
-
-    console.log('Device registered:', device.name, device.id);
-    res.json({ success: true, deviceId: device.id });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
+  const device = {
+    id: 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    name: req.body.name || 'Unknown',
+    model: req.body.model || 'Unknown',
+    os: req.body.os || 'Unknown',
+    type: req.body.type || 'android',
+    commands: []
+  };
+  devices.push(device);
+  pairingCodes[code].used = true;
+  res.json({ success: true, deviceId: device.id });
 });
 
-/* ==================== LIST DEVICES ==================== */
 app.get('/api/devices', (req, res) => {
-  res.json(devices.map(d => ({
-    id: d.id,
-    name: d.name,
-    model: d.model,
-    os: d.os,
-    type: d.type
-  })));
+  res.json(devices.map(d => ({ id: d.id, name: d.name, model: d.model, os: d.os, type: d.type })));
 });
 
-/* ==================== COMMAND (universal) ==================== */
 app.post('/api/command', (req, res) => {
-  try {
-    const deviceId = req.body.deviceId;
-    const type = req.body.type;
-    const extra = {};
-    for (let k in req.body) {
-      if (k !== 'deviceId' && k !== 'type') extra[k] = req.body[k];
-    }
-
-    const device = devices.find(d => d.id === deviceId);
-    if (!device) return res.json({ success: false, message: 'Device not found' });
-
-    const cmd = { type: type, id: Date.now() };
-    for (let k in extra) cmd[k] = extra[k];
-
-    device.commands.push(cmd);
-    console.log('Command sent:', type, 'to', device.name);
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
-});
-
-/* ==================== BACKWARD COMPAT ==================== */
-app.post('/api/lock', (req, res) => {
   const deviceId = req.body.deviceId;
-  const html = req.body.html;
-  const action = req.body.action;
+  const type = req.body.type;
   const device = devices.find(d => d.id === deviceId);
   if (!device) return res.json({ success: false });
-  if (action === 'unlock') {
-    device.commands.push({ type: 'unlock', id: Date.now() });
-  } else {
-    device.commands.push({ type: 'lock', html: html || '', id: Date.now() });
+
+  const cmd = { type: type, id: Date.now() };
+  for (let k in req.body) {
+    if (k !== 'deviceId' && k !== 'type') cmd[k] = req.body[k];
   }
+  device.commands.push(cmd);
   res.json({ success: true });
 });
 
-app.post('/api/block-app', (req, res) => {
-  const deviceId = req.body.deviceId;
-  const appName = req.body.appName;
-  const message = req.body.message;
-  const device = devices.find(d => d.id === deviceId);
-  if (!device) return res.json({ success: false });
-  device.commands.push({
-    type: 'blockapp',
-    appName: appName,
-    message: message,
-    id: Date.now()
-  });
-  res.json({ success: true });
-});
-
-/* ==================== AGENT POLLING ==================== */
 app.get('/api/agent/commands/:deviceId', (req, res) => {
   const device = devices.find(d => d.id === req.params.deviceId);
   if (!device) return res.json({ commands: [] });
@@ -132,12 +66,30 @@ app.get('/api/agent/commands/:deviceId', (req, res) => {
   res.json({ commands: cmds });
 });
 
-/* ==================== ROOT ==================== */
+/* ROOT → index.html */
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+  const paths = [
+    path.join(__dirname, 'public', 'index.html'),
+    path.join(__dirname, 'index.html')
+  ];
+  for (let p of paths) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  res.send('Lyx Server OK - tapi index.html gak ditemukan');
 });
 
-/* ==================== START ==================== */
+/* /agent.html → cek di public/ atau root */
+app.get('/agent.html', (req, res) => {
+  const paths = [
+    path.join(__dirname, 'public', 'agent.html'),
+    path.join(__dirname, 'agent.html')
+  ];
+  for (let p of paths) {
+    if (fs.existsSync(p)) return res.sendFile(p);
+  }
+  res.status(404).send('agent.html gak ditemukan');
+});
+
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, function() {
   console.log('LYX SERVER RUNNING ON PORT ' + PORT);
