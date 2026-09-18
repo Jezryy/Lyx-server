@@ -1,5 +1,5 @@
 /* ============================================================
-   LYX SERVER - WebSocket Relay + Pairing
+   LYX SERVER — Railway Ready
    Author: ZAMZZZ
    ============================================================ */
 
@@ -14,29 +14,38 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 3000;
+const HOST = '0.0.0.0';
 
 /* ---------- STATIC ---------- */
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
+/* ---------- ROOT ---------- */
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+/* ---------- HEALTHCHECK ---------- */
+app.get('/health', (req, res) => {
+  res.json({ ok: true, uptime: process.uptime() });
+});
+
 /* ---------- STATE ---------- */
-const pairings = new Map();   // code -> { createdAt, deviceId, used }
-const devices  = new Map();   // deviceId -> { ws, meta, features }
-const panels   = new Set();   // Set<ws> untuk panel (index.html)
+const pairings = new Map();
+const devices  = new Map();
+const panels   = new Set();
 
 /* ---------- HELPER ---------- */
 function genCode(len = 6){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  let s = '';
   const buf = crypto.randomBytes(len);
+  let s = '';
   for (let i = 0; i < len; i++) s += chars[buf[i] % chars.length];
   return s;
 }
-
 function genDeviceId(){
   return 'DEV-' + crypto.randomBytes(3).toString('hex').toUpperCase();
 }
-
 function broadcastToPanels(obj){
   const data = JSON.stringify(obj);
   for (const ws of panels){
@@ -45,28 +54,17 @@ function broadcastToPanels(obj){
 }
 
 /* ============================================================
-   REST API — dipakai panel index.html
+   REST API
 ============================================================ */
-
-/* 1) Generate pairing code baru */
 app.post('/api/pair/generate', (req, res) => {
   let code;
   do { code = genCode(6); } while (pairings.has(code));
-
-  pairings.set(code, {
-    createdAt: Date.now(),
-    deviceId: null,
-    used: false
-  });
-
-  // auto-expire 10 menit
+  pairings.set(code, { createdAt: Date.now(), deviceId: null, used: false });
   setTimeout(() => pairings.delete(code), 10 * 60 * 1000);
-
   console.log('[PAIR] New code:', code);
   res.json({ ok: true, code });
 });
 
-/* 2) Cek apakah code valid (dipakai agent) */
 app.get('/api/pair/:code', (req, res) => {
   const code = (req.params.code || '').toUpperCase();
   const entry = pairings.get(code);
@@ -75,7 +73,6 @@ app.get('/api/pair/:code', (req, res) => {
   res.json({ ok: true });
 });
 
-/* 3) List semua device (untuk refresh manual di panel) */
 app.get('/api/devices', (req, res) => {
   const list = [];
   for (const [id, d] of devices){
@@ -84,28 +81,21 @@ app.get('/api/devices', (req, res) => {
   res.json({ ok: true, devices: list });
 });
 
-/* 4) Kirim command dari panel ke device target */
 app.post('/api/command', (req, res) => {
   const { device, feature, data } = req.body || {};
   const d = devices.get(device);
   if (!d || d.ws.readyState !== 1){
     return res.json({ ok: false, reason: 'DEVICE_OFFLINE' });
   }
-  const payload = JSON.stringify({
-    type: 'command',
-    feature,
-    data,
-    ts: Date.now()
-  });
-  d.ws.send(payload);
+  d.ws.send(JSON.stringify({ type: 'command', feature, data, ts: Date.now() }));
   console.log('[CMD]', device, feature, JSON.stringify(data));
   res.json({ ok: true });
 });
 
 /* ============================================================
-   WEBSOCKET — panel & agent
+   WEBSOCKET
 ============================================================ */
-wss.on('connection', (ws, req) => {
+wss.on('connection', (ws) => {
   ws.isAlive = true;
   ws.role = null;
   ws.deviceId = null;
@@ -114,14 +104,12 @@ wss.on('connection', (ws, req) => {
 
   ws.on('message', (raw) => {
     let msg;
-    try { msg = JSON.parse(raw.toString()); }
-    catch { return; }
+    try { msg = JSON.parse(raw.toString()); } catch { return; }
 
-    /* ---------- PANEL (index.html) ---------- */
+    /* ---------- PANEL ---------- */
     if (msg.type === 'panel_hello'){
       ws.role = 'panel';
       panels.add(ws);
-      // kirim list device yang udah pairing
       const list = [];
       for (const [id, d] of devices){
         list.push({ id, name: d.meta.name, os: d.meta.os });
@@ -131,7 +119,7 @@ wss.on('connection', (ws, req) => {
       return;
     }
 
-    /* ---------- AGENT (aplikasi target) ---------- */
+    /* ---------- AGENT PAIRING ---------- */
     if (msg.type === 'agent_pair'){
       const code = (msg.code || '').toUpperCase();
       const entry = pairings.get(code);
@@ -154,10 +142,8 @@ wss.on('connection', (ws, req) => {
 
       entry.used = true;
       entry.deviceId = deviceId;
-
       ws.role = 'agent';
       ws.deviceId = deviceId;
-
       devices.set(deviceId, { ws, meta, features: {} });
 
       ws.send(JSON.stringify({
@@ -167,7 +153,6 @@ wss.on('connection', (ws, req) => {
         message: 'PAIRING SUCCESS'
       }));
 
-      // broadcast ke semua panel
       broadcastToPanels({
         type: 'device_paired',
         device: { id: deviceId, name: meta.name, os: meta.os }
@@ -177,9 +162,8 @@ wss.on('connection', (ws, req) => {
       return;
     }
 
-    /* ---------- AGENT LAPOR (status, hasil command, dll) ---------- */
+    /* ---------- AGENT EVENT ---------- */
     if (ws.role === 'agent' && ws.deviceId){
-      // teruskan ke panel
       broadcastToPanels({
         type: 'agent_event',
         deviceId: ws.deviceId,
@@ -199,7 +183,6 @@ wss.on('connection', (ws, req) => {
   });
 });
 
-/* ---------- HEARTBEAT ---------- */
 setInterval(() => {
   wss.clients.forEach((ws) => {
     if (ws.isAlive === false) return ws.terminate();
@@ -209,10 +192,11 @@ setInterval(() => {
 }, 30000);
 
 /* ---------- START ---------- */
-server.listen(PORT, () => {
+server.listen(PORT, HOST, () => {
   console.log(`\n========================================`);
   console.log(`  LYX SERVER RUNNING`);
-  console.log(`  http://localhost:${PORT}`);
+  console.log(`  Port: ${PORT}`);
+  console.log(`  Domain: https://lyx-server-production-16ea.up.railway.app`);
   console.log(`  Panel : /index.html`);
   console.log(`  Agent : /agent.html`);
   console.log(`========================================\n`);
