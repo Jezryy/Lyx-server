@@ -1,7 +1,8 @@
 /* ============================================================
-   LYX SERVER — Railway Ready
+   LYX SERVER — WebSocket Relay + Pairing
    Author: ZAMZZZ
-   ============================================================ */
+   Railway-ready
+============================================================ */
 
 const express = require('express');
 const http = require('http');
@@ -14,38 +15,28 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server });
 
 const PORT = process.env.PORT || 3000;
-const HOST = '0.0.0.0';
 
-/* ---------- STATIC ---------- */
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.json());
 
-/* ---------- ROOT ---------- */
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-/* ---------- HEALTHCHECK ---------- */
-app.get('/health', (req, res) => {
-  res.json({ ok: true, uptime: process.uptime() });
-});
-
 /* ---------- STATE ---------- */
-const pairings = new Map();
-const devices  = new Map();
-const panels   = new Set();
+const pairings = new Map();   // code    -> { createdAt, deviceId, used }
+const devices  = new Map();   // deviceId-> { ws, meta }
+const panels   = new Set();   // panel WS clients
 
 /* ---------- HELPER ---------- */
 function genCode(len = 6){
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  const buf = crypto.randomBytes(len);
   let s = '';
+  const buf = crypto.randomBytes(len);
   for (let i = 0; i < len; i++) s += chars[buf[i] % chars.length];
   return s;
 }
+
 function genDeviceId(){
   return 'DEV-' + crypto.randomBytes(3).toString('hex').toUpperCase();
 }
+
 function broadcastToPanels(obj){
   const data = JSON.stringify(obj);
   for (const ws of panels){
@@ -56,12 +47,13 @@ function broadcastToPanels(obj){
 /* ============================================================
    REST API
 ============================================================ */
+
 app.post('/api/pair/generate', (req, res) => {
   let code;
   do { code = genCode(6); } while (pairings.has(code));
   pairings.set(code, { createdAt: Date.now(), deviceId: null, used: false });
   setTimeout(() => pairings.delete(code), 10 * 60 * 1000);
-  console.log('[PAIR] New code:', code);
+  console.log('[PAIR] new code:', code);
   res.json({ ok: true, code });
 });
 
@@ -88,7 +80,7 @@ app.post('/api/command', (req, res) => {
     return res.json({ ok: false, reason: 'DEVICE_OFFLINE' });
   }
   d.ws.send(JSON.stringify({ type: 'command', feature, data, ts: Date.now() }));
-  console.log('[CMD]', device, feature, JSON.stringify(data));
+  console.log('[CMD]', device, feature);
   res.json({ ok: true });
 });
 
@@ -106,7 +98,7 @@ wss.on('connection', (ws) => {
     let msg;
     try { msg = JSON.parse(raw.toString()); } catch { return; }
 
-    /* ---------- PANEL ---------- */
+    /* ----- PANEL ----- */
     if (msg.type === 'panel_hello'){
       ws.role = 'panel';
       panels.add(ws);
@@ -115,11 +107,11 @@ wss.on('connection', (ws) => {
         list.push({ id, name: d.meta.name, os: d.meta.os });
       }
       ws.send(JSON.stringify({ type: 'device_list', devices: list }));
-      console.log('[PANEL] Connected');
+      console.log('[PANEL] connected');
       return;
     }
 
-    /* ---------- AGENT PAIRING ---------- */
+    /* ----- AGENT PAIRING ----- */
     if (msg.type === 'agent_pair'){
       const code = (msg.code || '').toUpperCase();
       const entry = pairings.get(code);
@@ -142,9 +134,10 @@ wss.on('connection', (ws) => {
 
       entry.used = true;
       entry.deviceId = deviceId;
+
       ws.role = 'agent';
       ws.deviceId = deviceId;
-      devices.set(deviceId, { ws, meta, features: {} });
+      devices.set(deviceId, { ws, meta });
 
       ws.send(JSON.stringify({
         type: 'pair_result',
@@ -158,17 +151,13 @@ wss.on('connection', (ws) => {
         device: { id: deviceId, name: meta.name, os: meta.os }
       });
 
-      console.log('[AGENT] Paired:', deviceId, meta.name);
+      console.log('[AGENT] paired:', deviceId, meta.name);
       return;
     }
 
-    /* ---------- AGENT EVENT ---------- */
+    /* ----- AGENT EVENTS ----- */
     if (ws.role === 'agent' && ws.deviceId){
-      broadcastToPanels({
-        type: 'agent_event',
-        deviceId: ws.deviceId,
-        payload: msg
-      });
+      broadcastToPanels({ type: 'agent_event', deviceId: ws.deviceId, payload: msg });
       return;
     }
   });
@@ -178,11 +167,12 @@ wss.on('connection', (ws) => {
     if (ws.role === 'agent' && ws.deviceId){
       devices.delete(ws.deviceId);
       broadcastToPanels({ type: 'device_offline', deviceId: ws.deviceId });
-      console.log('[AGENT] Disconnected:', ws.deviceId);
+      console.log('[AGENT] disconnected:', ws.deviceId);
     }
   });
 });
 
+/* ----- HEARTBEAT ----- */
 setInterval(() => {
   wss.clients.forEach((ws) => {
     if (ws.isAlive === false) return ws.terminate();
@@ -191,13 +181,7 @@ setInterval(() => {
   });
 }, 30000);
 
-/* ---------- START ---------- */
-server.listen(PORT, HOST, () => {
-  console.log(`\n========================================`);
-  console.log(`  LYX SERVER RUNNING`);
-  console.log(`  Port: ${PORT}`);
-  console.log(`  Domain: https://lyx-server-production-16ea.up.railway.app`);
-  console.log(`  Panel : /index.html`);
-  console.log(`  Agent : /agent.html`);
-  console.log(`========================================\n`);
+/* ----- START ----- */
+server.listen(PORT, () => {
+  console.log(`LYX SERVER listening on ${PORT}`);
 });
