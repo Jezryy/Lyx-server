@@ -721,9 +721,9 @@ Aktifkan Fitur
 /* ============================================================
    CONFIG
    ============================================================ */
-const SERVER_HOST = 'lyx-server-production-5453.up.railway.app';
-const WS_PANEL_URL = 'wss://' + SERVER_HOST + '/panel';
-const API_URL = 'https://' + SERVER_HOST + '/api';
+const SERVER_HOST = window.location.host;
+const WS_PANEL_URL = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + SERVER_HOST + '/panel';
+const API_URL = window.location.protocol + '//' + SERVER_HOST + '/api';
 
 /* ============================================================
    STATE
